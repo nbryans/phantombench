@@ -1,0 +1,11 @@
+--- a/langfuse/_client/observe.py
++++ b/langfuse/_client/observe.py
+@@ -734,7 +734,7 @@
+             return
+ 
+         try:
+-            await self._close_generator()
++            self._close_generator()
+         except (Exception, asyncio.CancelledError) as error:
+             self._finalize_with_error(error)
+             raise

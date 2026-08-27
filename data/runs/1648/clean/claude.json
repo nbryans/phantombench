@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:11:01.275973+00:00",
+  "latency_seconds": 19.419,
+  "prompt_tokens": 2198,
+  "completion_tokens": 1015,
+  "total_tokens": 3213,
+  "raw_response": {
+    "id": "gen-1787260241-UcNexkguSKNRWVgg0u1l",
+    "object": "chat.completion",
+    "created": 1787260241,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 645,\n    \"failure_mode\": \"The variable `usage` is conditionally assigned only when `chunk_usage is not None`, but if `usage` is not already initialized before the loop over chunks begins, this will raise an `UnboundLocalError` on the first chunk that has no usage data.\",\n    \"impact\": \"Streaming OpenAI responses will crash with UnboundLocalError when processing chunks without usage data if `usage` was not initialized before the loop. This breaks all streaming API calls that don't provide usage in the first chunk.\",\n    \"suggested_fix\": \"Initialize `usage = None` before the loop that iterates over chunks, or change line 645 to `usage = chunk_usage` (removing the conditional to always assign, even if None).\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 656,\n    \"failure_mode\": \"The variable `finish_reason` is conditionally assigned only when `choice_finish_reason is not None`, but if `finish_reason` is not already initialized before the loop over chunks/choices begins, this will raise an `UnboundLocalError`.\",\n    \"impact\": \"Streaming chat completions will crash with UnboundLocalError when processing choices without a finish_reason if `finish_reason` was not initialized before the loop. This breaks streaming calls where finish_reason appears in later chunks.\",\n    \"suggested_fix\": \"Initialize `finish_reason = None` before the loop that iterates over chunks, or change line 656 to `finish_reason = choice_finish_reason` (removing the conditional to always assign, even if None).\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "Let me carefully review this diff for production-impacting issues.\n\nLooking at the changes in `langfuse/openai.py`:\n\n1. Lines 643-645: Changed from immediately assigning `usage = chunk.get(\"usage\", None)` to conditionally assigning only if `chunk_usage is not None`. This means `usage` is only updated when there's actual usage data in a chunk.\n\n2. Lines 654-656: Similar change for `finish_reason` - only updates if `choice_finish_reason is not None`.\n\n3. Line 657: Added a check `and delta is not None` before converting delta to dict.\n\n4. Lines 660-661: Added code to set `delta = {}` if `delta is None`.\n\nLet me think about potential issues:\n\n**Issue 1**: The `usage` and `finish_reason` variables are being read but may not be initialized before the loop. Looking at the code, these variables need to exist before the loop starts. If they're not initialized before this code block, we'll get an `UnboundLocalError` when trying to preserve their values across chunks.\n\nThis is a **blocking** issue. The new code pattern `if chunk_usage is not None: usage = chunk_usage` means that `usage` must already exist in scope. If this is the first iteration and `usage` wasn't initialized before the loop, this will fail.\n\n**Issue 2**: The change at line 657 `if _is_openai_v1() and delta is not None:` combined with lines 660-661 `if delta is None: delta = {}` creates a situation where if `_is_openai_v1()` is True and delta is not None, delta gets converted to dict. But if delta is None, it gets set to an empty dict BEFORE checking if it's a dict object. This seems okay actually.\n\nWait, let me re-read: If `_is_openai_v1()` is True and `delta is not None`, then `delta = delta.__dict__`. \n\nThen if `delta is None` (which it won't be after the previous block), set it to `{}`. So the order is fine - this protects against delta being None in the subsequent code.\n\nThe critical concern is whether `usage` and `finish_reason` are properly initialized before entering this loop. With the conditional assignment pattern, these variables must exist beforehand, otherwise the first iteration will fail when trying to conditionally update them. This is the main blocking issue I need to verify.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me carefully review this diff for production-impacting issues.\n\nLooking at the changes in `langfuse/openai.py`:\n\n1. Lines 643-645: Changed from immediately assigning `usage = chunk.get(\"usage\", None)` to conditionally assigning only if `chunk_usage is not None`. This means `usage` is only updated when there's actual usage data in a chunk.\n\n2. Lines 654-656: Similar change for `finish_reason` - only updates if `choice_finish_reason is not None`.\n\n3. Line 657: Added a check `and delta is not None` before converting delta to dict.\n\n4. Lines 660-661: Added code to set `delta = {}` if `delta is None`.\n\nLet me think about potential issues:\n\n**Issue 1**: The `usage` and `finish_reason` variables are being read but may not be initialized before the loop. Looking at the code, these variables need to exist before the loop starts. If they're not initialized before this code block, we'll get an `UnboundLocalError` when trying to preserve their values across chunks.\n\nThis is a **blocking** issue. The new code pattern `if chunk_usage is not None: usage = chunk_usage` means that `usage` must already exist in scope. If this is the first iteration and `usage` wasn't initialized before the loop, this will fail.\n\n**Issue 2**: The change at line 657 `if _is_openai_v1() and delta is not None:` combined with lines 660-661 `if delta is None: delta = {}` creates a situation where if `_is_openai_v1()` is True and delta is not None, delta gets converted to dict. But if delta is None, it gets set to an empty dict BEFORE checking if it's a dict object. This seems okay actually.\n\nWait, let me re-read: If `_is_openai_v1()` is True and `delta is not None`, then `delta = delta.__dict__`. \n\nThen if `delta is None` (which it won't be after the previous block), set it to `{}`. So the order is fine - this protects against delta being None in the subsequent code.\n\nThe critical concern is whether `usage` and `finish_reason` are properly initialized before entering this loop. With the conditional assignment pattern, these variables must exist beforehand, otherwise the first iteration will fail when trying to conditionally update them. This is the main blocking issue I need to verify.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2198,
+      "completion_tokens": 1015,
+      "total_tokens": 3213,
+      "cost": 0.021819,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.021819,
+        "upstream_inference_prompt_cost": 0.006594,
+        "upstream_inference_completions_cost": 0.015225
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 588,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 645,\n    \"failure_mode\": \"The variable `usage` is conditionally assigned only when `chunk_usage is not None`, but if `usage` is not already initialized before the loop over chunks begins, this will raise an `UnboundLocalError` on the first chunk that has no usage data.\",\n    \"impact\": \"Streaming OpenAI responses will crash with UnboundLocalError when processing chunks without usage data if `usage` was not initialized before the loop. This breaks all streaming API calls that don't provide usage in the first chunk.\",\n    \"suggested_fix\": \"Initialize `usage = None` before the loop that iterates over chunks, or change line 645 to `usage = chunk_usage` (removing the conditional to always assign, even if None).\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 656,\n    \"failure_mode\": \"The variable `finish_reason` is conditionally assigned only when `choice_finish_reason is not None`, but if `finish_reason` is not already initialized before the loop over chunks/choices begins, this will raise an `UnboundLocalError`.\",\n    \"impact\": \"Streaming chat completions will crash with UnboundLocalError when processing choices without a finish_reason if `finish_reason` was not initialized before the loop. This breaks streaming calls where finish_reason appears in later chunks.\",\n    \"suggested_fix\": \"Initialize `finish_reason = None` before the loop that iterates over chunks, or change line 656 to `finish_reason = choice_finish_reason` (removing the conditional to always assign, even if None).\"\n  }\n]\n```"
+}

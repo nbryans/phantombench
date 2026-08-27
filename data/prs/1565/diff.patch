@@ -1,0 +1,116 @@
+diff --git a/langfuse/openai.py b/langfuse/openai.py
+index dbff11d37..16d293e73 100644
+--- a/langfuse/openai.py
++++ b/langfuse/openai.py
+@@ -246,6 +246,34 @@ def wrapper(wrapped: Any, instance: Any, args: Any, kwargs: Any) -> Any:
+     return _with_langfuse
+ 
+ 
++def _extract_responses_prompt(kwargs: Any) -> Any:
++    input_value = kwargs.get("input", None)
++    instructions = kwargs.get("instructions", None)
++
++    if isinstance(input_value, NotGiven):
++        input_value = None
++
++    if isinstance(instructions, NotGiven):
++        instructions = None
++
++    if instructions is None:
++        return input_value
++
++    if input_value is None:
++        return {"instructions": instructions}
++
++    if isinstance(input_value, str):
++        return [
++            {"role": "system", "content": instructions},
++            {"role": "user", "content": input_value},
++        ]
++
++    if isinstance(input_value, list):
++        return [{"role": "system", "content": instructions}, *input_value]
++
++    return {"instructions": instructions, "input": input_value}
++
++
+ def _extract_chat_prompt(kwargs: Any) -> Any:
+     """Extracts the user input from prompts. Returns an array of messages or dict with messages and functions"""
+     prompt = {}
+@@ -403,7 +431,7 @@ def _get_langfuse_data_from_kwargs(resource: OpenAiDefinition, kwargs: Any) -> A
+     if resource.type == "completion":
+         prompt = kwargs.get("prompt", None)
+     elif resource.object == "Responses" or resource.object == "AsyncResponses":
+-        prompt = kwargs.get("input", None)
++        prompt = _extract_responses_prompt(kwargs)
+     elif resource.type == "chat":
+         prompt = _extract_chat_prompt(kwargs)
+     elif resource.type == "embedding":
+diff --git a/tests/test_openai.py b/tests/test_openai.py
+index 8706bae13..47f17a5c8 100644
+--- a/tests/test_openai.py
++++ b/tests/test_openai.py
+@@ -1407,7 +1407,10 @@ def test_response_api_streaming(openai):
+     assert len(generation.data) != 0
+     generationData = generation.data[0]
+     assert generationData.name == generation_name
+-    assert generation.data[0].input == "Hello!"
++    assert generation.data[0].input == [
++        {"role": "system", "content": "You are a helpful assistant."},
++        {"role": "user", "content": "Hello!"},
++    ]
+     assert generationData.type == "GENERATION"
+     assert "gpt-4o" in generationData.model
+     assert generationData.start_time is not None
+diff --git a/tests/test_openai_prompt_extraction.py b/tests/test_openai_prompt_extraction.py
+new file mode 100644
+index 000000000..9d1ab02cc
+--- /dev/null
++++ b/tests/test_openai_prompt_extraction.py
+@@ -0,0 +1,46 @@
++import pytest
++
++try:
++    # Compatibility across OpenAI SDK versions where NOT_GIVEN export moved.
++    from openai import NOT_GIVEN
++except ImportError:
++    from openai._types import NOT_GIVEN
++
++from langfuse.openai import _extract_responses_prompt
++
++
++@pytest.mark.parametrize(
++    "kwargs, expected",
++    [
++        ({"input": "Hello!"}, "Hello!"),
++        (
++            {"instructions": "You are helpful.", "input": "Hello!"},
++            [
++                {"role": "system", "content": "You are helpful."},
++                {"role": "user", "content": "Hello!"},
++            ],
++        ),
++        (
++            {
++                "instructions": "You are helpful.",
++                "input": [{"role": "user", "content": "Hello!"}],
++            },
++            [
++                {"role": "system", "content": "You are helpful."},
++                {"role": "user", "content": "Hello!"},
++            ],
++        ),
++        (
++            {"instructions": "You are helpful."},
++            {"instructions": "You are helpful."},
++        ),
++        (
++            {"instructions": "You are helpful.", "input": NOT_GIVEN},
++            {"instructions": "You are helpful."},
++        ),
++        ({"instructions": NOT_GIVEN, "input": "Hello!"}, "Hello!"),
++        ({"instructions": NOT_GIVEN, "input": NOT_GIVEN}, None),
++    ],
++)
++def test_extract_responses_prompt(kwargs, expected):
++    assert _extract_responses_prompt(kwargs) == expected

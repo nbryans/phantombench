@@ -1,0 +1,105 @@
+diff --git a/langfuse/batch_evaluation.py b/langfuse/batch_evaluation.py
+index 35e1ea938..4a360773a 100644
+--- a/langfuse/batch_evaluation.py
++++ b/langfuse/batch_evaluation.py
+@@ -20,6 +20,7 @@
+     Protocol,
+     Tuple,
+     Union,
++    cast,
+ )
+ 
+ from langfuse.api.resources.commons.types import (
+@@ -1220,6 +1221,9 @@ async def _process_batch_evaluation_item(
+             self._create_score_for_scope(
+                 scope=scope,
+                 item_id=item_id,
++                trace_id=cast(ObservationsView, item).trace_id
++                if scope == "observations"
++                else None,
+                 evaluation=evaluation,
+                 additional_metadata=metadata,
+             )
+@@ -1242,6 +1246,9 @@ async def _process_batch_evaluation_item(
+                     self._create_score_for_scope(
+                         scope=scope,
+                         item_id=item_id,
++                        trace_id=cast(ObservationsView, item).trace_id
++                        if scope == "observations"
++                        else None,
+                         evaluation=composite_eval,
+                         additional_metadata=metadata,
+                     )
+@@ -1361,8 +1368,10 @@ async def _run_composite_evaluator(
+ 
+     def _create_score_for_scope(
+         self,
++        *,
+         scope: str,
+         item_id: str,
++        trace_id: Optional[str] = None,
+         evaluation: Evaluation,
+         additional_metadata: Optional[Dict[str, Any]],
+     ) -> None:
+@@ -1371,6 +1380,7 @@ def _create_score_for_scope(
+         Args:
+             scope: The type of entity ("traces", "observations").
+             item_id: The ID of the entity.
++            trace_id: The trace ID of the entity; required if scope=observations
+             evaluation: The evaluation result to create a score from.
+             additional_metadata: Additional metadata to merge with evaluation metadata.
+         """
+@@ -1393,6 +1403,7 @@ def _create_score_for_scope(
+         elif scope == "observations":
+             self.client.create_score(
+                 observation_id=item_id,
++                trace_id=trace_id,
+                 name=evaluation.name,
+                 value=evaluation.value,  # type: ignore
+                 comment=evaluation.comment,
+diff --git a/tests/test_batch_evaluation.py b/tests/test_batch_evaluation.py
+index 9bf18348d..448172a55 100644
+--- a/tests/test_batch_evaluation.py
++++ b/tests/test_batch_evaluation.py
+@@ -25,7 +25,7 @@
+ # ============================================================================
+ 
+ 
+-pytestmark = pytest.mark.skip(reason="Github CI runner overwhelmed by score volume")
++# pytestmark = pytest.mark.skip(reason="Github CI runner overwhelmed by score volume")
+ 
+ 
+ @pytest.fixture
+@@ -67,6 +67,32 @@ def simple_evaluator(*, input, output, expected_output=None, metadata=None, **kw
+ # ============================================================================
+ 
+ 
++def test_run_batched_evaluation_on_observations_basic(langfuse_client):
++    """Test basic batch evaluation on traces."""
++    result = langfuse_client.run_batched_evaluation(
++        scope="observations",
++        mapper=simple_trace_mapper,
++        evaluators=[simple_evaluator],
++        max_items=1,
++        verbose=True,
++    )
++
++    # Validate result structure
++    assert isinstance(result, BatchEvaluationResult)
++    assert result.total_items_fetched >= 0
++    assert result.total_items_processed >= 0
++    assert result.total_scores_created >= 0
++    assert result.completed is True
++    assert isinstance(result.duration_seconds, float)
++    assert result.duration_seconds > 0
++
++    # Verify evaluator stats
++    assert len(result.evaluator_stats) == 1
++    stats = result.evaluator_stats[0]
++    assert isinstance(stats, EvaluatorStats)
++    assert stats.name == "simple_evaluator"
++
++
+ def test_run_batched_evaluation_on_traces_basic(langfuse_client):
+     """Test basic batch evaluation on traces."""
+     result = langfuse_client.run_batched_evaluation(

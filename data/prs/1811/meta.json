@@ -1,0 +1,29 @@
+{
+  "number": 1811,
+  "title": "fix(serializer): handle NaN/Inf floats nested in pydantic models",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1811",
+  "base_sha": "73b5c028d2757d8960b3a468bd80c9ef99b52e74",
+  "head_sha": "1d223bdfba100baaace4c50a6426b340e72ffcca",
+  "merged_at": "2026-08-17T08:25:26Z",
+  "additions": 38,
+  "deletions": 1,
+  "changed_lines": 39,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_utils/serializer.py",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_serializer.py",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T20:23:55.962154+00:00"
+}

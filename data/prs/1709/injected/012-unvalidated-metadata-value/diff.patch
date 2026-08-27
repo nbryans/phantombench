@@ -1,0 +1,109 @@
+diff --git a/langfuse/_client/propagation.py b/langfuse/_client/propagation.py
+--- a/langfuse/_client/propagation.py
++++ b/langfuse/_client/propagation.py
+@@ -95,7 +95,7 @@
+     *,
+     user_id: Optional[str] = None,
+     session_id: Optional[str] = None,
+-    metadata: Optional[Dict[str, str]] = None,
++    metadata: Optional[Dict[str, Any]] = None,
+     version: Optional[str] = None,
+     tags: Optional[List[str]] = None,
+     trace_name: Optional[str] = None,
+@@ -125,10 +125,11 @@
+             Must be US-ASCII string, ≤200 characters. Use this to group related traces
+             within a user session (e.g., a conversation thread, multi-turn interaction).
+         metadata: Additional key-value metadata to propagate to all spans.
+-            - Keys and values must be US-ASCII strings
+-            - All values must be ≤200 characters
++            - Keys must be US-ASCII strings
++            - Values are coerced to strings
++            - Coerced values must be ≤200 characters
+             - Use for dimensions like internal correlating identifiers
+-            - AVOID: large payloads, sensitive data, non-string values (will be dropped with warning)
++            - AVOID: large payloads or sensitive data
+         version: Version identfier for parts of your application that are independently versioned, e.g. agents
+         tags: List of tags to categorize the group of observations
+         trace_name: Name to assign to the trace. Must be US-ASCII string, ≤200 characters.
+@@ -204,9 +205,10 @@
+         ```
+ 
+     Note:
+-        - **Validation**: All attribute values (user_id, session_id, metadata values)
+-          must be strings ≤200 characters. Invalid values will be dropped with a
+-          warning logged. Ensure values meet constraints before calling.
++        - **Validation**: Attribute values (user_id, session_id, version, tags,
++          trace_name) must be strings ≤200 characters. Metadata values are
++          coerced to strings before the 200 character limit is applied. Invalid
++          values will be dropped with a warning logged.
+         - **OpenTelemetry**: This uses OpenTelemetry context propagation under the hood,
+           making it compatible with other OTel-instrumented libraries.
+ 
+@@ -229,7 +231,7 @@
+     *,
+     user_id: Optional[str] = None,
+     session_id: Optional[str] = None,
+-    metadata: Optional[Dict[str, str]] = None,
++    metadata: Optional[Dict[str, Any]] = None,
+     version: Optional[str] = None,
+     tags: Optional[List[str]] = None,
+     trace_name: Optional[str] = None,
+@@ -247,7 +249,7 @@
+         "trace_name": trace_name,
+     }
+ 
+-    propagated_metadata_attributes: Dict[str, Optional[Dict[str, str]]] = {
++    propagated_metadata_attributes: Dict[str, Optional[Dict[str, Any]]] = {
+         "metadata": metadata,
+     }
+ 
+@@ -286,7 +288,9 @@
+         validated_metadata: Dict[str, str] = {}
+ 
+         for key, value in metadata_value.items():
+-            if _validate_string_value(value=value, key=f"{metadata_key}.{key}"):
++            coerced_value = value if isinstance(value, str) else str(value)
++
++            if _validate_string_value(value=coerced_value, key=f"{metadata_key}.{key}"):
+                 validated_metadata[key] = value
+ 
+         if validated_metadata:
+diff --git a/tests/unit/test_propagate_attributes.py b/tests/unit/test_propagate_attributes.py
+--- a/tests/unit/test_propagate_attributes.py
++++ b/tests/unit/test_propagate_attributes.py
+@@ -460,6 +460,35 @@
+         self.verify_missing_attribute(
+             child_span, LangfuseOtelSpanAttributes.TRACE_USER_ID
+         )
++
++    def test_non_string_metadata_values_coerced(
++        self, langfuse_client, memory_exporter, caplog
++    ):
++        """Verify non-string metadata values are coerced instead of dropped."""
++
++        caplog.set_level("WARNING", logger="langfuse")
++        metadata = {
++            "langgraph_step": 1,
++            "langgraph_triggers": ["branch:agent"],
++            "langgraph_path": ("root", "agent"),
++            "max_search_results": 5,
++        }
++
++        with langfuse_client.start_as_current_observation(name="parent-span"):
++            with propagate_attributes(metadata=metadata):
++                child = langfuse_client.start_observation(name="child-span")
++                child.end()
++
++        child_span = self.get_span_by_name(memory_exporter, "child-span")
++
++        for key, value in metadata.items():
++            self.verify_span_attribute(
++                child_span,
++                f"{LangfuseOtelSpanAttributes.TRACE_METADATA}.{key}",
++                str(value),
++            )
++
++        assert "value is not a string. Dropping value." not in caplog.text
+ 
+     def test_mixed_valid_invalid_metadata(self, langfuse_client, memory_exporter):
+         """Verify mixed valid/invalid metadata - valid entries kept, invalid dropped."""

@@ -1,0 +1,36 @@
+{
+  "number": 1530,
+  "title": "feat(batch-evaluation): add trace tags and roll up scores to trace",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1530",
+  "base_sha": "02418030ede06433ac2fbd31515ae126e09e110f",
+  "head_sha": "8afdc2e34b8401821ac50651adf19c54f7b7c475",
+  "merged_at": "2026-02-23T10:40:31Z",
+  "additions": 139,
+  "deletions": 8,
+  "changed_lines": 147,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 40,
+      "deletions": 2,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/resource_manager.py",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/batch_evaluation.py",
+      "status": "modified",
+      "additions": 76,
+      "deletions": 6,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:28.813894+00:00"
+}

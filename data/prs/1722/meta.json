@@ -1,0 +1,29 @@
+{
+  "number": 1722,
+  "title": "fix(langchain): avoid duplicating structured tool inputs in metadata",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1722",
+  "base_sha": "90133cd089ec9ab7c6caf737adf31ecb1b66575c",
+  "head_sha": "64add123e070b3ededeae3021a07f87d41c38793",
+  "merged_at": "2026-06-23T11:46:57Z",
+  "additions": 36,
+  "deletions": 4,
+  "changed_lines": 40,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/langchain/CallbackHandler.py",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 4,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_langchain.py",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:05.843104+00:00"
+}

@@ -1,0 +1,43 @@
+{
+  "number": 1761,
+  "title": "fix(tracing): exclude LiteLLM raw spans from app roots",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1761",
+  "base_sha": "a526bf24be9710700ed474cca52210bd5aea1785",
+  "head_sha": "7973a2132735fa1fc8b9e2ba3bcb10a0efdd8cb5",
+  "merged_at": "2026-07-16T09:31:23Z",
+  "additions": 105,
+  "deletions": 1,
+  "changed_lines": 106,
+  "changed_files_count": 4,
+  "files": [
+    {
+      "path": "langfuse/_client/span_filter.py",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/span_processor.py",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/live_provider/test_langchain.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_app_root_detection.py",
+      "status": "modified",
+      "additions": 80,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:52.330178+00:00"
+}

@@ -1,0 +1,29 @@
+{
+  "number": 1709,
+  "title": "fix(propagation): coerce propagated metadata values",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1709",
+  "base_sha": "5c9efae400e6288f840c625d196b235a8fecbf52",
+  "head_sha": "f7a242963929c30ddc5137e689c45cab3b770fe2",
+  "merged_at": "2026-06-15T11:22:17Z",
+  "additions": 44,
+  "deletions": 11,
+  "changed_lines": 55,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_client/propagation.py",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 11,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_propagate_attributes.py",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:18.411902+00:00"
+}

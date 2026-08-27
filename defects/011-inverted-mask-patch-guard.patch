@@ -1,0 +1,11 @@
+--- a/langfuse/_client/span_exporter.py
++++ b/langfuse/_client/span_exporter.py
+@@ -348,7 +348,7 @@
+             identifier = _create_otel_span_identifier(span)
+             patch = span_patches.get(identifier)
+ 
+-            if patch is None:
++            if patch is not None:
+                 masked_span_attributes.append((span, attributes))
+                 continue
+ 

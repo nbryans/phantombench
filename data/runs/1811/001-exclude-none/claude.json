@@ -1,0 +1,57 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-19T21:56:55.437181+00:00",
+  "latency_seconds": 10.884,
+  "prompt_tokens": 1146,
+  "completion_tokens": 437,
+  "total_tokens": 1583,
+  "raw_response": {
+    "id": "gen-1787176604-MV451aE0kQH8CxlRA15k",
+    "object": "chat.completion",
+    "created": 1787176604,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"Recursive call to `self.default()` on an already-dumped dictionary will cause infinite recursion. The `default()` method is only called by the JSON encoder for objects it cannot serialize; passing a dict (which is JSON-serializable) back to `default()` will not trigger the special float handling, and if the dict contains a BaseModel, it will call `model_dump()` again, leading to a stack overflow.\",\n    \"impact\": \"Any Pydantic model containing nested Pydantic models will cause the serializer to crash with a RecursionError, breaking all telemetry/logging that uses this serializer.\",\n    \"suggested_fix\": \"Instead of recursing through `default()`, manually walk the dumped dict/list structure and replace non-finite floats in-place, or use a custom `default` function in `json.dumps()` that handles both BaseModel and float types without recursion.\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"The `exclude_none=True` parameter is added to `model_dump()` but was not present before, silently changing serialization behavior by dropping all None-valued fields from the output.\",\n    \"impact\": \"Existing code that expects None fields to be serialized (e.g., to explicitly signal null values to the API) will break. This is a semantic change that could cause data loss or API contract violations.\",\n    \"suggested_fix\": \"Remove `exclude_none=True` to preserve the original behavior, or make it configurable if the change is intentional and coordinate with API consumers.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": null
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1146,
+      "completion_tokens": 437,
+      "total_tokens": 1583,
+      "cost": 0.009993,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.009993,
+        "upstream_inference_prompt_cost": 0.003438,
+        "upstream_inference_completions_cost": 0.006555
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"Recursive call to `self.default()` on an already-dumped dictionary will cause infinite recursion. The `default()` method is only called by the JSON encoder for objects it cannot serialize; passing a dict (which is JSON-serializable) back to `default()` will not trigger the special float handling, and if the dict contains a BaseModel, it will call `model_dump()` again, leading to a stack overflow.\",\n    \"impact\": \"Any Pydantic model containing nested Pydantic models will cause the serializer to crash with a RecursionError, breaking all telemetry/logging that uses this serializer.\",\n    \"suggested_fix\": \"Instead of recursing through `default()`, manually walk the dumped dict/list structure and replace non-finite floats in-place, or use a custom `default` function in `json.dumps()` that handles both BaseModel and float types without recursion.\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"The `exclude_none=True` parameter is added to `model_dump()` but was not present before, silently changing serialization behavior by dropping all None-valued fields from the output.\",\n    \"impact\": \"Existing code that expects None fields to be serialized (e.g., to explicitly signal null values to the API) will break. This is a semantic change that could cause data loss or API contract violations.\",\n    \"suggested_fix\": \"Remove `exclude_none=True` to preserve the original behavior, or make it configurable if the change is intentional and coordinate with API consumers.\"\n  }\n]\n```"
+}

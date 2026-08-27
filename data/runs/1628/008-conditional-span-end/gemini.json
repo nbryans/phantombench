@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:59:24.125698+00:00",
+  "latency_seconds": 13.802,
+  "prompt_tokens": 4036,
+  "completion_tokens": 1451,
+  "total_tokens": 5487,
+  "raw_response": {
+    "id": "gen-1787259550-3FAtrNBeP66EQJs3qqCc",
+    "object": "chat.completion",
+    "created": 1787259550,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 681,\n    \"failure_mode\": \"When a generator is exhausted, `self.span.end()` is only called if `self.capture_output` is true. If output capture is disabled, the span is never ended.\",\n    \"impact\": \"Spans for observations on generators with `capture_output=False` will never be finished or exported. This leads to incomplete traces and a memory leak in the application, as the unfinished spans accumulate in the OpenTelemetry processor's memory.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to ensure it is always called when the generator is exhausted.\\n\\n```python\\n        except StopAsyncIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopAsyncIteration\\n```\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 599,\n    \"failure_mode\": \"When a synchronous generator is exhausted, `self.span.end()` is only called if `self.capture_output` is true. If output capture is disabled, the span is never ended.\",\n    \"impact\": \"Spans for observations on synchronous generators with `capture_output=False` will never be finished or exported. This results in incomplete traces and a memory leak in the application, as unfinished spans accumulate in memory.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to ensure it is always called when the generator is exhausted.\\n\\n```python\\n        except StopIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopIteration\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Correctness**\n\nI'm currently focused on a Python diff for tracing/observability. My primary objective is to identify any production-level correctness bugs within the `observe.py` file and its associated unit tests.\n\n**Refining Result Handling**\n\nI'm currently focused on the Python diff for `langfuse/_client/observe.py`. My primary objective is to identify any production-level correctness bugs, particularly in the refactored `_handle_observe_result` method and its interaction with generators, async generators, and `StreamingResponse`.\n\n**Reviewing Code Refactoring**\n\nI'm currently focused on a Python diff in `langfuse/_client/observe.py`. My primary goal is to identify any production-level correctness bugs within the refactored result handling logic, especially concerning generators, async generators, and `StreamingResponse`.\n\n**Analyzing Code Behavior**\n\nI am examining the Python diff for `langfuse/_client/observe.py`, specifically focusing on the refactoring of result handling for generators, async generators, and `StreamingResponse`. My goal is to identify any production-level correctness bugs or silent semantic changes, especially concerning the new `capture_output` parameter.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Correctness**\n\nI'm currently focused on a Python diff for tracing/observability. My primary objective is to identify any production-level correctness bugs within the `observe.py` file and its associated unit tests.\n\n**Refining Result Handling**\n\nI'm currently focused on the Python diff for `langfuse/_client/observe.py`. My primary objective is to identify any production-level correctness bugs, particularly in the refactored `_handle_observe_result` method and its interaction with generators, async generators, and `StreamingResponse`.\n\n**Reviewing Code Refactoring**\n\nI'm currently focused on a Python diff in `langfuse/_client/observe.py`. My primary goal is to identify any production-level correctness bugs within the refactored result handling logic, especially concerning generators, async generators, and `StreamingResponse`.\n\n**Analyzing Code Behavior**\n\nI am examining the Python diff for `langfuse/_client/observe.py`, specifically focusing on the refactoring of result handling for generators, async generators, and `StreamingResponse`. My goal is to identify any production-level correctness bugs or silent semantic changes, especially concerning the new `capture_output` parameter.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4036,
+      "completion_tokens": 1451,
+      "total_tokens": 5487,
+      "cost": 0.019555,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.019555,
+        "upstream_inference_prompt_cost": 0.005045,
+        "upstream_inference_completions_cost": 0.01451
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 796,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 681,\n    \"failure_mode\": \"When a generator is exhausted, `self.span.end()` is only called if `self.capture_output` is true. If output capture is disabled, the span is never ended.\",\n    \"impact\": \"Spans for observations on generators with `capture_output=False` will never be finished or exported. This leads to incomplete traces and a memory leak in the application, as the unfinished spans accumulate in the OpenTelemetry processor's memory.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to ensure it is always called when the generator is exhausted.\\n\\n```python\\n        except StopAsyncIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopAsyncIteration\\n```\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 599,\n    \"failure_mode\": \"When a synchronous generator is exhausted, `self.span.end()` is only called if `self.capture_output` is true. If output capture is disabled, the span is never ended.\",\n    \"impact\": \"Spans for observations on synchronous generators with `capture_output=False` will never be finished or exported. This results in incomplete traces and a memory leak in the application, as unfinished spans accumulate in memory.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to ensure it is always called when the generator is exhausted.\\n\\n```python\\n        except StopIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopIteration\\n```\"\n  }\n]\n```"
+}

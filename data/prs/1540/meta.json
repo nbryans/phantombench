@@ -1,0 +1,29 @@
+{
+  "number": 1540,
+  "title": "fix(media): retry failed uploads",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1540",
+  "base_sha": "11d7ab6c3715506ed601ed3dd0d2f4a4c93deca4",
+  "head_sha": "bc20c1a3ac539579777466cf3297b1c5e52b6e80",
+  "merged_at": "2026-02-25T13:47:32Z",
+  "additions": 109,
+  "deletions": 6,
+  "changed_lines": 115,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_task_manager/media_manager.py",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 6,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_media_manager.py",
+      "status": "added",
+      "additions": 80,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:22.242802+00:00"
+}

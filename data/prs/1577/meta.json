@@ -1,0 +1,29 @@
+{
+  "number": 1577,
+  "title": "fix: add depth limit to EventSerializer to prevent hangs on complex objects",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1577",
+  "base_sha": "2263507f1d7af9d8c683f892e37c9d63a638e9b4",
+  "head_sha": "71f87c050a664ce3191caef0eb28d951b84832fd",
+  "merged_at": "2026-05-24T11:58:40Z",
+  "additions": 158,
+  "deletions": 19,
+  "changed_lines": 177,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_utils/serializer.py",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 19,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_serializer.py",
+      "status": "modified",
+      "additions": 124,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:22.980601+00:00"
+}

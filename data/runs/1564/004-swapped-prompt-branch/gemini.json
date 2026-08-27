@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:55:16.261730+00:00",
+  "latency_seconds": 11.984,
+  "prompt_tokens": 1927,
+  "completion_tokens": 1255,
+  "total_tokens": 3182,
+  "raw_response": {
+    "id": "gen-1787259304-BfcTYax7i1s3zTAiLu3Y",
+    "object": "chat.completion",
+    "created": 1787259304,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 408,\n    \"failure_mode\": \"The logic for extracting prompts for 'chat' and 'embedding' resource types has been swapped. Chat prompts are now incorrectly extracted using `kwargs.get(\\\"input\\\", None)`, while embedding prompts are incorrectly processed with `_extract_chat_prompt(kwargs)`.\",\n    \"impact\": \"For chat completion calls, the prompt will not be logged, as they use a 'messages' argument, not 'input'. For embedding calls, `_extract_chat_prompt` will likely fail or extract incorrect data, as it's designed for chat message structures, not the 'input' argument used by embeddings. This breaks prompt logging for both features.\",\n    \"suggested_fix\": \"Swap the bodies of the two `elif` blocks to restore the correct logic:\\n\\n```python\\n    elif resource.type == \\\"chat\\\":\\n        prompt = _extract_chat_prompt(kwargs)\\n    elif resource.type == \\\"embedding\\\":\\n        prompt = kwargs.get(\\\"input\\\", None)\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 543,\n    \"failure_mode\": \"The code iterates through a list of keys to find token details in `usage_dict`, but the keys `input_token_details` and `output_token_details` are misspelled as `input_tokens_details` and `output_tokens_details` (with an extra 's').\",\n    \"impact\": \"The logic to process and flatten `input_tokens_details` and `output_tokens_details` from the OpenAI Response API format will never execute. This means detailed token usage information (e.g., `cached_tokens`) for this API format will be missing from the parsed usage data, even if present in the input.\",\n    \"suggested_fix\": \"Correct the spelling of the keys in the list:\\n\\n```python\\n    for tokens_details in [\\n        \\\"prompt_tokens_details\\\",\\n        \\\"completion_tokens_details\\\",\\n        \\\"input_token_details\\\",\\n        \\\"output_token_details\\\",\\n    ]:\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nI'm currently reviewing the provided Python code diff. My focus is on identifying any production-level issues such as correctness, security vulnerabilities, or concurrency concerns, strictly avoiding style commentary. I will present my findings in a specific JSON format, listing no more than five. If no issues are found, I will indicate that.\n\n**Examining Code Logic**\n\nI'm carefully re-evaluating a specific code block where a condition for \"chat\" type was moved. My initial reading was inaccurate, and I'm now confirming the exact logic shift to ensure no functional regressions or unexpected behavior. The intent appears to be a change in prompt extraction for different resource types.\n\n**Detecting Logic Swaps**\n\nI've identified a significant logical swap between the \"chat\" and \"embedding\" prompt extraction methods. The `_extract_chat_prompt` function, intended for chat messages, is now being used for embeddings, while the simple `kwargs.get(\"input\", None)` is being applied to chat requests. This will likely cause prompt data to be missed for chat completions and potentially cause errors or incorrect data extraction for embeddings.\n\n**Identifying Logic Swap**\n\nI've pinpointed a critical logic swap: the prompt extraction for chat and embedding resources appears to have been reversed. This change means chat prompts are likely being missed and embedding requests might be processed with incorrect data.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nI'm currently reviewing the provided Python code diff. My focus is on identifying any production-level issues such as correctness, security vulnerabilities, or concurrency concerns, strictly avoiding style commentary. I will present my findings in a specific JSON format, listing no more than five. If no issues are found, I will indicate that.\n\n**Examining Code Logic**\n\nI'm carefully re-evaluating a specific code block where a condition for \"chat\" type was moved. My initial reading was inaccurate, and I'm now confirming the exact logic shift to ensure no functional regressions or unexpected behavior. The intent appears to be a change in prompt extraction for different resource types.\n\n**Detecting Logic Swaps**\n\nI've identified a significant logical swap between the \"chat\" and \"embedding\" prompt extraction methods. The `_extract_chat_prompt` function, intended for chat messages, is now being used for embeddings, while the simple `kwargs.get(\"input\", None)` is being applied to chat requests. This will likely cause prompt data to be missed for chat completions and potentially cause errors or incorrect data extraction for embeddings.\n\n**Identifying Logic Swap**\n\nI've pinpointed a critical logic swap: the prompt extraction for chat and embedding resources appears to have been reversed. This change means chat prompts are likely being missed and embedding requests might be processed with incorrect data.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1927,
+      "completion_tokens": 1255,
+      "total_tokens": 3182,
+      "cost": 0.01495875,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01495875,
+        "upstream_inference_prompt_cost": 0.00240875,
+        "upstream_inference_completions_cost": 0.01255
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 725,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 408,\n    \"failure_mode\": \"The logic for extracting prompts for 'chat' and 'embedding' resource types has been swapped. Chat prompts are now incorrectly extracted using `kwargs.get(\\\"input\\\", None)`, while embedding prompts are incorrectly processed with `_extract_chat_prompt(kwargs)`.\",\n    \"impact\": \"For chat completion calls, the prompt will not be logged, as they use a 'messages' argument, not 'input'. For embedding calls, `_extract_chat_prompt` will likely fail or extract incorrect data, as it's designed for chat message structures, not the 'input' argument used by embeddings. This breaks prompt logging for both features.\",\n    \"suggested_fix\": \"Swap the bodies of the two `elif` blocks to restore the correct logic:\\n\\n```python\\n    elif resource.type == \\\"chat\\\":\\n        prompt = _extract_chat_prompt(kwargs)\\n    elif resource.type == \\\"embedding\\\":\\n        prompt = kwargs.get(\\\"input\\\", None)\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 543,\n    \"failure_mode\": \"The code iterates through a list of keys to find token details in `usage_dict`, but the keys `input_token_details` and `output_token_details` are misspelled as `input_tokens_details` and `output_tokens_details` (with an extra 's').\",\n    \"impact\": \"The logic to process and flatten `input_tokens_details` and `output_tokens_details` from the OpenAI Response API format will never execute. This means detailed token usage information (e.g., `cached_tokens`) for this API format will be missing from the parsed usage data, even if present in the input.\",\n    \"suggested_fix\": \"Correct the spelling of the keys in the list:\\n\\n```python\\n    for tokens_details in [\\n        \\\"prompt_tokens_details\\\",\\n        \\\"completion_tokens_details\\\",\\n        \\\"input_token_details\\\",\\n        \\\"output_token_details\\\",\\n    ]:\\n```\"\n  }\n]\n```"
+}

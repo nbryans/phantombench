@@ -1,0 +1,29 @@
+{
+  "number": 1728,
+  "title": "fix(langchain): extract model name for ChatHuggingFace",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1728",
+  "base_sha": "7761e4b77f999f1b26b62b65d16345d9dfc5af0d",
+  "head_sha": "df656904be94ad20ca71d43f75521f5c58ab6e82",
+  "merged_at": "2026-06-29T09:20:33Z",
+  "additions": 45,
+  "deletions": 0,
+  "changed_lines": 45,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/langchain/utils.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_langchain_utils.py",
+      "status": "added",
+      "additions": 44,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:01.517678+00:00"
+}

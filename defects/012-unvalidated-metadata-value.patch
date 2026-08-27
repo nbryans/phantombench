@@ -1,0 +1,11 @@
+--- a/langfuse/_client/propagation.py
++++ b/langfuse/_client/propagation.py
+@@ -291,7 +291,7 @@
+             coerced_value = value if isinstance(value, str) else str(value)
+ 
+             if _validate_string_value(value=coerced_value, key=f"{metadata_key}.{key}"):
+-                validated_metadata[key] = coerced_value
++                validated_metadata[key] = value
+ 
+         if validated_metadata:
+             context = _set_propagated_attribute(

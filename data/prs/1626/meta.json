@@ -1,0 +1,29 @@
+{
+  "number": 1626,
+  "title": "fix(langchain): propagate trace name metadata",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1626",
+  "base_sha": "be74cbc938174735596e2cbb7ba420cc4bd62ae7",
+  "head_sha": "661326f76aaa77efe1ca22268714ebb58b1f92c8",
+  "merged_at": "2026-04-16T12:11:12Z",
+  "additions": 90,
+  "deletions": 0,
+  "changed_lines": 90,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/langchain/CallbackHandler.py",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_langchain.py",
+      "status": "modified",
+      "additions": 83,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:41.985903+00:00"
+}

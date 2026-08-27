@@ -1,0 +1,36 @@
+{
+  "number": 1758,
+  "title": "fix(langchain): normalize tool definitions to OpenAI function format",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1758",
+  "base_sha": "5a590f04d92c4f14df1a1fe4a6f410f92f3062c2",
+  "head_sha": "5392282d13f9c584fa53c73ab0197a435ed11113",
+  "merged_at": "2026-07-22T17:00:46Z",
+  "additions": 156,
+  "deletions": 2,
+  "changed_lines": 158,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/langchain/CallbackHandler.py",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 2,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/langchain/utils.py",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_langchain.py",
+      "status": "modified",
+      "additions": 117,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:48.007601+00:00"
+}

@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:04:50.495014+00:00",
+  "latency_seconds": 14.322,
+  "prompt_tokens": 1864,
+  "completion_tokens": 615,
+  "total_tokens": 2479,
+  "raw_response": {
+    "id": "gen-1787259876-xKIlTmcqwx0xvuUhj1yL",
+    "object": "chat.completion",
+    "created": 1787259876,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[]\n```",
+          "refusal": null,
+          "reasoning": "Let me analyze this diff carefully.\n\nThe main change is in `langfuse/openai.py` where two field names are being corrected:\n- `\"input_token_details\"` \u2192 `\"input_tokens_details\"` (added an 's')\n- `\"output_token_details\"` \u2192 `\"output_tokens_details\"` (added an 's')\n\nThe tests show that the function `_parse_usage` is supposed to handle usage data from OpenAI APIs, and the new test cases specifically test for `input_tokens_details` and `output_tokens_details` (with the 's').\n\nThis is a bug fix - the field names were incorrect before. The tests verify the corrected behavior.\n\nLet me think about potential issues:\n\n1. **Breaking change / Silent semantic change**: If there was existing code or data that relied on the old field names (`input_token_details`, `output_token_details`), this change would silently break that parsing. However, looking at the OpenAI API documentation context from the tests, it appears the correct field names are `input_tokens_details` and `output_tokens_details`, so this is actually fixing a bug.\n\n2. The test coverage looks good and validates the fix.\n\n3. No obvious security issues.\n\n4. No concurrency problems visible.\n\n5. The logic appears correct based on the tests.\n\nActually, wait - this IS a potential issue. If there are production systems currently sending data with the field names `input_token_details` or `output_token_details` (the old misspelled versions), and code was working with those field names, this change will silently stop parsing those fields. \n\nHowever, looking more carefully at this - the OpenAI Response API likely uses the correct spelling `input_tokens_details` and `output_tokens_details`, so the old code was buggy and wasn't actually parsing these fields correctly. The fix makes it work with the correct API field names.\n\nBut there's still a risk: if any callers were adapting to the bug (e.g., by sending data with the misspelled field names to match the buggy code), this would break them silently.\nThis is likely the correct fix to align with the actual OpenAI API specification. The test cases confirm the expected behavior with the corrected field names. I don't see any actual defects in the diff itself\u2014it's a straightforward correction with appropriate test coverage.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me analyze this diff carefully.\n\nThe main change is in `langfuse/openai.py` where two field names are being corrected:\n- `\"input_token_details\"` \u2192 `\"input_tokens_details\"` (added an 's')\n- `\"output_token_details\"` \u2192 `\"output_tokens_details\"` (added an 's')\n\nThe tests show that the function `_parse_usage` is supposed to handle usage data from OpenAI APIs, and the new test cases specifically test for `input_tokens_details` and `output_tokens_details` (with the 's').\n\nThis is a bug fix - the field names were incorrect before. The tests verify the corrected behavior.\n\nLet me think about potential issues:\n\n1. **Breaking change / Silent semantic change**: If there was existing code or data that relied on the old field names (`input_token_details`, `output_token_details`), this change would silently break that parsing. However, looking at the OpenAI API documentation context from the tests, it appears the correct field names are `input_tokens_details` and `output_tokens_details`, so this is actually fixing a bug.\n\n2. The test coverage looks good and validates the fix.\n\n3. No obvious security issues.\n\n4. No concurrency problems visible.\n\n5. The logic appears correct based on the tests.\n\nActually, wait - this IS a potential issue. If there are production systems currently sending data with the field names `input_token_details` or `output_token_details` (the old misspelled versions), and code was working with those field names, this change will silently stop parsing those fields. \n\nHowever, looking more carefully at this - the OpenAI Response API likely uses the correct spelling `input_tokens_details` and `output_tokens_details`, so the old code was buggy and wasn't actually parsing these fields correctly. The fix makes it work with the correct API field names.\n\nBut there's still a risk: if any callers were adapting to the bug (e.g., by sending data with the misspelled field names to match the buggy code), this would break them silently.\nThis is likely the correct fix to align with the actual OpenAI API specification. The test cases confirm the expected behavior with the corrected field names. I don't see any actual defects in the diff itself\u2014it's a straightforward correction with appropriate test coverage.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1864,
+      "completion_tokens": 615,
+      "total_tokens": 2479,
+      "cost": 0.014817,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.014817,
+        "upstream_inference_prompt_cost": 0.005592,
+        "upstream_inference_completions_cost": 0.009225
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 604,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[]\n```"
+}

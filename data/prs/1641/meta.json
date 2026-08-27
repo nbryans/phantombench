@@ -1,0 +1,50 @@
+{
+  "number": 1641,
+  "title": "fix(experiments): flatten propagated metadata",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1641",
+  "base_sha": "d5ce2d27cbf8fd6f95f93e45b73295a1c3a8f8a7",
+  "head_sha": "70892a36f9669a64c2d6dbf031e4e39e5cffb0c8",
+  "merged_at": "2026-04-24T15:20:50Z",
+  "additions": 224,
+  "deletions": 50,
+  "changed_lines": 274,
+  "changed_files_count": 5,
+  "files": [
+    {
+      "path": "langfuse/_client/attributes.py",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 3,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/propagation.py",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 15,
+      "is_source": true
+    },
+    {
+      "path": "tests/e2e/test_experiments.py",
+      "status": "modified",
+      "additions": 59,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_propagate_attributes.py",
+      "status": "modified",
+      "additions": 93,
+      "deletions": 32,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:33.683626+00:00"
+}

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhantomBench Annotate</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f6f8fa; --bg3: #eef1f4;
+    --fg: #1f2328; --fg-dim: #59636e; --border: #d1d9e0;
+    --accent: #0969da;
+    --add-bg: #dafbe1; --add-num: #aceebb;
+    --del-bg: #ffebe9; --del-num: #ffcecb;
+    --gt-bg: #fff8c5; --gt-border: #d4a72c;
+    --sel: #ddf4ff;
+    --green: #1a7f37; --red: #cf222e; --orange: #bc4c00;
+    --yellow: #9a6700; --purple: #8250df; --slate: #59636e;
+    --claude: #c15f3c; --gpt: #10a37f; --gemini: #4285f4;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117; --bg2: #151b23; --bg3: #1c2430;
+      --fg: #e6edf3; --fg-dim: #9198a1; --border: #3d444d;
+      --accent: #4493f8;
+      --add-bg: #12261e; --add-num: #1b4332;
+      --del-bg: #2d1517; --del-num: #542426;
+      --gt-bg: #3a2d00; --gt-border: #9a6700;
+      --sel: #132a44;
+      --green: #3fb950; --red: #f85149; --orange: #db6d28;
+      --yellow: #d29922; --purple: #ab7df8; --slate: #9198a1;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    display: grid;
+    grid-template-rows: 46px 1fr;
+    grid-template-columns: 250px minmax(0, 1fr) 460px;
+    grid-template-areas: "top top top" "side main panel";
+  }
+  /* ---------- top bar ---------- */
+  #topbar {
+    grid-area: top; display: flex; align-items: center; gap: 14px;
+    padding: 0 14px; border-bottom: 1px solid var(--border); background: var(--bg2);
+  }
+  #topbar .title { font-weight: 700; white-space: nowrap; }
+  #progressWrap { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
+  #progressBar { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+  #progressFill { height: 100%; width: 0; background: var(--green); transition: width .2s; }
+  #progressText { color: var(--fg-dim); white-space: nowrap; }
+  #topbar button {
+    background: var(--bg); color: var(--fg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px;
+  }
+  #topbar button:hover { background: var(--bg3); }
+  #keyhint { color: var(--fg-dim); font-size: 11px; white-space: nowrap; }
+  /* ---------- sidebar ---------- */
+  #sidebar { grid-area: side; overflow-y: auto; border-right: 1px solid var(--border); background: var(--bg2); }
+  .side-group { padding: 8px 10px 2px; font-size: 11px; font-weight: 700; color: var(--fg-dim); }
+  .side-unit {
+    display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 16px;
+    cursor: pointer; border-left: 3px solid transparent;
+  }
+  .side-unit:hover { background: var(--bg3); }
+  .side-unit.active { background: var(--sel); border-left-color: var(--accent); }
+  .side-unit .uname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 11.5px; }
+  .side-unit .ucount { font-size: 11px; color: var(--fg-dim); }
+  .side-unit .ucount.done { color: var(--green); font-weight: 700; }
+  .badge {
+    font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
+    border: 1px solid var(--border); color: var(--fg-dim); white-space: nowrap;
+  }
+  .badge.clean { color: var(--green); border-color: var(--green); }
+  .badge.injected { color: var(--orange); border-color: var(--orange); }
+  /* ---------- main (diff) ---------- */
+  #main { grid-area: main; overflow-y: auto; padding: 14px 18px 60px; }
+  #unitHeader h2 { margin: 0 0 2px; font-size: 16px; }
+  #unitHeader h2 a { color: var(--accent); text-decoration: none; }
+  #unitHeader h2 a:hover { text-decoration: underline; }
+  #unitHeader .sub { color: var(--fg-dim); font-family: var(--mono); font-size: 12px; margin-bottom: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #gtBox {
+    border: 1px solid var(--gt-border); background: var(--gt-bg);
+    border-radius: 8px; padding: 10px 12px; margin: 10px 0 16px;
+  }
+  #gtBox .gt-title { font-weight: 700; margin-bottom: 4px; }
+  #gtBox .gt-loc { font-family: var(--mono); font-size: 12px; margin-bottom: 6px; }
+  #gtBox p { margin: 6px 0; white-space: pre-wrap; }
+  #gtBox .hint-label { font-weight: 600; }
+  details.hint > summary { cursor: pointer; font-weight: 600; }
+  .file-block { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+  .file-head {
+    padding: 6px 10px; background: var(--bg2); border-bottom: 1px solid var(--border);
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    position: sticky; top: 0; z-index: 2;
+  }
+  .difftable { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; table-layout: fixed; }
+  .difftable td { padding: 0 6px; vertical-align: top; white-space: pre-wrap; word-break: break-all; }
+  col.gutter { width: 44px; }
+  td.num {
+    text-align: right; color: var(--fg-dim); user-select: none;
+    background: var(--bg2); border-right: 1px solid var(--border); font-size: 11px; padding-top: 1px;
+  }
+  td.code { width: auto; }
+  td.code .sign { display: inline-block; width: 1ch; user-select: none; color: var(--fg-dim); }
+  tr.hunkhead td { background: var(--bg3); color: var(--fg-dim); font-size: 11px; padding: 2px 8px; }
+  td.add { background: var(--add-bg); } td.numadd { background: var(--add-num); }
+  td.del { background: var(--del-bg); } td.numdel { background: var(--del-num); }
+  tr.gtline td.code, tr.gtline td.num.rnum { background: var(--gt-bg); box-shadow: inset 3px 0 0 var(--gt-border); }
+  tr.flash td { animation: flash 1.6s; }
+  @keyframes flash { 0%,60% { background: var(--sel); } 100% {} }
+  .linechips { display: inline-flex; gap: 3px; margin-left: 6px; vertical-align: 1px; }
+  .chip {
+    font: 700 10px/1.5 var(--mono); color: #fff; border-radius: 8px; padding: 0 5px;
+    cursor: pointer; border: none;
+  }
+  .chip.gt { background: var(--gt-border); color: #fff; cursor: default; }
+  /* ---------- findings panel ---------- */
+  #panel { grid-area: panel; overflow-y: auto; border-left: 1px solid var(--border); padding: 12px; background: var(--bg2); }
+  #panel h3 { margin: 2px 0 10px; font-size: 13px; color: var(--fg-dim); }
+  .card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 12px;
+  }
+  .card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--sel); }
+  .card.placeholder { opacity: .85; }
+  .card-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+  .model-badge { font-weight: 700; font-size: 11px; color: #fff; border-radius: 4px; padding: 1px 6px; }
+  .sev { font-size: 10px; font-weight: 600; border-radius: 8px; padding: 1px 6px; border: 1px solid var(--border); color: var(--fg-dim); }
+  .sev.blocking { color: var(--red); border-color: var(--red); }
+  .sev.should-fix { color: var(--yellow); border-color: var(--yellow); }
+  .loc { font-family: var(--mono); font-size: 11px; color: var(--accent); cursor: pointer; }
+  .loc.dead { color: var(--fg-dim); cursor: default; }
+  .card p { margin: 5px 0; white-space: pre-wrap; }
+  .card .lbl { font-weight: 700; font-size: 11px; color: var(--fg-dim); text-transform: uppercase; letter-spacing: .02em; }
+  .card details > summary { cursor: pointer; font-weight: 700; font-size: 11px; color: var(--fg-dim); text-transform: uppercase; }
+  .card pre { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 8px; overflow-x: auto; font-size: 11.5px; margin: 5px 0; white-space: pre-wrap; }
+  .tagrow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tagbtn {
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+    border-radius: 14px; padding: 3px 10px; font-size: 12px; cursor: pointer;
+  }
+  .tagbtn:hover { background: var(--bg3); }
+  .tagbtn.on { color: #fff; border-color: transparent; }
+  .tagbtn .key { opacity: .55; font-size: 10px; margin-right: 3px; }
+  .notes {
+    width: 100%; margin-top: 8px; background: var(--bg); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
+    font: 12px/1.4 inherit; resize: vertical; min-height: 30px;
+  }
+  .draft {
+    margin-top: 8px; border-radius: 6px; padding: 7px 10px; font-size: 12px;
+    border: 1px solid var(--green); background: color-mix(in srgb, var(--green) 8%, var(--bg));
+  }
+  .draft.mismatch { border-color: var(--orange); background: color-mix(in srgb, var(--orange) 10%, var(--bg)); }
+  .draft .d-head { font-weight: 700; margin-bottom: 2px; }
+  .tagname { font-family: var(--mono); font-weight: 700; }
+  .savemark { font-size: 11px; color: var(--green); margin-left: auto; }
+  .prefill-note { color: var(--fg-dim); font-style: italic; }
+  .empty-note { color: var(--fg-dim); padding: 30px 10px; text-align: center; }
+</style>
+</head>
+<body>
+  <div id="topbar">
+    <span class="title">PhantomBench Annotate</span>
+    <button id="prevUnit" title="previous unit ([)">&#8592; prev</button>
+    <button id="nextUnit" title="next unit (])">next &#8594;</button>
+    <button id="nextUntagged" title="jump to next unit with untagged findings">next untagged &#8595;</button>
+    <div id="progressWrap">
+      <div id="progressBar"><div id="progressFill"></div></div>
+      <span id="progressText"></span>
+    </div>
+    <span id="keyhint">[ ] units &middot; j k findings &middot; 1&ndash;4 tag</span>
+  </div>
+  <nav id="sidebar"></nav>
+  <main id="main"></main>
+  <aside id="panel"></aside>
+
+<script>
+"use strict";
+
+const MODEL_COLORS = { claude: "var(--claude)", gpt: "var(--gpt)", gemini: "var(--gemini)" };
+const TAG_COLORS = {
+  described_catch: "var(--green)", localized_catch: "var(--yellow)", unrelated: "var(--slate)",
+  miss: "var(--slate)", false_positive: "var(--red)", true_finding: "var(--purple)",
+  nit: "var(--slate)", none: "var(--slate)", schema_violation: "var(--orange)",
+};
+// Judgment tags offered per unit type; placeholder schema rows get the full set.
+const JUDGE_TAGS = {
+  injected: ["described_catch", "localized_catch", "unrelated"],
+  clean: ["false_positive", "true_finding", "nit"],
+};
+const FULL_TAGS = {
+  injected: ["described_catch", "localized_catch", "unrelated", "miss", "schema_violation"],
+  clean: ["false_positive", "true_finding", "nit", "none", "schema_violation"],
+};
+
+let STATE = null;
+let unitIdx = 0;
+let cardIdx = -1; // keyboard-selected card, index into taggable cards of current unit
+
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const $ = (sel, el = document) => el.querySelector(sel);
+
+// row kind: 'finding' (real model finding), 'schema' (unparsable output placeholder),
+// 'empty' (zero-findings placeholder — nothing to score)
+function rowKind(r) {
+  if (r.finding_index > 0) return "finding";
+  return r.raw_content ? "schema" : "empty";
+}
+const taggable = (r) => rowKind(r) !== "empty";
+const isTagged = (r) => taggable(r) && r.tag !== "";
+
+function unitCounts(u) {
+  const t = u.rows.filter(taggable);
+  return { done: t.filter(isTagged).length, total: t.length };
+}
+
+/* ---------------- data ---------------- */
+
+async function load() {
+  const res = await fetch("/api/state");
+  STATE = await res.json();
+  // start on the first unit with untagged work, if any
+  const i = STATE.units.findIndex((u) => { const c = unitCounts(u); return c.done < c.total; });
+  unitIdx = i >= 0 ? i : 0;
+  renderAll();
+}
+
+async function saveRow(unit, row, cardEl) {
+  const body = {
+    unit_id: unit.unit_id, model_id: row.model_id, finding_index: row.finding_index,
+    tag: row.tag, notes: row.notes,
+  };
+  const res = await fetch("/api/tag", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+  });
+  const out = await res.json();
+  if (!res.ok) { alert("save failed: " + (out.error || res.status)); return; }
+  if (out.draft_tag !== undefined) {
+    row.draft_tag = out.draft_tag;
+    row.draft_rationale = out.draft_rationale;
+  }
+  renderSidebar();
+  renderProgress();
+  renderCardInto(cardEl, unit, row);
+  const c = unitCounts(unit);
+  const h3 = $("#panel h3");
+  if (h3) h3.innerHTML = c.total ? `findings &mdash; ${c.done}/${c.total} tagged` : "findings";
+}
+
+/* ---------------- rendering ---------------- */
+
+function renderAll() {
+  renderSidebar();
+  renderProgress();
+  renderUnit();
+}
+
+function renderProgress() {
+  let done = 0, total = 0;
+  for (const u of STATE.units) { const c = unitCounts(u); done += c.done; total += c.total; }
+  $("#progressFill").style.width = total ? (100 * done / total) + "%" : "0";
+  $("#progressText").textContent = `${done} / ${total} findings tagged`;
+}
+
+function renderSidebar() {
+  const el = $("#sidebar");
+  el.innerHTML = "";
+  let lastPr = null;
+  STATE.units.forEach((u, i) => {
+    if (u.pr_number !== lastPr) {
+      lastPr = u.pr_number;
+      const g = document.createElement("div");
+      g.className = "side-group";
+      g.textContent = "PR #" + u.pr_number;
+      el.appendChild(g);
+    }
+    const c = unitCounts(u);
+    const row = document.createElement("div");
+    row.className = "side-unit" + (i === unitIdx ? " active" : "");
+    const stem = u.unit_id.split("/")[1];
+    row.innerHTML = `
+      <span class="uname" title="${esc(u.unit_id)}">${esc(stem)}</span>
+      <span class="badge ${u.unit_type}">${u.unit_type === "clean" ? "clean" : esc(u.defect_class || "injected")}</span>
+      <span class="ucount ${c.done === c.total ? "done" : ""}">${c.done === c.total ? "✓" : c.done + "/" + c.total}</span>`;
+    row.onclick = () => { unitIdx = i; cardIdx = -1; renderAll(); };
+    el.appendChild(row);
+  });
+}
+
+function anchorMaps(u) {
+  // file -> line -> [row refs], for chips in the diff
+  const findings = new Map();
+  for (const r of u.rows) {
+    if (rowKind(r) !== "finding" || !r.finding_file || !r.finding_line) continue;
+    const line = parseInt(r.finding_line, 10);
+    if (!Number.isFinite(line)) continue;
+    if (!findings.has(r.finding_file)) findings.set(r.finding_file, new Map());
+    const byLine = findings.get(r.finding_file);
+    if (!byLine.has(line)) byLine.set(line, []);
+    byLine.get(line).push(r);
+  }
+  return findings;
+}
+
+function renderUnit() {
+  const u = STATE.units[unitIdx];
+  const main = $("#main");
+  const gtLine = u.gt_range ? u.gt_range[0] : parseInt(u.gt_line, 10);
+  const gtEnd = u.gt_range ? u.gt_range[1] : gtLine;
+  const anchors = anchorMaps(u);
+
+  let html = `<div id="unitHeader">
+    <h2>${u.pr_url ? `<a href="${esc(u.pr_url)}" target="_blank">#${u.pr_number}</a> ` : ""}${esc(u.pr_title)}</h2>
+    <div class="sub"><span>${esc(u.unit_id)}</span>
+      <span class="badge ${u.unit_type}">${u.unit_type === "clean" ? "clean control" : esc(u.defect_class)}</span>
+    </div></div>`;
+
+  if (u.unit_type === "injected") {
+    html += `<div id="gtBox">
+      <div class="gt-title">Injected defect (ground truth)</div>
+      <div class="gt-loc">${esc(u.gt_file)}:${esc(String(gtLine))}${gtEnd !== gtLine ? "–" + esc(String(gtEnd)) : ""}</div>
+      <p>${esc(u.gt_summary)}</p>
+      <details class="hint"><summary>Detection hint (what a described_catch must state)</summary>
+        <p>${esc(u.detection_hint)}</p></details>
+    </div>`;
+  }
+
+  for (const f of u.diff) {
+    const byLine = anchors.get(f.path) || new Map();
+    html += `<div class="file-block"><div class="file-head">${esc(f.path)}</div>
+      <table class="difftable"><colgroup><col class="gutter"><col class="gutter"><col></colgroup><tbody>`;
+    for (const h of f.hunks) {
+      html += `<tr class="hunkhead"><td colspan="3">${esc(h.header)}</td></tr>`;
+      for (const l of h.lines) {
+        const isGt = u.unit_type === "injected" && f.path === u.gt_file && l.t !== "del" &&
+          Number.isFinite(gtLine) && l.new >= gtLine && l.new <= gtEnd;
+        let chips = "";
+        if (isGt) chips += `<span class="chip gt" title="ground-truth line">GT</span>`;
+        if (l.t !== "del" && byLine.has(l.new)) {
+          for (const r of byLine.get(l.new)) {
+            chips += `<button class="chip" style="background:${MODEL_COLORS[r.model_id] || "var(--slate)"}"
+              data-model="${esc(r.model_id)}" data-idx="${r.finding_index}"
+              title="${esc(r.model_id)} finding ${r.finding_index}">${esc(r.model_id[0].toUpperCase() + (r.model_id[1] || ""))}${r.finding_index}</button>`;
+          }
+        }
+        const cls = l.t === "add" ? "add" : l.t === "del" ? "del" : "";
+        const sign = l.t === "add" ? "+" : l.t === "del" ? "-" : " ";
+        html += `<tr${isGt ? ' class="gtline"' : ""} ${l.t !== "del" ? `data-file="${esc(f.path)}" data-line="${l.new}"` : ""}>
+          <td class="num ${l.t === "del" ? "numdel" : ""}">${l.t !== "add" ? l.old : ""}</td>
+          <td class="num rnum ${l.t === "add" ? "numadd" : ""}">${l.t !== "del" ? l.new : ""}</td>
+          <td class="code ${cls}"><span class="sign">${sign}</span>${esc(l.text)}${chips ? `<span class="linechips">${chips}</span>` : ""}</td>
+        </tr>`;
+      }
+    }
+    html += `</tbody></table></div>`;
+  }
+  main.innerHTML = html;
+  main.scrollTop = 0;
+
+  main.querySelectorAll(".chip[data-model]").forEach((chip) => {
+    chip.onclick = () => selectCard(chip.dataset.model, parseInt(chip.dataset.idx, 10), true);
+  });
+
+  renderPanel();
+}
+
+function tagButtonsHtml(u, r) {
+  const kind = rowKind(r);
+  const tags = kind === "schema" ? FULL_TAGS[u.unit_type] : JUDGE_TAGS[u.unit_type];
+  return `<div class="tagrow">` + tags.map((t, i) => {
+    const on = r.tag === t;
+    return `<button class="tagbtn ${on ? "on" : ""}" data-tag="${t}"
+      style="${on ? "background:" + TAG_COLORS[t] : ""}"><span class="key">${i + 1}</span>${t}</button>`;
+  }).join("") + `</div>`;
+}
+
+function draftHtml(r) {
+  if (!r.tag || r.draft_tag === undefined) return "";
+  const agree = r.draft_tag === r.tag;
+  return `<div class="draft ${agree ? "" : "mismatch"}">
+    <div class="d-head">${agree ? "✓ draft agrees" : "⚠ draft disagrees"} &mdash;
+      draft: <span class="tagname">${esc(r.draft_tag || "(none)")}</span></div>
+    ${r.draft_rationale ? `<div>${esc(r.draft_rationale)}</div>` : ""}
+  </div>`;
+}
+
+function cardHtml(u, r, selected) {
+  const kind = rowKind(r);
+  const anchored = r.finding_file && u.diff.some((f) => f.path === r.finding_file);
+  let body;
+  if (kind === "empty") {
+    body = `<p class="prefill-note">no findings returned &mdash; prefilled <span class="tagname">${esc(r.tag)}</span></p>`;
+  } else if (kind === "schema") {
+    body = `<p class="prefill-note">output didn't parse as a findings array &mdash; prefilled
+        <span class="tagname">schema_violation</span>. Read the raw output; override the tag if a real finding is legible.</p>
+      <details open><summary>raw output</summary><pre>${esc(r.raw_content)}</pre></details>
+      ${tagButtonsHtml(u, r)}
+      <textarea class="notes" placeholder="notes (saved on blur)">${esc(r.notes)}</textarea>
+      ${draftHtml(r)}`;
+  } else {
+    body = `
+      <p><span class="lbl">failure mode</span><br>${esc(r.failure_mode)}</p>
+      <p><span class="lbl">impact</span><br>${esc(r.impact)}</p>
+      ${r.suggested_fix ? `<details><summary>suggested fix</summary><pre>${esc(r.suggested_fix)}</pre></details>` : ""}
+      ${tagButtonsHtml(u, r)}
+      <textarea class="notes" placeholder="notes (saved on blur)">${esc(r.notes)}</textarea>
+      ${draftHtml(r)}`;
+  }
+  return `<div class="card ${kind !== "finding" ? "placeholder" : ""} ${selected ? "selected" : ""}"
+      data-model="${esc(r.model_id)}" data-idx="${r.finding_index}">
+    <div class="card-head">
+      <span class="model-badge" style="background:${MODEL_COLORS[r.model_id] || "var(--slate)"}">${esc(r.model_id)}${kind === "finding" ? " #" + r.finding_index : ""}</span>
+      ${r.severity ? `<span class="sev ${esc(r.severity)}">${esc(r.severity)}</span>` : ""}
+      ${kind === "finding" ? `<span class="loc ${anchored ? "" : "dead"}" title="${anchored ? "jump to line" : "file not in this diff"}">${esc(r.finding_file)}:${esc(r.finding_line)}</span>` : ""}
+      ${isTagged(r) ? `<span class="savemark">✓ ${esc(r.tag)}</span>` : ""}
+    </div>${body}</div>`;
+}
+
+function wireCard(cardEl, u, r) {
+  cardEl.querySelectorAll(".tagbtn").forEach((btn) => {
+    btn.onclick = () => {
+      r.tag = r.tag === btn.dataset.tag ? "" : btn.dataset.tag; // click again to clear
+      r.notes = $(".notes", cardEl) ? $(".notes", cardEl).value : r.notes;
+      saveRow(u, r, cardEl);
+    };
+  });
+  const notes = $(".notes", cardEl);
+  if (notes) notes.onblur = () => {
+    if (notes.value === r.notes) return;
+    r.notes = notes.value;
+    saveRow(u, r, cardEl);
+  };
+  const loc = $(".loc:not(.dead)", cardEl);
+  if (loc) loc.onclick = () => jumpToLine(r.finding_file, parseInt(r.finding_line, 10));
+  cardEl.onclick = (e) => {
+    if (e.target.closest(".tagbtn, .notes, .loc, summary")) return;
+    selectCard(r.model_id, r.finding_index, false);
+  };
+}
+
+function renderCardInto(cardEl, u, r) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = cardHtml(u, r, cardEl.classList.contains("selected"));
+  const fresh = tmp.firstElementChild;
+  cardEl.replaceWith(fresh);
+  wireCard(fresh, u, r);
+}
+
+function renderPanel() {
+  const u = STATE.units[unitIdx];
+  const panel = $("#panel");
+  const c = unitCounts(u);
+  const cards = u.rows.filter(taggable);
+  let html = `<h3>${c.total ? `findings &mdash; ${c.done}/${c.total} tagged` : "findings"}</h3>`;
+  if (!u.rows.length) html += `<div class="empty-note">no rows for this unit</div>`;
+  // taggable cards first in worksheet order, then the empty placeholders
+  const ordered = [...cards, ...u.rows.filter((r) => !taggable(r))];
+  for (let i = 0; i < ordered.length; i++) {
+    const r = ordered[i];
+    const sel = taggable(r) && cards.indexOf(r) === cardIdx;
+    html += cardHtml(u, r, sel);
+  }
+  panel.innerHTML = html;
+  panel.querySelectorAll(".card").forEach((el) => {
+    const r = u.rows.find((x) => x.model_id === el.dataset.model && x.finding_index === parseInt(el.dataset.idx, 10));
+    if (r) wireCard(el, u, r);
+  });
+}
+
+function selectCard(model, idx, scrollPanel) {
+  const u = STATE.units[unitIdx];
+  const cards = u.rows.filter(taggable);
+  cardIdx = cards.findIndex((r) => r.model_id === model && r.finding_index === idx);
+  document.querySelectorAll("#panel .card").forEach((el) => {
+    const on = el.dataset.model === model && parseInt(el.dataset.idx, 10) === idx;
+    el.classList.toggle("selected", on);
+    if (on && scrollPanel) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
+}
+
+function jumpToLine(file, line) {
+  const tr = document.querySelector(`#main tr[data-file="${CSS.escape(file)}"][data-line="${line}"]`);
+  if (!tr) return;
+  tr.scrollIntoView({ block: "center", behavior: "smooth" });
+  tr.classList.remove("flash"); void tr.offsetWidth; tr.classList.add("flash");
+}
+
+/* ---------------- navigation ---------------- */
+
+function gotoUnit(i) {
+  if (i < 0 || i >= STATE.units.length) return;
+  unitIdx = i; cardIdx = -1;
+  renderAll();
+}
+
+function gotoNextUntagged() {
+  const n = STATE.units.length;
+  for (let d = 1; d <= n; d++) {
+    const i = (unitIdx + d) % n;
+    const c = unitCounts(STATE.units[i]);
+    if (c.done < c.total) { gotoUnit(i); return; }
+  }
+}
+
+$("#prevUnit").onclick = () => gotoUnit(unitIdx - 1);
+$("#nextUnit").onclick = () => gotoUnit(unitIdx + 1);
+$("#nextUntagged").onclick = gotoNextUntagged;
+
+document.addEventListener("keydown", (e) => {
+  if (e.target.matches("textarea, input")) return;
+  const u = STATE && STATE.units[unitIdx];
+  if (!u) return;
+  const cards = u.rows.filter(taggable);
+  if (e.key === "[") gotoUnit(unitIdx - 1);
+  else if (e.key === "]") gotoUnit(unitIdx + 1);
+  else if (e.key === "j" || e.key === "k") {
+    if (!cards.length) return;
+    cardIdx = cardIdx < 0 ? 0 : Math.min(Math.max(cardIdx + (e.key === "j" ? 1 : -1), 0), cards.length - 1);
+    const r = cards[cardIdx];
+    selectCard(r.model_id, r.finding_index, true);
+    if (r.finding_file && r.finding_line) jumpToLine(r.finding_file, parseInt(r.finding_line, 10));
+  } else if (/^[1-5]$/.test(e.key) && cardIdx >= 0 && cardIdx < cards.length) {
+    const r = cards[cardIdx];
+    const el = document.querySelector(`#panel .card[data-model="${CSS.escape(r.model_id)}"][data-idx="${r.finding_index}"]`);
+    const btn = el && el.querySelectorAll(".tagbtn")[parseInt(e.key, 10) - 1];
+    if (btn) btn.click();
+  }
+});
+
+load();
+</script>
+</body>
+</html>

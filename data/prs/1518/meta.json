@@ -1,0 +1,36 @@
+{
+  "number": 1518,
+  "title": "fix(client): pass release variable to span clients",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1518",
+  "base_sha": "9efcca02013d2fd6ce455087a5f53d76ac39c5c1",
+  "head_sha": "191b66559204cb599c6d6abfe1955fea65d261c6",
+  "merged_at": "2026-03-05T12:18:39Z",
+  "additions": 35,
+  "deletions": 0,
+  "changed_lines": 35,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/span.py",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_resource_manager.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:12.218809+00:00"
+}

@@ -1,0 +1,57 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T19:47:45.171643+00:00",
+  "latency_seconds": 9.631,
+  "prompt_tokens": 1186,
+  "completion_tokens": 458,
+  "total_tokens": 1644,
+  "raw_response": {
+    "id": "gen-1787255255-9v6TFUCz4yjmt5B7pAyo",
+    "object": "chat.completion",
+    "created": 1787255255,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"Calling `self.default()` on the result of `obj.model_dump()` creates infinite recursion when the dumped model contains a dict or list, because `default()` is only called for non-serializable types, but `model_dump()` returns a dict which is already JSON-serializable and won't trigger `default()` again.\",\n    \"impact\": \"Any Pydantic model serialization will fail with a RecursionError or return incorrect results where nested non-finite floats are not converted. The test only validates a top-level model, not nested structures.\",\n    \"suggested_fix\": \"Instead of calling `self.default()`, recursively walk the dumped dict/list structure and apply the non-finite float conversion: create a helper function that processes dicts, lists, and floats recursively, converting NaN/Inf to strings while preserving other values.\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"The `default()` method is designed to handle non-serializable objects and should not be called with already-serializable dicts. This violates the JSONEncoder contract where `default()` receives objects that the encoder cannot serialize.\",\n    \"impact\": \"Even if recursion is avoided, this misuses the JSONEncoder API. The dict from `model_dump()` will be serialized directly by the encoder without calling `default()`, so nested non-finite floats won't be processed.\",\n    \"suggested_fix\": \"Process the `model_dump()` result with a recursive helper function that walks the structure and converts non-finite floats to strings, then return that processed structure from `default()` for the encoder to serialize.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": null
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1186,
+      "completion_tokens": 458,
+      "total_tokens": 1644,
+      "cost": 0.010428,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.010428,
+        "upstream_inference_prompt_cost": 0.003558,
+        "upstream_inference_completions_cost": 0.00687
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"Calling `self.default()` on the result of `obj.model_dump()` creates infinite recursion when the dumped model contains a dict or list, because `default()` is only called for non-serializable types, but `model_dump()` returns a dict which is already JSON-serializable and won't trigger `default()` again.\",\n    \"impact\": \"Any Pydantic model serialization will fail with a RecursionError or return incorrect results where nested non-finite floats are not converted. The test only validates a top-level model, not nested structures.\",\n    \"suggested_fix\": \"Instead of calling `self.default()`, recursively walk the dumped dict/list structure and apply the non-finite float conversion: create a helper function that processes dicts, lists, and floats recursively, converting NaN/Inf to strings while preserving other values.\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"The `default()` method is designed to handle non-serializable objects and should not be called with already-serializable dicts. This violates the JSONEncoder contract where `default()` receives objects that the encoder cannot serialize.\",\n    \"impact\": \"Even if recursion is avoided, this misuses the JSONEncoder API. The dict from `model_dump()` will be serialized directly by the encoder without calling `default()`, so nested non-finite floats won't be processed.\",\n    \"suggested_fix\": \"Process the `model_dump()` result with a recursive helper function that walks the structure and converts non-finite floats to strings, then return that processed structure from `default()` for the encoder to serialize.\"\n  }\n]\n```"
+}

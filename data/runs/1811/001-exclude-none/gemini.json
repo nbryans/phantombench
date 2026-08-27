@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:03:52.761948+00:00",
+  "latency_seconds": 11.168,
+  "prompt_tokens": 1073,
+  "completion_tokens": 1143,
+  "total_tokens": 2216,
+  "raw_response": {
+    "id": "gen-1787259821-5vtWZ6wZbkjdpKuQCcFk",
+    "object": "chat.completion",
+    "created": 1787259821,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 142,\n    \"failure_mode\": \"The recursive call to `self.default()` with a dictionary from `model_dump()` will raise a `TypeError` because `json.JSONEncoder.default` does not handle dictionaries. This breaks serialization for all Pydantic models.\",\n    \"impact\": \"Any attempt to serialize a Pydantic model using this serializer will fail with a `TypeError`, preventing events containing such models from being sent to Langfuse. This is a regression that breaks a core serialization path.\",\n    \"suggested_fix\": \"Instead of recursively calling `self.default()`, which is incorrect, the `json.dumps` call should be configured to use this custom `default` function for all values within the structure. The `model_dump()` should be returned directly, and the top-level `encode` method should ensure `json.dumps` uses `self.default`.\\n\\n```python\\n# In EventSerializer.default()\\nreturn obj.model_dump(exclude_none=True)\\n\\n# In EventSerializer.encode()\\nreturn json.dumps(obj, default=self.default, separators=(',', ':'))\\n```\\nThis assumes `encode` is the entry point. If not, the fix is to return `obj.model_dump(exclude_none=True)` and ensure the `json.dumps` call that uses this `EventSerializer` is correctly configured.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nI am currently examining the provided code diff, adopting the perspective of a senior engineer tasked with identifying production-level concerns. My focus remains strictly on the changes presented, and I will report up to five findings, prioritized by their potential impact.\n\n**Reviewing Serialization Logic**\n\nI'm scrutinizing the serialization mechanism, specifically how non-finite floats are handled. My current assessment is that the modification to recursively process `model_dump()` through `self.default()` is a necessary correction to prevent invalid JSON output when dealing with NaN or Infinity values. This seems like a solid improvement.\n\n**Refining Serialization Handling**\n\nI'm continuing to refine how we manage non-finite float values within serialized data. My current focus is on ensuring that nested structures are correctly processed to prevent any invalid JSON output. The recent adjustment to recursively apply our default handling to the dumped model output seems promising for robust serialization.\n\n**Analyzing Serialization Behavior**\n\nI am continuing to refine the serialization process, focusing on how non-finite float values within nested Pydantic models are handled. My current analysis indicates that the recursive application of `self.default()` to the dumped model output is indeed the correct approach to ensure valid JSON, preventing issues with NaN and Infinity tokens.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nI am currently examining the provided code diff, adopting the perspective of a senior engineer tasked with identifying production-level concerns. My focus remains strictly on the changes presented, and I will report up to five findings, prioritized by their potential impact.\n\n**Reviewing Serialization Logic**\n\nI'm scrutinizing the serialization mechanism, specifically how non-finite floats are handled. My current assessment is that the modification to recursively process `model_dump()` through `self.default()` is a necessary correction to prevent invalid JSON output when dealing with NaN or Infinity values. This seems like a solid improvement.\n\n**Refining Serialization Handling**\n\nI'm continuing to refine how we manage non-finite float values within serialized data. My current focus is on ensuring that nested structures are correctly processed to prevent any invalid JSON output. The recent adjustment to recursively apply our default handling to the dumped model output seems promising for robust serialization.\n\n**Analyzing Serialization Behavior**\n\nI am continuing to refine the serialization process, focusing on how non-finite float values within nested Pydantic models are handled. My current analysis indicates that the recursive application of `self.default()` to the dumped model output is indeed the correct approach to ensure valid JSON, preventing issues with NaN and Infinity tokens.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1073,
+      "completion_tokens": 1143,
+      "total_tokens": 2216,
+      "cost": 0.01277125,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01277125,
+        "upstream_inference_prompt_cost": 0.00134125,
+        "upstream_inference_completions_cost": 0.01143
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 796,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 142,\n    \"failure_mode\": \"The recursive call to `self.default()` with a dictionary from `model_dump()` will raise a `TypeError` because `json.JSONEncoder.default` does not handle dictionaries. This breaks serialization for all Pydantic models.\",\n    \"impact\": \"Any attempt to serialize a Pydantic model using this serializer will fail with a `TypeError`, preventing events containing such models from being sent to Langfuse. This is a regression that breaks a core serialization path.\",\n    \"suggested_fix\": \"Instead of recursively calling `self.default()`, which is incorrect, the `json.dumps` call should be configured to use this custom `default` function for all values within the structure. The `model_dump()` should be returned directly, and the top-level `encode` method should ensure `json.dumps` uses `self.default`.\\n\\n```python\\n# In EventSerializer.default()\\nreturn obj.model_dump(exclude_none=True)\\n\\n# In EventSerializer.encode()\\nreturn json.dumps(obj, default=self.default, separators=(',', ':'))\\n```\\nThis assumes `encode` is the entry point. If not, the fix is to return `obj.model_dump(exclude_none=True)` and ensure the `json.dumps` call that uses this `EventSerializer` is correctly configured.\"\n  }\n]\n```"
+}

@@ -1,0 +1,21 @@
+id: "008"
+pr_number: 1628
+file: "langfuse/_client/observe.py"
+line_start: 665
+line_end: 666
+defect_class: "async_lifecycle"
+summary: >
+  In _ContextPreservedAsyncGeneratorWrapper.__anext__'s StopAsyncIteration
+  handler, self.span.end() was moved one indent level in, so it now only
+  runs inside the `if self.capture_output:` block instead of
+  unconditionally after it. Any @observe-wrapped async generator created
+  with capture_output=False (a normal choice for large/streaming payloads
+  a caller doesn't want captured) now never has its span ended when the
+  generator completes normally — the span is silently left open forever
+  instead of being finalized on stream exhaustion.
+detection_hint: >
+  A correct catch must state that self.span.end() is now only reached when
+  capture_output is True, so async generators observed with
+  capture_output=False never close their span on normal completion — not
+  merely note that the StopAsyncIteration handler was reformatted or that
+  indentation changed.

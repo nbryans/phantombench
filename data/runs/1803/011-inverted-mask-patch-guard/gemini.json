@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:03:21.201892+00:00",
+  "latency_seconds": 11.659,
+  "prompt_tokens": 2439,
+  "completion_tokens": 1184,
+  "total_tokens": 3623,
+  "raw_response": {
+    "id": "gen-1787259789-3zyv8aQlccJREgsQ5mkv",
+    "object": "chat.completion",
+    "created": 1787259789,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/span_exporter.py\",\n    \"line\": 351,\n    \"failure_mode\": \"The condition `if patch is not None:` is incorrect. It should be `if patch is None:`.\",\n    \"impact\": \"The logic is inverted. Spans that should be patched are not, and spans that should not be patched are also not. The result is that no spans are ever patched, and only spans that were *not* supposed to be patched are kept. This breaks the masking feature entirely.\",\n    \"suggested_fix\": \"Change the condition to `if patch is None:`. This will correctly append unpatched spans to `masked_span_attributes` and proceed to the patching logic for spans that have a patch.\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/span_exporter.py\",\n    \"line\": 285,\n    \"failure_mode\": \"The code `span_attributes_by_identifier.pop(identifier)` is redundant and has no effect, as the next line unconditionally overwrites the dictionary entry for that key.\",\n    \"impact\": \"While not causing a bug, this is confusing code that suggests a more complex operation is happening than a simple overwrite. It can mislead future developers and slightly impacts performance by doing an unnecessary dictionary lookup and removal.\",\n    \"suggested_fix\": \"Remove the line `span_attributes_by_identifier.pop(identifier)`. The following line `span_attributes_by_identifier[identifier] = (span, attributes)` is sufficient to ensure the last seen span for a given identifier is stored.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Pull Request**\n\nI am currently reviewing the provided pull request, concentrating on identifying potential production-level defects. My focus is on correctness, contract violations, security vulnerabilities, concurrency issues, and any subtle semantic changes that might impact system behavior. I'm setting aside style and naming concerns unless they directly lead to bugs.\n\n**Examining Span Export Logic**\n\nI'm currently scrutinizing the `_apply_masking` function's logic, particularly how it handles duplicate span identifiers. The current implementation appears to discard the entire batch upon detecting a duplicate, which seems like an overly aggressive strategy. I'm considering alternative approaches to manage these situations more gracefully.\n\n**Analyzing Span Handling**\n\nI am currently examining the logic for handling duplicate span identifiers within a batch. Previously, duplicates caused the entire batch to be dropped. The revised implementation now retains only the last occurrence of a duplicate identifier encountered, effectively discarding earlier ones without explicit notification.\n\n**Revising Duplicate Handling**\n\nI'm refining the approach for managing duplicate span identifiers. Previously, any duplicates caused the entire batch to be rejected. The current iteration ensures that only the last encountered span for a given identifier is retained, streamlining processing and avoiding wholesale discards.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Pull Request**\n\nI am currently reviewing the provided pull request, concentrating on identifying potential production-level defects. My focus is on correctness, contract violations, security vulnerabilities, concurrency issues, and any subtle semantic changes that might impact system behavior. I'm setting aside style and naming concerns unless they directly lead to bugs.\n\n**Examining Span Export Logic**\n\nI'm currently scrutinizing the `_apply_masking` function's logic, particularly how it handles duplicate span identifiers. The current implementation appears to discard the entire batch upon detecting a duplicate, which seems like an overly aggressive strategy. I'm considering alternative approaches to manage these situations more gracefully.\n\n**Analyzing Span Handling**\n\nI am currently examining the logic for handling duplicate span identifiers within a batch. Previously, duplicates caused the entire batch to be dropped. The revised implementation now retains only the last occurrence of a duplicate identifier encountered, effectively discarding earlier ones without explicit notification.\n\n**Revising Duplicate Handling**\n\nI'm refining the approach for managing duplicate span identifiers. Previously, any duplicates caused the entire batch to be rejected. The current iteration ensures that only the last encountered span for a given identifier is retained, streamlining processing and avoiding wholesale discards.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2439,
+      "completion_tokens": 1184,
+      "total_tokens": 3623,
+      "cost": 0.01488875,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01488875,
+        "upstream_inference_prompt_cost": 0.00304875,
+        "upstream_inference_completions_cost": 0.01184
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 797,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/span_exporter.py\",\n    \"line\": 351,\n    \"failure_mode\": \"The condition `if patch is not None:` is incorrect. It should be `if patch is None:`.\",\n    \"impact\": \"The logic is inverted. Spans that should be patched are not, and spans that should not be patched are also not. The result is that no spans are ever patched, and only spans that were *not* supposed to be patched are kept. This breaks the masking feature entirely.\",\n    \"suggested_fix\": \"Change the condition to `if patch is None:`. This will correctly append unpatched spans to `masked_span_attributes` and proceed to the patching logic for spans that have a patch.\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/span_exporter.py\",\n    \"line\": 285,\n    \"failure_mode\": \"The code `span_attributes_by_identifier.pop(identifier)` is redundant and has no effect, as the next line unconditionally overwrites the dictionary entry for that key.\",\n    \"impact\": \"While not causing a bug, this is confusing code that suggests a more complex operation is happening than a simple overwrite. It can mislead future developers and slightly impacts performance by doing an unnecessary dictionary lookup and removal.\",\n    \"suggested_fix\": \"Remove the line `span_attributes_by_identifier.pop(identifier)`. The following line `span_attributes_by_identifier[identifier] = (span, attributes)` is sufficient to ensure the last seen span for a given identifier is stored.\"\n  }\n]\n```"
+}

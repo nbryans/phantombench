@@ -1,0 +1,11 @@
+--- a/langfuse/openai.py
++++ b/langfuse/openai.py
+@@ -900,7 +900,7 @@
+     if resource.type == "completion":
+         choices = response.get("choices") or []
+         if len(choices) > 0:
+-            choice = choices[-1]
++            choice = choices[0]
+ 
+             completion = choice.text if _is_openai_v1() else choice.get("text", None)
+ 

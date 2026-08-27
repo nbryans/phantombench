@@ -1,0 +1,36 @@
+{
+  "number": 1517,
+  "title": "feat(dataset-versioning): support running versioned experiments",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1517",
+  "base_sha": "1ae292384f59b4ad556009c5925a0f40fcdc37bb",
+  "head_sha": "7de4f287695ec60d55663fae864c2635edbf251d",
+  "merged_at": "2026-02-09T15:27:43Z",
+  "additions": 88,
+  "deletions": 3,
+  "changed_lines": 91,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/datasets.py",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 2,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_datasets.py",
+      "status": "modified",
+      "additions": 71,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:35.447706+00:00"
+}

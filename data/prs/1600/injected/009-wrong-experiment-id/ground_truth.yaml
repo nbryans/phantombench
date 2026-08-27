@@ -1,0 +1,24 @@
+id: "009"
+pr_number: 1600
+file: "langfuse/_client/client.py"
+line_start: 2679
+line_end: 2679
+defect_class: "contract_violation"
+summary: >
+  The ExperimentResult returned from _run_experiment_async now always sets
+  experiment_id to shared_fallback_experiment_id, dropping the
+  `dataset_run_id or` fallback. For any experiment backed by a Langfuse
+  dataset, every per-item span is still tagged with the real dataset_run_id
+  (via the unchanged `dataset_run_id or fallback_experiment_id` in
+  _process_experiment_item), but the top-level result.experiment_id a
+  caller reads no longer matches it — the documented "stable identifier
+  for the experiment run across all items" is silently a different,
+  unrelated value whenever a dataset run exists.
+detection_hint: >
+  A correct catch must state that result.experiment_id no longer uses
+  dataset_run_id when one exists — it's hardcoded to the fallback ID — so
+  for dataset-backed experiments the returned experiment_id mismatches the
+  experiment_id actually attached to each item's span attributes, breaking
+  any caller that correlates the two — not merely note that the
+  experiment_id field exists or that a variable was removed from the
+  expression.

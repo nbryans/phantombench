@@ -1,0 +1,61 @@
+diff --git a/langfuse/_utils/serializer.py b/langfuse/_utils/serializer.py
+index 135d1f625..53889f29a 100644
+--- a/langfuse/_utils/serializer.py
++++ b/langfuse/_utils/serializer.py
+@@ -136,7 +136,11 @@ def _default_inner(self, obj: Any) -> Any:
+                 if isinstance(raw := getattr(obj, "raw", None), BaseModel):
+                     raw.model_rebuild()
+ 
+-                return obj.model_dump()
++                # Recurse the dumped model back through default() so nested
++                # non-finite floats (NaN/Inf) are converted to safe strings.
++                # Returning model_dump() directly lets the json C-encoder emit
++                # bare NaN/Infinity tokens, which are invalid JSON.
++                return self.default(obj.model_dump())
+ 
+             # if langchain is not available, the Serializable type is NoneType
+             if Serializable is not type(None) and isinstance(obj, Serializable):  # type: ignore
+diff --git a/tests/unit/test_serializer.py b/tests/unit/test_serializer.py
+index 6605485de..ce5798f67 100644
+--- a/tests/unit/test_serializer.py
++++ b/tests/unit/test_serializer.py
+@@ -196,6 +196,39 @@ def test_infinity_floats():
+     assert serializer.encode(float("-inf")) == '"-Infinity"'
+ 
+ 
++def test_pydantic_model_with_non_finite_floats():
++    # Non-finite floats nested inside a pydantic model must be converted to
++    # safe string tokens rather than emitted as bare NaN/Infinity, which are
++    # invalid JSON and are rejected by the ingestion server's strict parser.
++    class ModelWithFloats(BaseModel):
++        nan: float
++        inf: float
++        neg_inf: float
++        finite: float
++
++    model = ModelWithFloats(
++        nan=float("nan"),
++        inf=float("inf"),
++        neg_inf=float("-inf"),
++        finite=1.5,
++    )
++    serializer = EventSerializer()
++    encoded = serializer.encode(model)
++
++    # Must be strict JSON: json.loads accepts bare NaN/Infinity by default, so
++    # use parse_constant to reject them the way the ingestion server does.
++    def _reject(token):
++        raise ValueError(f"invalid JSON constant emitted: {token}")
++
++    parsed = json.loads(encoded, parse_constant=_reject)
++    assert parsed == {
++        "nan": "NaN",
++        "inf": "Infinity",
++        "neg_inf": "-Infinity",
++        "finite": 1.5,
++    }
++
++
+ def test_slots():
+     class SlotClass:
+         __slots__ = ["field"]

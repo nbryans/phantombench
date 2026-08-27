@@ -1,0 +1,11 @@
+--- a/langfuse/_client/client.py
++++ b/langfuse/_client/client.py
+@@ -1514,7 +1514,7 @@
+                             otel_span=otel_span,
+                             langfuse_client=self,
+                             environment=self._environment,
+-                            release=self._release,
++                            release=self._environment,
+                             input=input,
+                             output=output,
+                             metadata=metadata,

@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-22T13:38:10.091882+00:00",
+  "latency_seconds": 14.696,
+  "prompt_tokens": 4480,
+  "completion_tokens": 746,
+  "total_tokens": 5226,
+  "raw_response": {
+    "id": "gen-1787405875-ZXhERIOftQEgMHNvjmHl",
+    "object": "chat.completion",
+    "created": 1787405875,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 500,\n    \"failure_mode\": \"_handle_observe_result now wraps generators unconditionally, even when capture_output=False. The original code only wrapped generators when capture_output=True, exiting early otherwise and returning the raw generator. This silently changes behavior for all callers with capture_output=False.\",\n    \"impact\": \"Generators are wrapped even when capture_output=False, adding overhead and potentially breaking code that expects raw generator objects. The wrapper will still iterate and manage span lifecycle, which may cause unexpected side effects or performance degradation for users who explicitly disabled output capture.\",\n    \"suggested_fix\": \"Wrap the generator-handling code in _handle_observe_result with 'if capture_output is True:' at line 500, and move the unconditional 'return False, result' to handle the case when capture_output is False and result is a generator.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "Let me analyze this diff carefully.\n\nThe main change is refactoring code that handles output capturing in an observation decorator. The code is being moved from inline implementations in `async_wrapper` and `sync_wrapper` to a shared `_handle_observe_result` method.\n\nKey changes:\n1. A new `_handle_observe_result` method is introduced that consolidates the logic for handling different result types (generators, async generators, StreamingResponse)\n2. The `capture_output` parameter is now passed to `_wrap_sync_generator_result` and `_wrap_async_generator_result`\n3. The generator wrapper classes now check `capture_output` before capturing items and updating output\n4. Tests verify that when `capture_output=False`, items are not captured\n\nLet me look for potential issues:\n\n1. **Critical issue**: In `_handle_observe_result`, the logic checks for generator types BEFORE checking `capture_output`. This means generators are always wrapped, even when `capture_output=False`. Looking at the old code, generators were only wrapped when `capture_output is True`. This is a semantic change that could break existing behavior.\n\nWait, let me re-read the old code more carefully:\n```python\nif capture_output is True:\n    if inspect.isgenerator(result):\n        is_return_type_generator = True\n        return self._wrap_sync_generator_result(...)\n    ...\n    langfuse_span_or_generation.update(output=result)\n```\n\nAnd the new code:\n```python\nif inspect.isgenerator(result):\n    return True, self._wrap_sync_generator_result(...)\n...\nif capture_output is True:\n    langfuse_span_or_generation.update(output=result)\n```\n\nSo yes, this is a significant semantic change! In the old code, generators were only wrapped if `capture_output=True`. In the new code, generators are ALWAYS wrapped, regardless of `capture_output`. The `capture_output` flag is passed down but the wrapping happens unconditionally.\nThis creates a blocking issue\u2014generators get wrapped regardless of whether output capture is disabled, which silently alters the original behavior and could affect performance or side effects for users who explicitly set `capture_output=False`.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me analyze this diff carefully.\n\nThe main change is refactoring code that handles output capturing in an observation decorator. The code is being moved from inline implementations in `async_wrapper` and `sync_wrapper` to a shared `_handle_observe_result` method.\n\nKey changes:\n1. A new `_handle_observe_result` method is introduced that consolidates the logic for handling different result types (generators, async generators, StreamingResponse)\n2. The `capture_output` parameter is now passed to `_wrap_sync_generator_result` and `_wrap_async_generator_result`\n3. The generator wrapper classes now check `capture_output` before capturing items and updating output\n4. Tests verify that when `capture_output=False`, items are not captured\n\nLet me look for potential issues:\n\n1. **Critical issue**: In `_handle_observe_result`, the logic checks for generator types BEFORE checking `capture_output`. This means generators are always wrapped, even when `capture_output=False`. Looking at the old code, generators were only wrapped when `capture_output is True`. This is a semantic change that could break existing behavior.\n\nWait, let me re-read the old code more carefully:\n```python\nif capture_output is True:\n    if inspect.isgenerator(result):\n        is_return_type_generator = True\n        return self._wrap_sync_generator_result(...)\n    ...\n    langfuse_span_or_generation.update(output=result)\n```\n\nAnd the new code:\n```python\nif inspect.isgenerator(result):\n    return True, self._wrap_sync_generator_result(...)\n...\nif capture_output is True:\n    langfuse_span_or_generation.update(output=result)\n```\n\nSo yes, this is a significant semantic change! In the old code, generators were only wrapped if `capture_output=True`. In the new code, generators are ALWAYS wrapped, regardless of `capture_output`. The `capture_output` flag is passed down but the wrapping happens unconditionally.\nThis creates a blocking issue\u2014generators get wrapped regardless of whether output capture is disabled, which silently alters the original behavior and could affect performance or side effects for users who explicitly set `capture_output=False`.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4480,
+      "completion_tokens": 746,
+      "total_tokens": 5226,
+      "cost": 0.02463,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.02463,
+        "upstream_inference_prompt_cost": 0.01344,
+        "upstream_inference_completions_cost": 0.01119
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 501,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 500,\n    \"failure_mode\": \"_handle_observe_result now wraps generators unconditionally, even when capture_output=False. The original code only wrapped generators when capture_output=True, exiting early otherwise and returning the raw generator. This silently changes behavior for all callers with capture_output=False.\",\n    \"impact\": \"Generators are wrapped even when capture_output=False, adding overhead and potentially breaking code that expects raw generator objects. The wrapper will still iterate and manage span lifecycle, which may cause unexpected side effects or performance degradation for users who explicitly disabled output capture.\",\n    \"suggested_fix\": \"Wrap the generator-handling code in _handle_observe_result with 'if capture_output is True:' at line 500, and move the unconditional 'return False, result' to handle the case when capture_output is False and result is a generator.\"\n  }\n]\n```"
+}

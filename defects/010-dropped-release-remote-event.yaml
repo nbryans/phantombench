@@ -1,0 +1,26 @@
+id: "010"
+pr_number: 1518
+file: "langfuse/_client/client.py"
+line_start: 1518
+line_end: 1518
+defect_class: "contract_violation"
+summary: >
+  create_event() has two branches: one used when a trace_context (remote
+  parent span) is provided, and a default branch used otherwise. The PR
+  adds `release=self._release` to every LangfuseEvent/LangfuseSpan/
+  LangfuseGeneration construction site so the client's configured release
+  is consistently attached — except this branch's LangfuseEvent(...) call
+  in the trace_context path, which passes release=self._environment
+  instead of release=self._release. Events created via create_event() with
+  an explicit trace_context (e.g. events linked into a remote/distributed
+  trace) silently get their `release` attribute set to the environment
+  name instead of the actual release, while every other event/span in the
+  SDK — including the default create_event() branch just below it —
+  carries the correct release value.
+detection_hint: >
+  A correct catch must state that the trace_context branch of
+  create_event() passes self._environment where release=self._release was
+  intended, so events created with a trace_context get the environment
+  name stored as their release instead of the real release — not merely
+  note that a `release` kwarg is present here or that this branch differs
+  from the one below it.

@@ -1,0 +1,98 @@
+diff --git a/langfuse/langchain/CallbackHandler.py b/langfuse/langchain/CallbackHandler.py
+index aba644a41..011370e20 100644
+--- a/langfuse/langchain/CallbackHandler.py
++++ b/langfuse/langchain/CallbackHandler.py
+@@ -1685,6 +1685,28 @@ def _parse_usage_model(usage: Union[pydantic.BaseModel, dict]) -> Any:
+                             0, usage_model[f"input_modality_{item['modality']}"] - value
+                         )
+ 
++        # Anthropic extended prompt caching — cache_creation is a nested dict
++        # keyed by cache tier, e.g. {"ephemeral_5m_input_tokens": 2048, "ephemeral_1h_input_tokens": 0}
++        if "cache_creation" in usage_model and isinstance(
++            usage_model["cache_creation"], dict
++        ):
++            cache_creation = usage_model.pop("cache_creation")
++            total_cache_creation_tokens = 0
++
++            for key, value in cache_creation.items():
++                if not isinstance(value, int):
++                    continue
++
++                usage_model[f"cache_creation_{key}"] = value
++                total_cache_creation_tokens += value
++
++            # Aggregate mirrors Anthropic's legacy cache_creation_input_tokens field;
++            # keep the API-provided value if it is already present
++            if total_cache_creation_tokens > 0:
++                usage_model.setdefault(
++                    "cache_creation_input_tokens", total_cache_creation_tokens
++                )
++
+     usage_model = {k: v for k, v in usage_model.items() if isinstance(v, int)}
+ 
+     return usage_model if usage_model else None
+diff --git a/tests/unit/test_parse_usage_model.py b/tests/unit/test_parse_usage_model.py
+index 764d6132b..fd39ad658 100644
+--- a/tests/unit/test_parse_usage_model.py
++++ b/tests/unit/test_parse_usage_model.py
+@@ -78,6 +78,60 @@ def test_prompt_tokens_details_dict_empty():
+     assert result["output"] == 100
+ 
+ 
++def test_anthropic_cache_creation_nested_dict():
++    """Anthropic extended prompt caching: cache_creation nested dict is flattened."""
++    usage = {
++        "input_tokens": 9454,
++        "output_tokens": 380,
++        "cache_read_input_tokens": 0,
++        "cache_creation": {
++            "ephemeral_1h_input_tokens": 0,
++            "ephemeral_5m_input_tokens": 2048,
++        },
++    }
++    result = _parse_usage_model(usage)
++    assert result["input"] == 9454
++    assert result["output"] == 380
++    assert result["cache_creation_ephemeral_1h_input_tokens"] == 0
++    assert result["cache_creation_ephemeral_5m_input_tokens"] == 2048
++    assert result["cache_creation_input_tokens"] == 2048
++    # No nested dict may survive into the final usage model
++    assert all(isinstance(v, int) for v in result.values())
++
++
++def test_anthropic_cache_creation_keeps_existing_aggregate():
++    """API-provided cache_creation_input_tokens is not overwritten by the computed sum."""
++    usage = {
++        "input_tokens": 100,
++        "output_tokens": 10,
++        "cache_creation_input_tokens": 3000,
++        "cache_creation": {
++            "ephemeral_1h_input_tokens": 1000,
++            "ephemeral_5m_input_tokens": 2000,
++        },
++    }
++    result = _parse_usage_model(usage)
++    assert result["cache_creation_input_tokens"] == 3000
++    assert result["cache_creation_ephemeral_1h_input_tokens"] == 1000
++    assert result["cache_creation_ephemeral_5m_input_tokens"] == 2000
++
++
++def test_anthropic_cache_creation_all_zero():
++    """All-zero cache_creation tiers: flattened keys kept, no aggregate invented."""
++    usage = {
++        "input_tokens": 50,
++        "output_tokens": 5,
++        "cache_creation": {
++            "ephemeral_1h_input_tokens": 0,
++            "ephemeral_5m_input_tokens": 0,
++        },
++    }
++    result = _parse_usage_model(usage)
++    assert result["cache_creation_ephemeral_1h_input_tokens"] == 0
++    assert result["cache_creation_ephemeral_5m_input_tokens"] == 0
++    assert "cache_creation_input_tokens" not in result
++
++
+ def test_priority_tier_not_subtracted():
+     """Priority tier: 'priority' and 'priority_*' keys must NOT be subtracted."""
+     usage = {

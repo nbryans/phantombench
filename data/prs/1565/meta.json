@@ -1,0 +1,36 @@
+{
+  "number": 1565,
+  "title": "fix(openai): include responses instructions in captured prompt",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1565",
+  "base_sha": "cf68968fd55ba1ef043f6310d82116c297951389",
+  "head_sha": "b302fde4d00b6f2e7b69400ccc0dfac9d953b379",
+  "merged_at": "2026-03-19T17:11:51Z",
+  "additions": 79,
+  "deletions": 2,
+  "changed_lines": 81,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/openai.py",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_openai.py",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_openai_prompt_extraction.py",
+      "status": "added",
+      "additions": 46,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:05.614753+00:00"
+}

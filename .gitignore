@@ -1,0 +1,16 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+build/
+dist/
+uv-cache/
+.claude/
+
+# Local-only working material, not part of the published harness.
+PROGRESS.md
+docs/
+slides/
+*.png
+!reports/*.png

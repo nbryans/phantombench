@@ -1,0 +1,21 @@
+id: "004"
+pr_number: 1564
+file: "langfuse/openai.py"
+line_start: 407
+line_end: 410
+defect_class: "local_mechanical"
+summary: >
+  The prompt-extraction branch bodies for resource.type == "chat" and
+  resource.type == "embedding" are swapped. Chat calls (the most common
+  resource type) now capture kwargs.get("input", None) — which chat
+  kwargs never contain, so the logged prompt is silently None — while
+  embedding calls run _extract_chat_prompt(kwargs) against kwargs that
+  have no "messages" key, producing a malformed or empty prompt instead
+  of the raw embedding input.
+detection_hint: >
+  A correct catch must state that the chat and embedding branches got
+  each other's extraction logic (chat now reads a nonexistent "input"
+  kwarg instead of calling _extract_chat_prompt, and embedding calls
+  _extract_chat_prompt instead of reading "input"), so logged prompts
+  for one or both resource types are silently wrong or empty — not
+  merely flag that the branches "look reordered."

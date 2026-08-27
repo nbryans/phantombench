@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:04:08.988067+00:00",
+  "latency_seconds": 16.212,
+  "prompt_tokens": 3188,
+  "completion_tokens": 674,
+  "total_tokens": 3862,
+  "raw_response": {
+    "id": "gen-1787259832-Ua1a36xFj0cm4SjzlVWP",
+    "object": "chat.completion",
+    "created": 1787259832,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[]\n```",
+          "refusal": null,
+          "reasoning": "Let me review this diff carefully for production issues.\n\nThe diff is adding a `release` parameter throughout the codebase. Let me look for potential issues:\n\n1. In `client.py` line 257-260:\n```python\nself._release = (\n    release\n    or os.environ.get(LANGFUSE_RELEASE, None)\n    or get_common_release_envs()\n)\n```\n\nThis looks like it's setting `self._release` to either the provided `release` parameter, or an environment variable, or calling `get_common_release_envs()`. The issue here is that `get_common_release_envs()` could return `None`, `\"\"`, `False`, or other falsy values. If it returns an empty string, that's a falsy value and the chain will continue. But if no release is found anywhere, this will be set to whatever `get_common_release_envs()` returns, which could be `None` or empty string.\n\nWait, looking at the logic again with `or` chain:\n- If `release` is provided and truthy, use it\n- Else if `LANGFUSE_RELEASE` env var exists and truthy, use it\n- Else use result of `get_common_release_envs()`\n\nThe issue is: what if `get_common_release_envs()` returns a falsy value but `release` or env var is explicitly set to empty string? For example, if someone sets `release=\"\"`, the code will fall through to `get_common_release_envs()`, which might not be intended. But this is probably a minor issue.\n\nActually, let me check the pattern used for environment. For `_environment`:\n```python\nself._environment = environment or cast(\n    str, os.environ.get(LANGFUSE_TRACING_ENVIRONMENT)\n)\n```\n\nThis is different - it doesn't have a third fallback. So for release, it has three levels. This seems intentional.\nIn span.py, the release parameter falls back to the client's release if not provided, which is consistent. The test validates that release gets set properly, though it doesn't thoroughly exercise the fallback chain. The parameter threading looks consistent throughout the system.\n\nI can't verify from the diff whether `release` was properly added to the `__init__` signature, but the implementation appears sound overall\u2014it's a straightforward optional parameter addition without obvious issues.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me review this diff carefully for production issues.\n\nThe diff is adding a `release` parameter throughout the codebase. Let me look for potential issues:\n\n1. In `client.py` line 257-260:\n```python\nself._release = (\n    release\n    or os.environ.get(LANGFUSE_RELEASE, None)\n    or get_common_release_envs()\n)\n```\n\nThis looks like it's setting `self._release` to either the provided `release` parameter, or an environment variable, or calling `get_common_release_envs()`. The issue here is that `get_common_release_envs()` could return `None`, `\"\"`, `False`, or other falsy values. If it returns an empty string, that's a falsy value and the chain will continue. But if no release is found anywhere, this will be set to whatever `get_common_release_envs()` returns, which could be `None` or empty string.\n\nWait, looking at the logic again with `or` chain:\n- If `release` is provided and truthy, use it\n- Else if `LANGFUSE_RELEASE` env var exists and truthy, use it\n- Else use result of `get_common_release_envs()`\n\nThe issue is: what if `get_common_release_envs()` returns a falsy value but `release` or env var is explicitly set to empty string? For example, if someone sets `release=\"\"`, the code will fall through to `get_common_release_envs()`, which might not be intended. But this is probably a minor issue.\n\nActually, let me check the pattern used for environment. For `_environment`:\n```python\nself._environment = environment or cast(\n    str, os.environ.get(LANGFUSE_TRACING_ENVIRONMENT)\n)\n```\n\nThis is different - it doesn't have a third fallback. So for release, it has three levels. This seems intentional.\nIn span.py, the release parameter falls back to the client's release if not provided, which is consistent. The test validates that release gets set properly, though it doesn't thoroughly exercise the fallback chain. The parameter threading looks consistent throughout the system.\n\nI can't verify from the diff whether `release` was properly added to the `__init__` signature, but the implementation appears sound overall\u2014it's a straightforward optional parameter addition without obvious issues.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3188,
+      "completion_tokens": 674,
+      "total_tokens": 3862,
+      "cost": 0.019674,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.019674,
+        "upstream_inference_prompt_cost": 0.009564,
+        "upstream_inference_completions_cost": 0.01011
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 662,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[]\n```"
+}

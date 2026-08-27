@@ -1,0 +1,11 @@
+--- a/langfuse/langchain/CallbackHandler.py
++++ b/langfuse/langchain/CallbackHandler.py
+@@ -1586,7 +1586,7 @@
+                     continue
+
+                 if "output" in usage_model:
+-                    usage_model["output"] = max(0, usage_model["output"] - value)
++                    usage_model["input"] = max(0, usage_model["input"] - value)
+
+         # OpenAI / LiteLLM — prompt_tokens_details as dict
+         # e.g. {"cached_tokens": 12000}

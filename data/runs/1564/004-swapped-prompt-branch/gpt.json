@@ -1,0 +1,72 @@
+{
+  "model_id": "gpt",
+  "model": "openai/gpt-5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:55:04.263453+00:00",
+  "latency_seconds": 12.946,
+  "prompt_tokens": 1553,
+  "completion_tokens": 1109,
+  "total_tokens": 2662,
+  "raw_response": {
+    "id": "gen-1787259291-YG4MC8h57cnHr3Horlv1",
+    "object": "chat.completion",
+    "created": 1787259291,
+    "model": "openai/gpt-5",
+    "provider": "OpenAI",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "completed",
+        "message": {
+          "role": "assistant",
+          "content": "[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 409,\n    \"failure_mode\": \"The prompt extraction logic for resource.type == \\\"chat\\\" and resource.type == \\\"embedding\\\" appears swapped. Chat now uses kwargs[\\\"input\\\"] while embedding uses _extract_chat_prompt(kwargs).\",\n    \"impact\": \"For chat requests, prompt will often be None because chat APIs typically provide messages rather than input; for embedding requests, attempting to extract a chat prompt may fail or return None. This breaks prompt capture/telemetry and any downstream logic relying on it.\",\n    \"suggested_fix\": \"Restore the original logic: for resource.type == \\\"chat\\\" use prompt = _extract_chat_prompt(kwargs); for resource.type == \\\"embedding\\\" use prompt = kwargs.get(\\\"input\\\", None).\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 543,\n    \"failure_mode\": \"Token detail keys were changed from singular to plural (input_token_details/output_token_details -> input_tokens_details/output_tokens_details), dropping support for the previous key names.\",\n    \"impact\": \"If upstream or older SDKs provide singular keys, token details will be silently ignored, reducing observability and causing partial usage data in production.\",\n    \"suggested_fix\": \"Support both variants by iterating over all four keys or normalizing: for key_aliases in ((\\\"input_tokens_details\\\",\\\"input_token_details\\\"), (\\\"output_tokens_details\\\",\\\"output_token_details\\\")) use the first present key, then process its value.\"\n  }\n]",
+          "refusal": null,
+          "reasoning": "**Evaluating code changes**\n\nI'm noticing that the code currently only checks for plural forms and not singular. If an SDK returns singular data, those details might be ignored, which is a change from before. Tests may have been updated, but it feels like we should support both forms. I should draft two findings and reference specific line numbers, particularly around line 543 where \"input_tokens_details\" appears. I need to suggest fixes to ensure both keys are covered in the loop. Let\u2019s work on this!",
+          "reasoning_details": [
+            {
+              "type": "reasoning.summary",
+              "summary": "**Evaluating code changes**\n\nI'm noticing that the code currently only checks for plural forms and not singular. If an SDK returns singular data, those details might be ignored, which is a change from before. Tests may have been updated, but it feels like we should support both forms. I should draft two findings and reference specific line numbers, particularly around line 543 where \"input_tokens_details\" appears. I need to suggest fixes to ensure both keys are covered in the loop. Let\u2019s work on this!",
+              "format": "openai-responses-v1",
+              "index": 0
+            },
+            {
+              "type": "reasoning.encrypted",
+              "data": "gAAAAABqh2mmD13PR_zx3e8g2kkRECNqPNiov07xoyFj91Fdwap6Z7R2JXKCpgrL2jcNSlCq75-Sudu3Atri_iSNlVPLr3dpi7fHa0bKbpM_uHGDE4EjKG_xyipFfgOIIvVzHpDUnHgrgeNxRq8Lq9WC1tpJxJz3AFbpJ7N-c-LVh2Z0F7cZfS3IYxWdEQcALwwm7BEqWq1fVdWzdcqlqZOoeYUfJ-v1oC4ZdlZD2Tl4X4tvHBR0M7GnOncW3I3BQwUukG3ddeVf-BGkUOp_C0Sk8KKboW4SOJXGnDs1EKi5sg2OF-780XcZT-1e7XuOCJ6fgM_7YErJ3Kj3P-afCabNRTwX8KjWjetUTYYpfaSNVSagmAkx16MD52VGt-ituLQ_z4_qoHMywkWrYQkb4Sngy5R2YBV21MO1YE4RGG2wIM9TYzD7haOelP9VGnk9fP1KbHlYN7rmpk_lBJ5txTbWualldk3R6oan1ttiWEi1EOGgtXsAI-dSIlQbHAFvb55Xyw99uyAItLq-j8aAlq38iv3_HhgBvFhSuPu1IoBLOb8e7ao2e0a5qiKXC7uexWgnAcGP43lt0pc5N8tjG0hLgwRXngxpU-qv7bLPrVY5XUBKmzD3RWlgBN5SEG3Vq8vcnsrOOwfyuAuffcxsxCSwqpDW6kWmLsSuvZKh5fWiKB0Fv4YvUe3shLjXtasA9TUBLpj6oIWOlZ3tQUTXNf73pgYshwEGsN6ZGny7T2uSkWFY8eaTTL6LxTSicBIrZb3fwNIKd-tq3M47ZatSFzsjEoT5dTdHRidfQ5Yin1MmNgham4Y392LvZTCp1lq2Ezp3kip8qI2kNICSCS5zw7hDxeNhG7cAqWYGASQTOSjBRMySM-8DLr8ChoDmo4KPNLS-eyQFUQth2Z3hbZ9xpapGX83g8KBteZ_xVFdq3BVFgBBzzjQe6qLhRLrRpoZLtn3QVD9d2E_E-fl-DRoxRF4Ksy4ZPX9_8mFFx4kWfh5DSQM8J4YPVCVoeguKqgJU9kd4GDto9Fn42DAEyZuuNx4UsHGnGdIFNOnlVm3HxxjO3pNihgxpzbON96eJO-LH-FkVuER-qI1uNBODPBEO16cC1Hn4bI_4lExSA8KPjz9FjVz40tXmTXRQTEtZiMsHLi45VQlDztzuEWUSclPYd-shM0lukn5PMz80p-kIOLaZ5z-sCxl4jFr5xv2o46wIh7GXB-jK2RNVLn9XV3t0FWy4WDAxsbT3UlbPYBgTIFpSicxBis0q7mg1LNw3d3yvB_G3NQz-JYpxHim3uI7jETS0VJDL-T10Sg6VZ9I7S-u15hXEbzv1yMsqMv8WXvrh1QOdrtdDUisyXvOWpZV3IEJGyPldgLs83BQtHhvageiTxMSHIPtYJYGpyljq-GiVnRYmaQT3cZiWLlSKaNfdoAoSPShvTfBvK12mhhyYAM8ti6dL2R6o3yJiGUabGsCbombSNwaz0yDl_QE1zKOfAyrzfvzUSSFIhLj0IqGe-7QQ2pm9Z7_HgxhKtncAgI9m6d1wenfgL7LcXP6ekV17DpBtDGueUCHjijGe8B8akHiIquKQ7oUCpP4MqzV_CNjDaIHeK3wUzuhb0nKqETFOSwVGVqw-3GPEM_jSIE8GrqKxOgaabPLrPQfSvBE1gyI4fy0kV0rM_ibuaU_Dwe9T_99k4DmnfFSeRkrQwz7Vx4d-L-aYvu2MeERUNdhmvljWVi2_XH4gEO80XVY3ntr5tiIVW6zRIB5hdfCCohQV-zlvL5EA-puMTWkJrxxuXgf-uA79jJGSCnK5hMNSYIa0iO5WjxTk5FwrHKBzxGNTnCzAMjkBJTLs736CeFV16QG67YDOqAbL8ZXd-nwil7PwcULqeIROGm9rdN_nQPcMoYjEnvsNi-0RpHOxP2IBrcrAD5ICA2jRfDnrkk9kRsObUTxgqkZNQgG6OAn4jT2rdjj90ieyYwYCrGaMFJ3-Dg0bcDzxZNnNzHPEuFS_IiQl8QcPsQJ-wHuGoF4CxuIP8Nu3hBkM3J4Lwffq23GH0f7IQDukOoXN-Xt-blE4wTc6HyT6Z5P_PATIkK9CCyb3xgrlik5kKaWDLMtRLTfo28ZIvg7yqlYIjixEZskZ0qmiwW8oLbYQTdSf4LUbQFU9s8F-9JgA2FEgcXslRlK1tBMN7fjUxceCcpyGa6nd7XKOV9fAF91UTOrL2wJNQq9Tr2s8Fro3tJ4XHrlyyDDwDBCTybd4KNqHAwog0T8ucasNe1pvIN0olI0CBI7gtTCwoRECR11rxEK8LX_atDqC-r478J0KJ-5afZYoln0p3Unk7cnmEVEG5as4ghvh9TPJ1RF4PnxPvkzwyHPtzltg287OwaKsHeknkQrRDusdjYEWnKoyVb9Plkq2TdLqRWRLOlb4x9sfEUwM85x0fvULyaMh1b_nLyRNSMmIZWryojQxCzuwjJCqLAWSSAGBN5UKLgQv0GJmgt1kNScWZm8vTip2NSchNPE6SILUE8-sXHFf3ypkrGvOJTWBPuFVKlOLa7PvMkLa0yK2D9VciHgI06FOQQt38VihSzHDjsaE9vz5cRpncNV7brX2G9hrfvjSQrwE9NsIi5KFGFxjcKLGKZ_ejMuvhF3Yfz8_gb5SiPNOCqETMxLITr_J6Q_U3WNjMPsqMVW4_ce3eoFOecm1frKaDHyE3K1jVpFD0PfiZgtiXsqybHdX9in1ptilLXR42McNsgcZ_INugYhdqz4lOpYUg7_TSeu0mfbV1DQroA8xFq5sLf3bT2OHAyaVotQzp6N0jXg2nSQnUrjy9oi5Dpim58KA2DbBz_KfRfJ6c9F-F04PR2PXMviRi1oTsqfAGxs5QCWyIVmfSmUeYm2dAiKaTduKfpBWEFwTaVpXncBWCQTCvrT4Gsa6YqMNnbW0UflHOaOFG0DiG2vFX1uNPCgicj3NeLFIOuKSovRMm3VeSNy6745swoxlExzy-6ffiRDFfRnd-l5xBx1FJCGQSRhIf78ZogN1EDn0OaSxWzejybUSEZVGOxEFNMrbt802NaumAVsMjLsILzeHxaxFn-4K_6Vc08xLpB8rGW1nD399lSVyJAlA0uxx5l_p6exyWpHze4ETq-i6-mUcqtlz_bD7Seo9zVCWTXOydCuWywigcCaOEJ9Gd2Igwmjamj8ryTLKP0EyX_ufH8vP66HO7aT0AcP0NJFtrTJufF3-6YzlpTjgkAPv3mV3T-upjiwdFMRobcgIlbR6zWLemMtUJwMhNVs9sDbtJpED5eKFN6W7aDOB-rSAMWJuaG7o_4-aA9pkAr5M43xiQQs0B88BX0SmN08BxdtE_cFSUxDlsamfzxa7Oguoa__UKzhRNjkUELO-AB1W1UzPM_wFTGl6MXDITASuvNVL6Eo94lMzJrtb3-vw9z84f-FaX8zcHmVYyblgTb29wLTsPG8b_4tQp0i3dUz5SEPB0Tq96iXthDUHKlmfZ4cNE2kU53QiQ1_0lZk_ZuyRJScbuGZpCyrE5QQwjEHbco2EXe-xUgnzLtyLdqn3GNVjYzjdE3FH2votpQkyw0cNpkUd6-RsAjQyr3d2JzT2ClZXp-VnT0A8oyqdSfs1-Mcr_05IAd8WgaOuiyza1WIpl-iRW3XtDt_XiERvPLXYYZfeJxsE68j5xfBFsVMfDBd_2VdbyNXB5EWNoEGMxzG_kdMgmsgEsoszEFg5HQfoaBAxI-rcxTdXgB4ooSRFomj2lJfSq3QeEtG_G5TX2xMFDZn486HNJt1cqHpFAK3Zk81d5BqeoZKwUytqtVQjBOLvNrFut1hFaNKyvEuqLOCtcuoExy734BgSz8qwjp-lmxRnNEsAjU-sZ3aoD9FB3JoB3u6nqLT4CISWtXrLZ6CQakoprXvmUObKHFn6p5x121Tt9ALzUWytgSJiAXMaVcCFG8_9qG5S4Kux_bKSKdfQFlZOXxNohHeR5q4IOOJIK120UyZfzm7bt0GKmCu_8VT4NiF9JJ-kYMl6eYSnLMex9MLVYouDv1rLNKjWPTzgwmyjRLJ7FBZ_CM-I4VMYmG2yZQFVKZT8xpItnR0R2EXtq385Ym5vRqhfFp_uRwpcwNIRhUXEPTGXFvW-pTWo14ow_plmFM18gvv1hmvmPTlCpO7wD5qWYq_mH1D1TkEGTO-lwct7I2AkyGqB35PSsVM5uc6cvATKwFgqVkat43kdzsfr0uxkYNkJUMq8oo3e3fhUm3Smhyz9fSM6Q2jnl0X2DtPXdGpEX0Hmmts23XSsqoKl2Y5nO7xz7chj73UjIOs1ho6myqXM2HXCRMcsqPSWhUmm2_RXR7EB1YmBTK_slV--iGjBv3gbHhlLBx2aHrco4pbCN_Fa_QQtF1Jt6EDrleVvBLRZvDl9ENOXBsfILETu8RATdAPWRaMgj-pcp_ojnlk7X7zpEOtmR7kKISklBolG7loVu71jk4obd1IHb0p6kEe7WndsvjHvLsKLRRxjPNOdeEsLuONdwmnxo0-qig8hp2ikjoERqTVz7zonEXWtzNdu_fvO20PTJH4a2A0LQMoFFYVK7UfzT93xGkd1iCX-gyxOjjCkbuyP1gII6BMLWpBm7xbX2IMUiFLSmJdzPipKmlHgUNasvFyk5B-vcWOWPaq7awlL0eXZIwoie_NZ3G0mwSNUgMNSDtIfk_5tM2znp3i-2GeRn0t57O3VkYaZf3A15q3DWOgYy49jLz2SQIvgz0NaR1REVzOa3BRZh5qkjv2ST_dwwFoVIBl9H82Fni53iwMF3gOidJS911dzNuBqxReyuuzZatsu_b2jTvC7t-4nX-sapVKN1TWnz7nZqB0Nh-zLHja2wwAEtnwuAuHUmIOJ9YQsu0nqziaoSIkV1MENJDt605MJ7GCwhdPSW9XGoqJDEzaqU6lK94WCfXOoTB5NqPqVJuFvpsuKyfylSFhcuL2KN-w9sqOp8v0zfZtJxn6QeKBYQK_icwTLyB96E1VD7yQpEOFPadRXff0C5mvZqAPs52OAB2n5Kt6QqbTiogYpbzF2Yi59KeDM2ywkwqdJvJ5J2un734qaKvik4UIHyXgFF_-VpZj6aPnqP5Aq0Ba5eWTN9OZtPRdZd4lCXA4Y3ipBy6QsJy-5n1IexJPPjCOshhZImSCKte3XegaeTlfmAtpmrfnT01KghmH0AydSPZNfCB-FwAE0nbQwiklXT_AXXBHAl3VMQS34g4e2f1ULMIEQ1T2NRoDQ0Q1HGAAJ248kmP5OEUN3pqx6qrBRmCaZEwLpoK7Kbo2LIRSNajvhD6P2BzkrBOjKoaOKi27d56LI46WEBGHjxE5qR3m3MeU36QK92rDaehS18ZVBMWTVZxx5MWXdNlNj6sX8vR8rEqGvPvJ7dfWLKm2m9dRjkEuQCjEhFN3cfdfeRbFYXAH_ZilyTKypMeHM23TB1XQYmTTq3G0Hl5LloXpAxe8EGKTk_DlK6HaXSPgw96wcgPDBzuJtsJ4l5AMi10MtgcExrNvqSpJUfC_rgagcNg3khKHfGVjO94Zpl-Z8ZqwJ8eVAv6OS2PWyYYYL_ASEq2t4DtzyYZtv7H1_7LRGPESdumQOe4RyhklE3lSb9kGhLoS2uzO-UwsEeNqp1xkN2Z7aU84_34OflmWCSzvswEw0gnYiJlpY60dF_E8rBG6QidD84RKy08UHy_o0j2P8naYDXk9yfxzGqUikaD3MDozViNasblcL6UdwtPlge7woFwhqWMtH5t11B6KgZEuuMdd4_0l3BW7AWAgz940TBkzmtsqj9BaiwKiGggD1dyn17XA87fbGtAz-xNVNunq_wUhHHnJ18zJhMK3rq27nmoiJ4Ldgqq1tpftE_C39KjoEvOKfPN2WyAAlxWDSzIkg8y0rOWxkHpdlN9VlpL5B_3G7UVUlppcD_hnaQqqe444_oGEYuhp19aZXJVks1u1mQNt_zU3WWQQ6_DK6PkRITBRU01FoD_pTPmMrdjRFqSdFD4QTr64QQtojQtvMfOlBiv1mi323ZfOVOLK5ujqfzDIPpkj9J56Nn33TIMNwapqiPW0kDG13L51IzAGLpSQgtBIA_fy52BiSMF0k8qpWdTZmXYFDUQfaw8zXcaMRpeenBbMubGGz1lf47HPeaP6SeZEIUg_0oVzaj00gTbzdlI9773MFMMcfs6oZr-j_waNlnL-mDJPWCMcm1VBRYls5Aec8ZCyKMbodqcSQg15Z7Hd6jzeme1S_VLjXdZANHQ==.eyJlbmRwb2ludF9zbHVnIjoib3BlbmFpL2dwdC01LTIwMjUtMDgtMDd8b3BlbmFpL2RlZmF1bHQifQ",
+              "format": "openai-responses-v1",
+              "id": "rs_09305411fd3caa1a016a87699bfbe887d183f2311836f10bd7",
+              "index": 1
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1553,
+      "completion_tokens": 1109,
+      "total_tokens": 2662,
+      "cost": 0.01303125,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01303125,
+        "upstream_inference_prompt_cost": 0.00194125,
+        "upstream_inference_completions_cost": 0.01109
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 704,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 409,\n    \"failure_mode\": \"The prompt extraction logic for resource.type == \\\"chat\\\" and resource.type == \\\"embedding\\\" appears swapped. Chat now uses kwargs[\\\"input\\\"] while embedding uses _extract_chat_prompt(kwargs).\",\n    \"impact\": \"For chat requests, prompt will often be None because chat APIs typically provide messages rather than input; for embedding requests, attempting to extract a chat prompt may fail or return None. This breaks prompt capture/telemetry and any downstream logic relying on it.\",\n    \"suggested_fix\": \"Restore the original logic: for resource.type == \\\"chat\\\" use prompt = _extract_chat_prompt(kwargs); for resource.type == \\\"embedding\\\" use prompt = kwargs.get(\\\"input\\\", None).\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 543,\n    \"failure_mode\": \"Token detail keys were changed from singular to plural (input_token_details/output_token_details -> input_tokens_details/output_tokens_details), dropping support for the previous key names.\",\n    \"impact\": \"If upstream or older SDKs provide singular keys, token details will be silently ignored, reducing observability and causing partial usage data in production.\",\n    \"suggested_fix\": \"Support both variants by iterating over all four keys or normalizing: for key_aliases in ((\\\"input_tokens_details\\\",\\\"input_token_details\\\"), (\\\"output_tokens_details\\\",\\\"output_token_details\\\")) use the first present key, then process its value.\"\n  }\n]"
+}

@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:59:39.803956+00:00",
+  "latency_seconds": 15.666,
+  "prompt_tokens": 2045,
+  "completion_tokens": 800,
+  "total_tokens": 2845,
+  "raw_response": {
+    "id": "gen-1787259564-5QHxHYsF84rG1r4LbxNC",
+    "object": "chat.completion",
+    "created": 1787259564,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 645,\n    \"failure_mode\": \"The condition is inverted: `usage` is only assigned when `chunk_usage is None`, meaning it will always be set to `None` and never capture actual usage data from chunks that contain it.\",\n    \"impact\": \"Usage metrics (token counts) will be silently lost for all streaming responses, breaking telemetry and potentially billing tracking for callers relying on this data.\",\n    \"suggested_fix\": \"Change the condition to `if chunk_usage is not None: usage = chunk_usage` to correctly capture usage data when present.\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 656,\n    \"failure_mode\": \"`finish_reason` is only assigned when `choice_finish_reason is not None`, but the variable may not exist in scope before this point, potentially causing an UnboundLocalError if referenced later when all choices have None finish_reason.\",\n    \"impact\": \"Code will crash with UnboundLocalError when processing streams where no choice has a finish_reason set, breaking all callers in that scenario.\",\n    \"suggested_fix\": \"Initialize `finish_reason = None` before the loop that processes choices, or use `finish_reason = choice.get('finish_reason', None)` without the conditional assignment.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "Let me analyze this diff carefully for production-relevant issues.\n\nLooking at the changes in `langfuse/openai.py`:\n\n1. Lines 643-645: \n```python\nchunk_usage = chunk.get(\"usage\", None)\nif chunk_usage is None:\n    usage = chunk_usage\n```\nThis is suspicious. If `chunk_usage is None`, then `usage = chunk_usage` sets `usage = None`. This doesn't seem to make sense - why would you only set `usage` when it's None? This looks like a logic error. It should probably be `if chunk_usage is not None: usage = chunk_usage`.\n\n2. Lines 654-656:\n```python\nchoice_finish_reason = choice.get(\"finish_reason\", None)\nif choice_finish_reason is not None:\n    finish_reason = choice_finish_reason\n```\nThis code sets `finish_reason` only if `choice_finish_reason` is not None. But `finish_reason` is not defined before this if `choice_finish_reason` is None on the first iteration. This could lead to an UnboundLocalError if `finish_reason` is used later without being defined.\n\n3. Lines 658-662:\n```python\nif _is_openai_v1() and delta is not None:\n    delta = delta.__dict__\n\nif delta is None:\n    delta = {}\n```\nThis looks reasonable - it converts delta to dict if it's not None, then ensures delta is at least an empty dict.\n\nLet me check if `usage` and `finish_reason` are used after these sections... I can't see the rest of the code, but these variables are likely used later in the function.\n\nThe most critical issue is #1 - the usage assignment logic is inverted, which will cause usage to never be captured when it actually exists in chunks.\n\nIssue #2 is also potentially serious if `finish_reason` is referenced later and was never set.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me analyze this diff carefully for production-relevant issues.\n\nLooking at the changes in `langfuse/openai.py`:\n\n1. Lines 643-645: \n```python\nchunk_usage = chunk.get(\"usage\", None)\nif chunk_usage is None:\n    usage = chunk_usage\n```\nThis is suspicious. If `chunk_usage is None`, then `usage = chunk_usage` sets `usage = None`. This doesn't seem to make sense - why would you only set `usage` when it's None? This looks like a logic error. It should probably be `if chunk_usage is not None: usage = chunk_usage`.\n\n2. Lines 654-656:\n```python\nchoice_finish_reason = choice.get(\"finish_reason\", None)\nif choice_finish_reason is not None:\n    finish_reason = choice_finish_reason\n```\nThis code sets `finish_reason` only if `choice_finish_reason` is not None. But `finish_reason` is not defined before this if `choice_finish_reason` is None on the first iteration. This could lead to an UnboundLocalError if `finish_reason` is used later without being defined.\n\n3. Lines 658-662:\n```python\nif _is_openai_v1() and delta is not None:\n    delta = delta.__dict__\n\nif delta is None:\n    delta = {}\n```\nThis looks reasonable - it converts delta to dict if it's not None, then ensures delta is at least an empty dict.\n\nLet me check if `usage` and `finish_reason` are used after these sections... I can't see the rest of the code, but these variables are likely used later in the function.\n\nThe most critical issue is #1 - the usage assignment logic is inverted, which will cause usage to never be captured when it actually exists in chunks.\n\nIssue #2 is also potentially serious if `finish_reason` is referenced later and was never set.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2045,
+      "completion_tokens": 800,
+      "total_tokens": 2845,
+      "cost": 0.018135,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.018135,
+        "upstream_inference_prompt_cost": 0.006135,
+        "upstream_inference_completions_cost": 0.012
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 447,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 645,\n    \"failure_mode\": \"The condition is inverted: `usage` is only assigned when `chunk_usage is None`, meaning it will always be set to `None` and never capture actual usage data from chunks that contain it.\",\n    \"impact\": \"Usage metrics (token counts) will be silently lost for all streaming responses, breaking telemetry and potentially billing tracking for callers relying on this data.\",\n    \"suggested_fix\": \"Change the condition to `if chunk_usage is not None: usage = chunk_usage` to correctly capture usage data when present.\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 656,\n    \"failure_mode\": \"`finish_reason` is only assigned when `choice_finish_reason is not None`, but the variable may not exist in scope before this point, potentially causing an UnboundLocalError if referenced later when all choices have None finish_reason.\",\n    \"impact\": \"Code will crash with UnboundLocalError when processing streams where no choice has a finish_reason set, breaking all callers in that scenario.\",\n    \"suggested_fix\": \"Initialize `finish_reason = None` before the loop that processes choices, or use `finish_reason = choice.get('finish_reason', None)` without the conditional assignment.\"\n  }\n]\n```"
+}

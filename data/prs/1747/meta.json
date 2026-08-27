@@ -1,0 +1,29 @@
+{
+  "number": 1747,
+  "title": "fix(langchain): handle Anthropic cache_creation nested dict in usage",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1747",
+  "base_sha": "77b242aab8ad32b57a3e940abdc3bb67658b115b",
+  "head_sha": "782c0398e104e8f618bd1677c6d5099526a67bd9",
+  "merged_at": "2026-07-09T09:51:03Z",
+  "additions": 76,
+  "deletions": 0,
+  "changed_lines": 76,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/langchain/CallbackHandler.py",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_parse_usage_model.py",
+      "status": "modified",
+      "additions": 54,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:55.603435+00:00"
+}

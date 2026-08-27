@@ -1,0 +1,43 @@
+{
+  "number": 1724,
+  "title": "feat(tracing): allow custom OpenTelemetry ID generators",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1724",
+  "base_sha": "8143977f78e6643d86382c56ba9cb8763c6fbbcf",
+  "head_sha": "be2799ab6d28ca39450f6ded87c60988dbd40832",
+  "merged_at": "2026-06-24T07:56:59Z",
+  "additions": 90,
+  "deletions": 3,
+  "changed_lines": 93,
+  "changed_files_count": 4,
+  "files": [
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/get_client.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/resource_manager.py",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_otel.py",
+      "status": "modified",
+      "additions": 68,
+      "deletions": 1,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:04.332013+00:00"
+}

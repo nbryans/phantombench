@@ -1,0 +1,36 @@
+{
+  "number": 1740,
+  "title": "fix(openai): parse raw API responses and add flag to skip tracing them",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1740",
+  "base_sha": "5a32d64b971801486c697d435fe890d76dadb93a",
+  "head_sha": "f8b0e6ec31321a5ed736d46409e8ce7d3b260688",
+  "merged_at": "2026-07-07T15:50:51Z",
+  "additions": 267,
+  "deletions": 8,
+  "changed_lines": 275,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/_client/environment_variables.py",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/openai.py",
+      "status": "modified",
+      "additions": 91,
+      "deletions": 8,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_openai.py",
+      "status": "modified",
+      "additions": 162,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:58.926198+00:00"
+}

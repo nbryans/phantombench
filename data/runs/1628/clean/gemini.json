@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:10:41.842535+00:00",
+  "latency_seconds": 12.79,
+  "prompt_tokens": 4187,
+  "completion_tokens": 1394,
+  "total_tokens": 5581,
+  "raw_response": {
+    "id": "gen-1787260229-e9ny42HqLkwLpnlesELv",
+    "object": "chat.completion",
+    "created": 1787260229,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 595,\n    \"failure_mode\": \"The span is never ended for synchronous generators when `capture_output=False`.\",\n    \"impact\": \"Spans for synchronous generators will remain open indefinitely, causing them to never be exported. This leads to incomplete traces and a memory leak in the OpenTelemetry SDK as spans accumulate without being processed.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to ensure it is always called when the generator is exhausted.\\n\\n```python\\n        except StopIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopIteration\\n```\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 670,\n    \"failure_mode\": \"The span is never ended for asynchronous generators when `capture_output=False`.\",\n    \"impact\": \"Spans for asynchronous generators will remain open indefinitely, causing them to never be exported. This results in incomplete traces and a memory leak in the OpenTelemetry SDK as spans accumulate without being processed.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to ensure it is always called when the async generator is exhausted.\\n\\n```python\\n        except StopAsyncIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopAsyncIteration\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nI'm currently reviewing the provided Python code diff. My focus is on identifying production-level concerns such as correctness, security vulnerabilities, and potential concurrency issues. I'll be generating a JSON output detailing any significant findings.\n\n**Evaluating Code Refactoring**\n\nI've analyzed the refactoring in the `async_wrapper` and `sync_wrapper` functions, specifically how the result handling has been extracted into `_handle_observe_result`. This appears to be a solid move to eliminate code duplication and improve maintainability.\n\n**Reviewing Observability Logic**\n\nI've completed my initial analysis of the `observe.py` diff. The refactoring to extract result handling into `_handle_observe_result` seems sound for reducing duplication. I'm now digging into the specifics of how `capture_output` is passed and utilized within the generator wrappers.\n\n**Analyzing Generator Wrapping**\n\nI'm continuing my deep dive into the `observe.py` changes. The logic for conditional output capture within the generator wrappers, specifically the `__next__` method and its `except StopIteration` block, has been correctly gated by `self.capture_output`. This prevents unnecessary item accumulation and span updates when output isn't being captured.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nI'm currently reviewing the provided Python code diff. My focus is on identifying production-level concerns such as correctness, security vulnerabilities, and potential concurrency issues. I'll be generating a JSON output detailing any significant findings.\n\n**Evaluating Code Refactoring**\n\nI've analyzed the refactoring in the `async_wrapper` and `sync_wrapper` functions, specifically how the result handling has been extracted into `_handle_observe_result`. This appears to be a solid move to eliminate code duplication and improve maintainability.\n\n**Reviewing Observability Logic**\n\nI've completed my initial analysis of the `observe.py` diff. The refactoring to extract result handling into `_handle_observe_result` seems sound for reducing duplication. I'm now digging into the specifics of how `capture_output` is passed and utilized within the generator wrappers.\n\n**Analyzing Generator Wrapping**\n\nI'm continuing my deep dive into the `observe.py` changes. The logic for conditional output capture within the generator wrappers, specifically the `__next__` method and its `except StopIteration` block, has been correctly gated by `self.capture_output`. This prevents unnecessary item accumulation and span updates when output isn't being captured.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4187,
+      "completion_tokens": 1394,
+      "total_tokens": 5581,
+      "cost": 0.01917375,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01917375,
+        "upstream_inference_prompt_cost": 0.00523375,
+        "upstream_inference_completions_cost": 0.01394
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 797,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 595,\n    \"failure_mode\": \"The span is never ended for synchronous generators when `capture_output=False`.\",\n    \"impact\": \"Spans for synchronous generators will remain open indefinitely, causing them to never be exported. This leads to incomplete traces and a memory leak in the OpenTelemetry SDK as spans accumulate without being processed.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to ensure it is always called when the generator is exhausted.\\n\\n```python\\n        except StopIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopIteration\\n```\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 670,\n    \"failure_mode\": \"The span is never ended for asynchronous generators when `capture_output=False`.\",\n    \"impact\": \"Spans for asynchronous generators will remain open indefinitely, causing them to never be exported. This results in incomplete traces and a memory leak in the OpenTelemetry SDK as spans accumulate without being processed.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to ensure it is always called when the async generator is exhausted.\\n\\n```python\\n        except StopAsyncIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopAsyncIteration\\n```\"\n  }\n]\n```"
+}

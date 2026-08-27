@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:02:34.094841+00:00",
+  "latency_seconds": 13.559,
+  "prompt_tokens": 3933,
+  "completion_tokens": 1333,
+  "total_tokens": 5266,
+  "raw_response": {
+    "id": "gen-1787259740-iOrK2EpthsTiPXVXTWKt",
+    "object": "chat.completion",
+    "created": 1787259740,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 742,\n    \"failure_mode\": \"The `__del__` method finalizes the span with a pending error, but does not clear `self._pending_error`. If the object is resurrected and `aclose()` is called later, the same error will be recorded again, leading to a duplicate error report on the span.\",\n    \"impact\": \"An error that occurred during iteration (e.g., `asyncio.CancelledError`) will be reported twice for the same span if `aclose()` is called after the generator wrapper is garbage collected. This creates confusing and incorrect trace data.\",\n    \"suggested_fix\": \"Clear the pending error after using it in `__del__`. Change `self._finalize_with_error(self._pending_error)` to `self._finalize_with_error(self._pending_error)` followed by `self._pending_error = None`.\\n\\n```python\\n    def __del__(self) -> None:\\n        if self._pending_error is not None:\\n            error = self._pending_error\\n            self._pending_error = None\\n            self._finalize_with_error(error)\\n        else:\\n            self._finalize()\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 722,\n    \"failure_mode\": \"The `aclose()` method finalizes the span with a pending error, but does not clear `self._pending_error`. If `aclose()` is called again, it will report the same error a second time, leading to duplicate error attributes on the span.\",\n    \"impact\": \"Callers who might call `aclose()` multiple times (which is idempotent for the underlying generator) will see the same error reported multiple times on the trace span. This creates noisy and misleading trace data.\",\n    \"suggested_fix\": \"Clear the pending error after it has been used to finalize the span. Change `self._finalize_with_error(self._pending_error)` to `self._finalize_with_error(self._pending_error)` followed by `self._pending_error = None`.\\n\\n```python\\n        if self._pending_error is not None:\\n            error = self._pending_error\\n            self._pending_error = None\\n            self._finalize_with_error(error)\\n        else:\\n            self._finalize()\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Quality**\n\nI'm currently reviewing the provided Python diff for the `langfuse` library. My focus is on identifying production-level concerns such as correctness, security vulnerabilities, and potential concurrency issues, aiming to provide a JSON array of actionable findings.\n\n**Evaluating Generator Closures**\n\nI'm examining the `close()` method within the `_ContextPreservedSyncGeneratorWrapper`. My analysis confirms that the added check for `self._span_ended` is a sound enhancement, ensuring generator cleanup occurs within the intended context even after the span has concluded.\n\n**Refining Generator Closures**\n\nI'm examining the `close()` method within the async wrapper. The addition of `_pending_error` and the `_generator_never_resumed` helper appear to address potential issues with asynchronous generator cleanup and state management, especially in scenarios involving exceptions or early termination.\n\n**Ensuring Generator Cleanup**\n\nI've completed my review of the `_ContextPreservedSyncGeneratorWrapper.close()` method. The added check for `self._span_ended` effectively prevents premature generator closure, ensuring cleanup logic correctly executes within the intended context, thereby fixing a potential resource leak.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Quality**\n\nI'm currently reviewing the provided Python diff for the `langfuse` library. My focus is on identifying production-level concerns such as correctness, security vulnerabilities, and potential concurrency issues, aiming to provide a JSON array of actionable findings.\n\n**Evaluating Generator Closures**\n\nI'm examining the `close()` method within the `_ContextPreservedSyncGeneratorWrapper`. My analysis confirms that the added check for `self._span_ended` is a sound enhancement, ensuring generator cleanup occurs within the intended context even after the span has concluded.\n\n**Refining Generator Closures**\n\nI'm examining the `close()` method within the async wrapper. The addition of `_pending_error` and the `_generator_never_resumed` helper appear to address potential issues with asynchronous generator cleanup and state management, especially in scenarios involving exceptions or early termination.\n\n**Ensuring Generator Cleanup**\n\nI've completed my review of the `_ContextPreservedSyncGeneratorWrapper.close()` method. The added check for `self._span_ended` effectively prevents premature generator closure, ensuring cleanup logic correctly executes within the intended context, thereby fixing a potential resource leak.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3933,
+      "completion_tokens": 1333,
+      "total_tokens": 5266,
+      "cost": 0.01824625,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01824625,
+        "upstream_inference_prompt_cost": 0.00491625,
+        "upstream_inference_completions_cost": 0.01333
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 742,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 742,\n    \"failure_mode\": \"The `__del__` method finalizes the span with a pending error, but does not clear `self._pending_error`. If the object is resurrected and `aclose()` is called later, the same error will be recorded again, leading to a duplicate error report on the span.\",\n    \"impact\": \"An error that occurred during iteration (e.g., `asyncio.CancelledError`) will be reported twice for the same span if `aclose()` is called after the generator wrapper is garbage collected. This creates confusing and incorrect trace data.\",\n    \"suggested_fix\": \"Clear the pending error after using it in `__del__`. Change `self._finalize_with_error(self._pending_error)` to `self._finalize_with_error(self._pending_error)` followed by `self._pending_error = None`.\\n\\n```python\\n    def __del__(self) -> None:\\n        if self._pending_error is not None:\\n            error = self._pending_error\\n            self._pending_error = None\\n            self._finalize_with_error(error)\\n        else:\\n            self._finalize()\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 722,\n    \"failure_mode\": \"The `aclose()` method finalizes the span with a pending error, but does not clear `self._pending_error`. If `aclose()` is called again, it will report the same error a second time, leading to duplicate error attributes on the span.\",\n    \"impact\": \"Callers who might call `aclose()` multiple times (which is idempotent for the underlying generator) will see the same error reported multiple times on the trace span. This creates noisy and misleading trace data.\",\n    \"suggested_fix\": \"Clear the pending error after it has been used to finalize the span. Change `self._finalize_with_error(self._pending_error)` to `self._finalize_with_error(self._pending_error)` followed by `self._pending_error = None`.\\n\\n```python\\n        if self._pending_error is not None:\\n            error = self._pending_error\\n            self._pending_error = None\\n            self._finalize_with_error(error)\\n        else:\\n            self._finalize()\\n```\"\n  }\n]\n```"
+}

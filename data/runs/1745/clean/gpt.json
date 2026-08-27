@@ -1,0 +1,72 @@
+{
+  "model_id": "gpt",
+  "model": "openai/gpt-5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:12:56.325051+00:00",
+  "latency_seconds": 11.747,
+  "prompt_tokens": 1483,
+  "completion_tokens": 643,
+  "total_tokens": 2126,
+  "raw_response": {
+    "id": "gen-1787260364-SyE8vIDbIAAx7813Bcks",
+    "object": "chat.completion",
+    "created": 1787260364,
+    "model": "openai/gpt-5",
+    "provider": "OpenAI",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "completed",
+        "message": {
+          "role": "assistant",
+          "content": "[]",
+          "refusal": null,
+          "reasoning": "**Analyzing code handling**\n\nI\u2019m noticing that the code must manage object types differently, possibly needing to convert responses to dictionaries before calling _get_langfuse. The diff only shows certain lines, making it hard to deduce everything.\n\nIn the _extract_streamed_openai_response function, it looks like they retrieve chunks with chunk.get(\"choices\") but if chunk is a SimpleNamespace, .get doesn\u2019t apply. This raises potential concerns about data handling. Additionally, if choices can be an empty list or other falsy types like 0, I should examine that.**Evaluating choices handling**\n\nI think the code should involve lists. If \"choices\" can be represented as an empty string, it wouldn't iterate correctly over characters. The patch seems safer since it will convert that to an empty list.\n\nHowever, there could be issues, like not updating mypy types, but that might not matter. I see an edge case: if response.get(\"choices\") returns an empty dictionary, it replaces it with an empty list, but the code expects an iterable of choice dictionaries \u2014 that would be a bug. Overall, the new code improves some previously risky scenarios.**Assessing code changes**\n\nBased on the scope, I don't see any issues that this particular diff would introduce. It appears to effectively handle the situation by returning an empty list. This seems straightforward and should keep everything functioning as expected. I feel confident that this change won't create any problems in the code. So, all in all, I think it\u2019s a solid addition and won't lead to unexpected behavior.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.summary",
+              "summary": "**Analyzing code handling**\n\nI\u2019m noticing that the code must manage object types differently, possibly needing to convert responses to dictionaries before calling _get_langfuse. The diff only shows certain lines, making it hard to deduce everything.\n\nIn the _extract_streamed_openai_response function, it looks like they retrieve chunks with chunk.get(\"choices\") but if chunk is a SimpleNamespace, .get doesn\u2019t apply. This raises potential concerns about data handling. Additionally, if choices can be an empty list or other falsy types like 0, I should examine that.**Evaluating choices handling**\n\nI think the code should involve lists. If \"choices\" can be represented as an empty string, it wouldn't iterate correctly over characters. The patch seems safer since it will convert that to an empty list.\n\nHowever, there could be issues, like not updating mypy types, but that might not matter. I see an edge case: if response.get(\"choices\") returns an empty dictionary, it replaces it with an empty list, but the code expects an iterable of choice dictionaries \u2014 that would be a bug. Overall, the new code improves some previously risky scenarios.**Assessing code changes**\n\nBased on the scope, I don't see any issues that this particular diff would introduce. It appears to effectively handle the situation by returning an empty list. This seems straightforward and should keep everything functioning as expected. I feel confident that this change won't create any problems in the code. So, all in all, I think it\u2019s a solid addition and won't lead to unexpected behavior.",
+              "format": "openai-responses-v1",
+              "index": 0
+            },
+            {
+              "type": "reasoning.encrypted",
+              "data": "gAAAAABqh23YMKOCluX37khmHyCTtC0CMxSPATl55SSHnkxSzhp-ORvAH5BoFAZ1Yf0ymVVdxoYb61kzRpGoq3VSl24zS0spqr7AVzZzCUbxuClTpH6c566GTTnxZsxXsKRA7yFTcwbEwrfbiDlyrP6NnWTUsUo8KvW2vfn8nq9UtAk3mxQOcyIAySasHZUThEV8QtGmsGrZKlLOXVcRKl0VZSgEV8-pn8jbATJGbPLauz7JeNH0jsREczLypN0jD4mIrWitAtTrGXA67hV6sNh6Lhno93QKnaFfrMaL48VHziio7zRtqAQc9MGd1eQb-vOqo33CXXnlHJip9G4K6o1ufAGfEQUvSf_NQnX-7UOfSKX9kri50c6-2sHhb3alyUKs5VzAqn38Rbw41Gu4AcH6J12mwz8DF15BzDDakuRvqk2_9yZ4UU31ocgWulyZGlBx_siPFGIc16f9CLPyze5Mvw10d1FGiJdiaHsSoT4q8oJfCnVhUWE-9Tycr-67kEDOnuzQcoD0JQ5QSVBpxX6NmcbUgeopFTmwX5H4fbfyzg1zV0HFVkair38g-64RRhd2GqPiJAm-BML91m770xOhwrNuxJu99zn7ueOIT04eulQBrG-JQFL5-i5Q2i4EsCZJQ4vs3z3KctcOyhRPUWHsJ6E0M14TnxfcE1h7M-JgEeHScPP2-dwKJ2rKquWCgJxyotDb6gQGojIbtvwccmfikwGmgGP3BhVIrKbwnV5Ie7Z2I-3QC1Pad64U4AoQBjFzG7sPzELVSRpxTXQelYceq64YtN6cuD3h0Q70RAqhAFzV22_BKy5r0C3Sbfg3nVctRCOcPtw_CfnOYOpW_n6anDwqpf_Qc4aIaUJLin92L07Hrlurpzuga1jdru7uwhMpEFct5AbIuFAPaTimeUQfjhwozCS8YwpabZlnN91UKzHZVUuDzc_x_YStdPlcnlYndS_kUUDU0MEUYWG_1yLq_h7KErDuL_4fWHM5hqJpu5_bwWC6Vgf-5VrhKjuRpsGgNn1ZYPjEBYlwIla21cCS42XdfhzJOMHKi_3pLlMkeycOEFxuFbWygCXMT-D2qSpmyufBdKfrAzapWxBnnjTkzCmMoRY-Ot-94Eg7t7WqSQ8KqJLkSXNUGwxJNq-lfG0YyTAhKaOL3SrYTF6NXyoJFUn2wN-vm6COZJQVk8547Bx5XSljXgbQrTPkaVSb0TMhz7V0Hzutn4HSwePVWrGupNi-koCAQKxT072KBKS6rkQTh8L7tHJ5Bs56q6r_hJkzpxxpXsQx-Dl4HLy3mG-ML-gPwYYiVRi_LbNtrkUwdQ2W81trmlCvwgEkxZnfQgNjVkLTA5zeWJPFkHI08KfhP688D8s7r2Iy3Bfsj-Q5Pm2DpG6vv89wi4SEQkWoatiUwDWkU7SImM4fF418mAxJdbiT63wf36FefBprtaY6MLf8QimsWoTF6VN_D5GqXCdZfgszD602A3AxSIBmrZXhqYfX5E4iR0NHs_I_wdz9IgGjutrOMFEj2e0i0HLLdIgl_DlZE8xcjYbHUGZPO963V_-tgeg8bh71bkH4IYCT-VgzvcPk24lhy17cNHVoAKBR-zvmZg4ZSWV2UHsAAtLn7XcMQzEdH48rCvp679AV_2upJ4UG3jnWs-GgbVFI8qNpwcL3kxh9ow-Mfw5Nbw9atgJj8DmaczuVI7AHond5tOfxwQ3hSKyzVhKwrr5IGzClqlWY9YPNgpX0hr3ZKvTvIVZ7wmImGElVB9XajYzoGpDpXyX4b7qKBm7Y7McgelkxZrxlE7ybgkbjpIYXbyshz56Bm3_YlaYfsE6HNXz-cN48YaGscrdtUaZJBIza41AI9LtIwP7TBRZ9HA0h3hgy-MFTBAKC63-PDXpHau-enIEb3M5poncZI9mR8ZTfdcKI9-89KWCNhfKtsIyXplBWKDwfrA127eckapa_z5xF6P8uQ_9T2-5PbZyAbpBlH5vebaeBPjlNvZ86GHXfQYgBkB7fG5a6dtDDmDyqckeyNu7arKE3CvnZmbjB7Os_SG2tNCS0pLelpuZrTAyZiqoKM17mVS94Qt4bEvlxJzIK2-5Ra12BUmmrKlPdd9zOOE1DBB0iMhUceyyli5DhtBzC_rADh8zEiWirPvS63bqzPPDx3rxIpPlNd-EPg0xioZqoF47HVlG9I_nxS3v7KrcZrh6yWmh_VTjzNCY--4R3G3d5DzQBBX2nyXXSgXiPUZd_6DshBKhSUKPuDD05xdOzCKe5jz9MUIsAicks0BRAbdCK2M7zV9UXYqkW8RWHRVLfQsyVYXbahSDUrcrAqO-0bf2H-1XZlIH4bL7kazFPG6JQsb7TecfiKjlBYPm9J3AbqrHdDRHw-2Jsxw2eZnGIIdHOkx2tLc4g7vDz3K1iazWrNBSNrv7PwOJspxBnZrs4EhzhJ1FsbC6z3aNI1Ka7oTcOda2Ampwg4A1NtDFfdnDYyeuedGev-o36SBgFlMdKODv81U4plgQEqT-EreKMZvbKXng-8gaN89gT-EnGkY-DC5av0uXB0041WWXZ8G0q9eeKqy9Ovh7EwyDs6O-thJIEtQfLjz_Pr5ay7_P5FxTGyp3LGAy8eduZJJEbR__tEy0pCKoGIEcOwC0DCK-TBdwgnbSIMbXEq9VvLsSrY6GJEeHo1JVq1cYe2Vb-P5v4I-NFJryns9ke5SNg0ZvTnCX5pfr6hhXxKdizLttX2_7Cjo4UBEixm034qpqth52Tl3cVd5eXnPEfvn1kVojotapqPVS8sIjAK1JhToUrtMYxoacxzqtfEB5eoFNb0qkzjGdB5vYZc_rR0VHzdoqOjBuwkdw5Mn4HAgv4XE2yCHhifBFmkkq3Lo0CnYCVPNKRTHZ2K_C1UhY1Lx5qIydT5TQrnrvFRZHCWarmEGmGTTdpo-9reXZUACxCZaLL9bjRf_4dVKoIpqau-igYPI9q0prmm4NhYT9za_HPAezNBW9yrWbij0e8dvig6eqbUQFECeEUjKvS208vNdjKTrRPnY4cX34CSxsNFMTKU3uJUI8e9NWd0Z8xd8Ul26HrVMrgMw9Ly-osZjMNvrnL9EixPr8gFQsP-V5iTOTXvKi6mhDo_RgkOujj7TEl4VVf9smscR8j03_VHzkEgLMEvszXCymlMqdP7aSV44WO4VmclBml8JnkZ0sRb18V1QKL_I-p8EkY_zX3SCV2qWjGVFyGtb988mED2bcJuj3ILSwKkeCza3mpLYRDpI47VE7MDt4VFZldZaxzB3GADk9DsUbwYgwBuMvXxlzT3VZryccbB5HW2hdYLoXbl43XnY-6eF0cnJdwOWdafTZY5w4jXDp3y6juENYVUwBUcGN_L5M9T1Z3tjXkXQl1qGZklkhVqourFD6Ip2kRAvbBjN0Qfs4CIycfEiMqZPrSNSVlAUrOXc0xlr71UvAp8MVxfvy6Pe4_f01dcRQ00Vyg4tVwnSiYcQJSFJbc4YZw9FZN6JkZUuIDgHjTFspV0KTICwGX0QH71SnlHe5h3DpjQDkauPnfwMNKKICUnxp9w3W3fUl1sfgj9gy_l98xrMhtyV8Ji0XjQZEh2KbRsgK39yhqkfYaTHnRu2oKf7wTviy9Ulkvj345immBHvjdk0P8VvieyRzfH6-_JKyPIsxl4gFb21VpebV_2Vsol3uC648oRVDrysD95fkSz4IkzjASIghDBc_3Jq_EQvgdvwS3u56KevD1e8W4Q1OVmwoj_QVi9tt_TVqwyYyNb6C0iAxWOyt6HTYHAEQKVX6IjmA0i6vX42C9ZKr-1X7NKaZHsXrYFDU6IuwYFfbJ8Agac0QOwp0yK6v6mvTeMXrSUxaHJHk9vhgSlA_4LDi-85R-TQXt1-0Dy-55VWaEm629s6Zp2l2hTE_zjbxuMcXSUmSgUpe1Fn80CCxidHW9KwY4Od079NifxcX5V1EJ8KRhaRJdP5bGH5BEAJDAYBirrHYpGNoN5R05Ma3xm1cH_7gQR3s2fg008pFvil-Pmn72sxqIlOqFfLqaBbcryvkyWwKpJtHQZJZ9OPYZVEAg6Po0IPdlf14iWuP3X-lhG_FR5b5YlAPEamtIYazEmdCajEgsNbwOHM57ZFPdR6tAvUjLRMUYmSzsvRcSI7Of1ijWJxMJ05G0T9p7Cit2ZO3T-xL4W--p3YjpScifimDwlkTs1K-B_adbztjhn2Zoc0aoUtfS_WS9qT2uMpcwsbL3JenkMfk2H1ykmUY4rFolVjEY20lPbkcH7zV0hLmMmRH0uy13Vt0Vntt-ZT4XNEi2NMTPAa8jv5206dl7xFhHGRl2PVgBUEDDDe0Y1pkH9q1t8MxZT3EfUB-T2DewATZS4WGEd03eIkmbtVmJR49A-WE8YRxFHysRlwZmvLMBgAtwYxsmHupHjW3SshdetUElrHoGLoifqq3vSy-TZY9WW7D7Y1pX5ypswWgsKQxvw6yRHmrAxlw7HkS-pZ_c7uQnWuD77-r3I2pd4M8z6HDy2CwUR_LvAw_P7IWX4Q68yYiY3lfZtqSz6HjKds57kMM_dk6d5NWI44ci0YJrM1o5CCv7M7fm9STzBqnCrCITP-JBkhPv-7r7VHOgcWevJLHiLLiGoWtHBMLVxBJeo2KKhsW2d6nBbTruUH17WsH5Yeff95uZeiUep5AWhsg6JV9xn6ckXXl0A-a2B39DyQ6c5KWIoYAqXa-KWHFylgkmxHW2MUd3ql4-e1w-XpXjqKRV2hOE9ILZWrYTtktMx6sr6X2M2NKAGmWTRwUUB4FoETI7jZNfbf7lN-ATVJNEoxj3VEdxyaRUi1Ljzyv2gXeIDRdogRjKOlAOViJPpsPWjajxFA-IIc6WZcWZHgUx3Op9FVt9qOIjOmMI06ekanBvYM6HwVMsw27ZSVXp_1rQp_JXLvelAhpNSXr_4dO6bj-_tThFWzBOZ3njEYSuuOynUIcjbqx4yugwsj8YSZAp6SqbUoSXwYtFUNECOVE_WicH1z-V-VVkuyTgaufDA5BaiGK6BJMN8RFEXiEOTjsnrteZF0JVtWg8Ly7NSgUrOMXzLBQShObCSmQpUMSd_NNx1IoVxioyMRv8Tn30UItT_DBTiXOgaktyACt0_OpRJFst0-NVq5oSJmNZzOiwKrMt7UBolTGrxuzYogomrD_m56-9xqci5rGgbJQj5mG-p6YWFprlXlr6yEqYW_1dn1J0KYKAqkTWiBsxxTUMiTNXeVSkfVpwzcJdtSk-u696mGegSS-ooKlxvtAH-Bjez726iGEPdhxT1YanPQYply5lHfAbRe7wmtNxUlDE456dinvlaTI0bcyHf7WpiexAJ4yLPA==.eyJlbmRwb2ludF9zbHVnIjoib3BlbmFpL2dwdC01LTIwMjUtMDgtMDd8b3BlbmFpL2RlZmF1bHQifQ",
+              "format": "openai-responses-v1",
+              "id": "rs_02416b0cf44ec212016a876dcd4b5c87d1986328bc8be621bc",
+              "index": 1
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1483,
+      "completion_tokens": 643,
+      "total_tokens": 2126,
+      "cost": 0.00828375,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00828375,
+        "upstream_inference_prompt_cost": 0.00185375,
+        "upstream_inference_completions_cost": 0.00643
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 576,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "[]"
+}

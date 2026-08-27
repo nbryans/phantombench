@@ -1,0 +1,29 @@
+{
+  "number": 1628,
+  "title": "fix(observe): preserve streaming context without output capture",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1628",
+  "base_sha": "264b94d3aec58f971c827c3b6a44f6d35f41624b",
+  "head_sha": "8db48f3e372ed93aa774156b80e7ae4cebafdc80",
+  "merged_at": "2026-04-20T12:52:11Z",
+  "additions": 191,
+  "deletions": 86,
+  "changed_lines": 277,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_client/observe.py",
+      "status": "modified",
+      "additions": 99,
+      "deletions": 86,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_observe.py",
+      "status": "added",
+      "additions": 92,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:39.611261+00:00"
+}

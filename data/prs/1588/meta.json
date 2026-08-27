@@ -1,0 +1,29 @@
+{
+  "number": 1588,
+  "title": "fix(langchain): exit propagation context gracefully",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1588",
+  "base_sha": "406e10a40b07d609ad939f5538874afc8a6e74a5",
+  "head_sha": "707b200adde001acc9910dc454973e817c12f824",
+  "merged_at": "2026-03-30T14:14:51Z",
+  "additions": 45,
+  "deletions": 21,
+  "changed_lines": 66,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_client/propagation.py",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 2,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/langchain/CallbackHandler.py",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 19,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:53.473596+00:00"
+}

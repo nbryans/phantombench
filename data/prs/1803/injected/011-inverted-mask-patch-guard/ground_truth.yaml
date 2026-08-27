@@ -1,0 +1,25 @@
+id: "011"
+pr_number: 1803
+file: "langfuse/_client/span_exporter.py"
+line_start: 351
+line_end: 351
+defect_class: "security"
+summary: >
+  In _apply_mask_otel_spans's patch-application loop, the guard on
+  whether a span has a redaction patch is inverted: `if patch is not
+  None:` instead of `if patch is None:`. Spans the mask_otel_spans hook
+  DID return a redaction patch for now take the "no patch" branch and are
+  appended with their original, unmasked attributes — the redaction is
+  silently never applied, so data the hook explicitly asked to delete or
+  replace is exported as-is. Spans the hook did NOT patch instead fall
+  through into _apply_otel_span_patch(patch=None), which logs an error and
+  returns None, so those spans are silently dropped from the export
+  entirely.
+detection_hint: >
+  A correct catch must state that the `patch is None` condition is
+  inverted, so spans that DO have a mask patch skip _apply_otel_span_patch
+  and export their unredacted original attributes (a masking/redaction
+  bypass — sensitive data that should have been deleted or replaced is
+  exported unchanged), while unpatched spans are instead silently dropped
+  — not merely note that the branch logic changed or that spans might be
+  dropped.

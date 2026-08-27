@@ -1,0 +1,29 @@
+{
+  "number": 1549,
+  "title": "fix(langchain): skip priority-tier keys when subtracting token detail counts",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1549",
+  "base_sha": "72aa1565a75766cdd0d1bc4962f34240b327bdc1",
+  "head_sha": "47b1df36b4f5ae0a6baaf1973fb2f268f08dcc44",
+  "merged_at": "2026-03-02T09:38:13Z",
+  "additions": 42,
+  "deletions": 0,
+  "changed_lines": 42,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/langchain/CallbackHandler.py",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_parse_usage_model.py",
+      "status": "added",
+      "additions": 34,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:14.850069+00:00"
+}

@@ -1,0 +1,20 @@
+id: "005"
+pr_number: 1745
+file: "langfuse/openai.py"
+line_start: 903
+line_end: 903
+defect_class: "local_mechanical"
+summary: >
+  For legacy completion responses, _get_langfuse_data_from_default_response
+  now reads choices[0] instead of choices[-1] when picking which choice to
+  log. With the default n=1, this is indistinguishable from correct
+  behaviour, but for any call that requests multiple completions (n>1),
+  the logged completion silently becomes the first generated choice
+  instead of the last one, misrepresenting which output was actually
+  returned/used.
+detection_hint: >
+  A correct catch must state that choices[0] is used instead of
+  choices[-1] for the completion resource type, so with n>1 the wrong
+  choice is captured/logged — not merely note that indexing into
+  `choices` occurs here or that the change "looks like a minor index
+  tweak."

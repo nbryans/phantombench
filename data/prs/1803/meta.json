@@ -1,0 +1,43 @@
+{
+  "number": 1803,
+  "title": "fix(otel): keep last duplicate span in masking batches",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1803",
+  "base_sha": "bb4fc5b808a1925abefe171ca66b031dd211721b",
+  "head_sha": "c5636b323fe6bef50e30ba03cf4339ac167b881b",
+  "merged_at": "2026-08-06T09:24:45Z",
+  "additions": 96,
+  "deletions": 17,
+  "changed_lines": 113,
+  "changed_files_count": 4,
+  "files": [
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/_client/span_exporter.py",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 15,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/types.py",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_mask_otel_spans.py",
+      "status": "modified",
+      "additions": 77,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:20.979818+00:00"
+}

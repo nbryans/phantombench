@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:12:29.666624+00:00",
+  "latency_seconds": 11.042,
+  "prompt_tokens": 1961,
+  "completion_tokens": 1217,
+  "total_tokens": 3178,
+  "raw_response": {
+    "id": "gen-1787260338-c6H8xIBCZISKEo5FkE7N",
+    "object": "chat.completion",
+    "created": 1787260338,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/propagation.py\",\n    \"line\": 291,\n    \"failure_mode\": \"The string coercion of non-string metadata values can produce unexpected or unhelpful representations. For example, a list `['a', 'b']` becomes `\\\"['a', 'b']\\\"` and a tuple `('a', 'b')` becomes `\\\"('a', 'b')\\\"`, which are not standard serialization formats like JSON.\",\n    \"impact\": \"The propagated metadata will be stored in a non-standard, Python-specific string format. This makes it difficult for downstream consumers (e.g., other services, analytics platforms) to parse and use this data, as they would need to understand and handle Python's `str()` representation of various types.\",\n    \"suggested_fix\": \"Instead of using `str(value)`, use `json.dumps(value)` for non-string, non-numeric, non-boolean types. This will produce a standardized, more widely parsable representation for complex types like lists and dictionaries. You may need to import the `json` module.\\n\\n```python\\nimport json\\n\\n# ... inside _propagate_attributes\\n\\n        for key, value in metadata_value.items():\\n            if isinstance(value, str):\\n                coerced_value = value\\n            elif isinstance(value, (int, float, bool)) or value is None:\\n                coerced_value = str(value)\\n            else:\\n                coerced_value = json.dumps(value)\\n\\n            if _validate_string_value(value=coerced_value, key=f\\\"{metadata_key}.{key}\\\"):\\n                validated_metadata[key] = coerced_value\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code for Production Issues**\n\nI'm currently examining the provided Python diff, focusing specifically on potential production-level concerns. My review is limited strictly to the changes presented, and I aim to identify up to five key issues, prioritized by their severity.\n\n**Investigating Propagation Logic**\n\nI'm digging into the `langfuse/_client/propagation.py` changes. Primarily, I'm assessing the shift from `Dict[str, str]` to `Dict[str, Any]` for metadata, noting the new string coercion and length limits. My focus remains on how these modifications might introduce production risks.\n\n**Examining Metadata Handling**\n\nI'm reviewing the recent modifications to metadata handling within `langfuse/_client/propagation.py`. The shift to accepting `Any` type for metadata values and subsequent coercion to strings, alongside length limitations, warrants careful consideration for potential side effects in production.\n\n**Refining Metadata Coercion Logic**\n\nI'm now concentrating on the refined metadata coercion within `_propagate_attributes`. The explicit string conversion for non-string metadata values, combined with length validation, appears sound, though I'm cross-referencing it against the test suite's demonstration of expected behavior.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code for Production Issues**\n\nI'm currently examining the provided Python diff, focusing specifically on potential production-level concerns. My review is limited strictly to the changes presented, and I aim to identify up to five key issues, prioritized by their severity.\n\n**Investigating Propagation Logic**\n\nI'm digging into the `langfuse/_client/propagation.py` changes. Primarily, I'm assessing the shift from `Dict[str, str]` to `Dict[str, Any]` for metadata, noting the new string coercion and length limits. My focus remains on how these modifications might introduce production risks.\n\n**Examining Metadata Handling**\n\nI'm reviewing the recent modifications to metadata handling within `langfuse/_client/propagation.py`. The shift to accepting `Any` type for metadata values and subsequent coercion to strings, alongside length limitations, warrants careful consideration for potential side effects in production.\n\n**Refining Metadata Coercion Logic**\n\nI'm now concentrating on the refined metadata coercion within `_propagate_attributes`. The explicit string conversion for non-string metadata values, combined with length validation, appears sound, though I'm cross-referencing it against the test suite's demonstration of expected behavior.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1961,
+      "completion_tokens": 1217,
+      "total_tokens": 3178,
+      "cost": 0.01462125,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01462125,
+        "upstream_inference_prompt_cost": 0.00245125,
+        "upstream_inference_completions_cost": 0.01217
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 796,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/propagation.py\",\n    \"line\": 291,\n    \"failure_mode\": \"The string coercion of non-string metadata values can produce unexpected or unhelpful representations. For example, a list `['a', 'b']` becomes `\\\"['a', 'b']\\\"` and a tuple `('a', 'b')` becomes `\\\"('a', 'b')\\\"`, which are not standard serialization formats like JSON.\",\n    \"impact\": \"The propagated metadata will be stored in a non-standard, Python-specific string format. This makes it difficult for downstream consumers (e.g., other services, analytics platforms) to parse and use this data, as they would need to understand and handle Python's `str()` representation of various types.\",\n    \"suggested_fix\": \"Instead of using `str(value)`, use `json.dumps(value)` for non-string, non-numeric, non-boolean types. This will produce a standardized, more widely parsable representation for complex types like lists and dictionaries. You may need to import the `json` module.\\n\\n```python\\nimport json\\n\\n# ... inside _propagate_attributes\\n\\n        for key, value in metadata_value.items():\\n            if isinstance(value, str):\\n                coerced_value = value\\n            elif isinstance(value, (int, float, bool)) or value is None:\\n                coerced_value = str(value)\\n            else:\\n                coerced_value = json.dumps(value)\\n\\n            if _validate_string_value(value=coerced_value, key=f\\\"{metadata_key}.{key}\\\"):\\n                validated_metadata[key] = coerced_value\\n```\"\n  }\n]\n```"
+}

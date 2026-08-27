@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:53:36.033798+00:00",
+  "latency_seconds": 12.646,
+  "prompt_tokens": 1139,
+  "completion_tokens": 1267,
+  "total_tokens": 2406,
+  "raw_response": {
+    "id": "gen-1787259203-fThWcRNbpU75PlFaxzxi",
+    "object": "chat.completion",
+    "created": 1787259203,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"The recursive call to `self.default(obj.model_dump())` will cause an infinite recursion for any Pydantic model.\",\n    \"impact\": \"Any attempt to serialize a Pydantic model will result in a `RecursionError`, causing the process to crash. This will break all event logging that involves Pydantic models.\",\n    \"suggested_fix\": \"Instead of recursively calling `self.default`, which is designed for custom object types, iterate through the dictionary returned by `model_dump()` and apply the `default` method only to its values. A helper function can be used for this.\\n\\n```python\\ndef _process_dict(d):\\n    for k, v in d.items():\\n        if isinstance(v, dict):\\n            d[k] = _process_dict(v)\\n        elif isinstance(v, list):\\n            d[k] = [_process_list(i) for i in v]\\n        else:\\n            d[k] = self.default(v)\\n    return d\\n\\ndef _process_list(l):\\n    new_list = []\\n    for i in l:\\n        if isinstance(i, dict):\\n            new_list.append(_process_dict(i))\\n        elif isinstance(i, list):\\n            new_list.append(_process_list(i))\\n        else:\\n            new_list.append(self.default(i))\\n    return new_list\\n\\nreturn _process_dict(obj.model_dump())\\n```\\n\\nAlternatively, and more simply, since `json.dumps` already handles iterating through dicts and lists, you can just return the dictionary and let the encoder do its job. The `default` method will be called for any values within the dictionary that are not standard JSON types, such as non-finite floats.\\n\\n```python\\nreturn obj.model_dump()\\n```\\nThis reverts the change but is correct if the `default` method is properly implemented to handle non-finite floats, which it appears to be. The original issue was likely that `model_dump()` was not being used, and this change correctly introduces it, but the recursive call is incorrect. The test passes because `json.dumps` handles the dictionary correctly, not because the recursion is correct.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Reviewing Pull Request**\n\nI'm currently examining the provided code changes with a critical eye, specifically seeking out any potential production-level defects. My focus remains on correctness, security, and concurrency concerns, as per best practices for senior engineering reviews. I'll avoid stylistic critiques unless they directly impact functionality.\n\n**Analyzing Serialization Logic**\n\nI'm scrutinizing the serialization utility, specifically the adjustment to handling Pydantic BaseModel objects. The intent appears to be preventing invalid JSON by converting non-finite floats to strings, a crucial step for robust data handling. I am verifying this change aligns with expected behavior and doesn't introduce new edge cases.\n\n**Refining Serialization Handling**\n\nI'm refining the serialization logic, specifically addressing how Pydantic BaseModels are processed. The intent is to ensure non-finite floats are stringified, thus preventing invalid JSON output. I'm verifying this recursive approach through `self.default` correctly captures and converts these values.\n\n**Processing Serialization Update**\n\nI am currently analyzing the revised serialization logic, specifically how Pydantic BaseModel objects are handled. The recent adjustment aims to convert non-finite floats to strings, thereby preventing invalid JSON output. I am verifying that this recursive processing through `self.default` effectively addresses all edge cases.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Reviewing Pull Request**\n\nI'm currently examining the provided code changes with a critical eye, specifically seeking out any potential production-level defects. My focus remains on correctness, security, and concurrency concerns, as per best practices for senior engineering reviews. I'll avoid stylistic critiques unless they directly impact functionality.\n\n**Analyzing Serialization Logic**\n\nI'm scrutinizing the serialization utility, specifically the adjustment to handling Pydantic BaseModel objects. The intent appears to be preventing invalid JSON by converting non-finite floats to strings, a crucial step for robust data handling. I am verifying this change aligns with expected behavior and doesn't introduce new edge cases.\n\n**Refining Serialization Handling**\n\nI'm refining the serialization logic, specifically addressing how Pydantic BaseModels are processed. The intent is to ensure non-finite floats are stringified, thus preventing invalid JSON output. I'm verifying this recursive approach through `self.default` correctly captures and converts these values.\n\n**Processing Serialization Update**\n\nI am currently analyzing the revised serialization logic, specifically how Pydantic BaseModel objects are handled. The recent adjustment aims to convert non-finite floats to strings, thereby preventing invalid JSON output. I am verifying that this recursive processing through `self.default` effectively addresses all edge cases.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1139,
+      "completion_tokens": 1267,
+      "total_tokens": 2406,
+      "cost": 0.01409375,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01409375,
+        "upstream_inference_prompt_cost": 0.00142375,
+        "upstream_inference_completions_cost": 0.01267
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 705,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 143,\n    \"failure_mode\": \"The recursive call to `self.default(obj.model_dump())` will cause an infinite recursion for any Pydantic model.\",\n    \"impact\": \"Any attempt to serialize a Pydantic model will result in a `RecursionError`, causing the process to crash. This will break all event logging that involves Pydantic models.\",\n    \"suggested_fix\": \"Instead of recursively calling `self.default`, which is designed for custom object types, iterate through the dictionary returned by `model_dump()` and apply the `default` method only to its values. A helper function can be used for this.\\n\\n```python\\ndef _process_dict(d):\\n    for k, v in d.items():\\n        if isinstance(v, dict):\\n            d[k] = _process_dict(v)\\n        elif isinstance(v, list):\\n            d[k] = [_process_list(i) for i in v]\\n        else:\\n            d[k] = self.default(v)\\n    return d\\n\\ndef _process_list(l):\\n    new_list = []\\n    for i in l:\\n        if isinstance(i, dict):\\n            new_list.append(_process_dict(i))\\n        elif isinstance(i, list):\\n            new_list.append(_process_list(i))\\n        else:\\n            new_list.append(self.default(i))\\n    return new_list\\n\\nreturn _process_dict(obj.model_dump())\\n```\\n\\nAlternatively, and more simply, since `json.dumps` already handles iterating through dicts and lists, you can just return the dictionary and let the encoder do its job. The `default` method will be called for any values within the dictionary that are not standard JSON types, such as non-finite floats.\\n\\n```python\\nreturn obj.model_dump()\\n```\\nThis reverts the change but is correct if the `default` method is properly implemented to handle non-finite floats, which it appears to be. The original issue was likely that `model_dump()` was not being used, and this change correctly introduces it, but the recursive call is incorrect. The test passes because `json.dumps` handles the dictionary correctly, not because the recursion is correct.\"\n  }\n]\n```"
+}

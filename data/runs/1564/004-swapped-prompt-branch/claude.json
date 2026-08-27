@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:54:51.302536+00:00",
+  "latency_seconds": 11.892,
+  "prompt_tokens": 1955,
+  "completion_tokens": 657,
+  "total_tokens": 2612,
+  "raw_response": {
+    "id": "gen-1787259279-HIANfuVhQkjtARCQ9BKU",
+    "object": "chat.completion",
+    "created": 1787259279,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 408,\n    \"failure_mode\": \"The prompt extraction logic for chat and embedding types has been inverted. Chat resources now use `kwargs.get('input', None)` instead of `_extract_chat_prompt(kwargs)`, while embedding resources incorrectly call `_extract_chat_prompt(kwargs)` instead of getting the input directly.\",\n    \"impact\": \"Chat completions will fail to properly extract structured message prompts and will get raw input instead. Embedding requests will attempt to parse chat-specific message structures that don't exist, likely returning None or raising errors. This breaks core prompt tracking for both resource types.\",\n    \"suggested_fix\": \"Swap lines 408 and 410 back: line 408 should be `prompt = _extract_chat_prompt(kwargs)` and line 410 should be `prompt = kwargs.get('input', None)`\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "Let me carefully analyze this diff for production-impacting issues.\n\n## Changes made:\n\n1. **Lines 407-410 in langfuse/openai.py**: The order of the `elif` blocks for \"chat\" and \"embedding\" has been swapped. Before:\n   - chat \u2192 extract chat prompt\n   - embedding \u2192 get \"input\" from kwargs\n   \n   After:\n   - chat \u2192 get \"input\" from kwargs\n   - embedding \u2192 extract chat prompt\n\n   This looks like a bug! The logic appears to be inverted.\n\n2. **Lines 542-543**: Changed `input_token_details` to `input_tokens_details` and `output_token_details` to `output_tokens_details` (added `s` to `token`). This looks like a bug fix to match the correct field names.\n\n3. **New test file**: Added tests for `_parse_usage` function that verify the corrected field names.\n\nLet me focus on the most severe issues:\n\n### Issue 1: Inverted logic for chat vs embedding (lines 407-410)\nThis is a **blocking** issue. The code now:\n- For chat type: uses `kwargs.get(\"input\", None)` instead of extracting chat prompt\n- For embedding type: calls `_extract_chat_prompt(kwargs)` instead of getting input\n\nThis will likely cause incorrect prompt extraction for both chat and embedding operations.\n\n### Issue 2: The field name fixes (lines 542-543)\nThis is actually a fix, not a bug. The old code had `input_token_details` and `output_token_details`, but the new code (and tests) show these should be `input_tokens_details` and `output_tokens_details`. This is a correction.\n\nSo the main issue is #1 - the swapped logic.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me carefully analyze this diff for production-impacting issues.\n\n## Changes made:\n\n1. **Lines 407-410 in langfuse/openai.py**: The order of the `elif` blocks for \"chat\" and \"embedding\" has been swapped. Before:\n   - chat \u2192 extract chat prompt\n   - embedding \u2192 get \"input\" from kwargs\n   \n   After:\n   - chat \u2192 get \"input\" from kwargs\n   - embedding \u2192 extract chat prompt\n\n   This looks like a bug! The logic appears to be inverted.\n\n2. **Lines 542-543**: Changed `input_token_details` to `input_tokens_details` and `output_token_details` to `output_tokens_details` (added `s` to `token`). This looks like a bug fix to match the correct field names.\n\n3. **New test file**: Added tests for `_parse_usage` function that verify the corrected field names.\n\nLet me focus on the most severe issues:\n\n### Issue 1: Inverted logic for chat vs embedding (lines 407-410)\nThis is a **blocking** issue. The code now:\n- For chat type: uses `kwargs.get(\"input\", None)` instead of extracting chat prompt\n- For embedding type: calls `_extract_chat_prompt(kwargs)` instead of getting input\n\nThis will likely cause incorrect prompt extraction for both chat and embedding operations.\n\n### Issue 2: The field name fixes (lines 542-543)\nThis is actually a fix, not a bug. The old code had `input_token_details` and `output_token_details`, but the new code (and tests) show these should be `input_tokens_details` and `output_tokens_details`. This is a correction.\n\nSo the main issue is #1 - the swapped logic.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "EqwNCnAIEBABGAIqQNNHjx0EJAugJeSJhMjOPHsau1yPSvUX8QkVDQ/x8G09Zlzzu4g5UQdnBYV2+qGrKqPHKobg6l2MINHLNy+gcqgyGmNsYXVkZS1zb25uZXQtNC01LTIwMjUwOTI5OABCCHRoaW5raW5nEgwUM14hPsgxG6Jf9WoaDPWiyPxeGQJzs4n20SIwRVcB1yMN5fX12stpOhBTPDcYPFzm3LVaeBjI+cLkhpdp6Sh0pKOIsgdQm3feUcJYKukLP10aQvlyPS1TSlGJa8yoESYes/KsMC0Mr6ns9c9T2H4eZ0GwHjvV0bplgZBbtPvPpyJyp7meOObBsiBagKfnRC2kU27+JesQKA5M6rYXrCNUYBBbJ5k9Phr8LWTx93opS1SP6gHkvRD8DR+ZwzNHPiOe3mbhlWOM61bjoiSH9mR9IdeEG9TGxazga6/vNCWU+VdRKHHPv0PjcZXQJy1rFAF709S2spK+TdylAnrRD3wPTIj98ByML7Cu+5V7DcUZPj6luuHlQ7+gLmViyWa3J4Smotut3mBJ2rwNbcY7Syk0ptnNK2eKvcuUrGL40UrDCtS5S2hsKW1T+BAOJB2Is1+87RxXcifMYUNJydCu+Hj0yhtogSftveTx6aH+rvuVH63oPLlzWShuiuz3QZTALWvbop1PSdQ5CPSKKzf7yOjSuYwl78lh33O/2GwKyjEKr/PKHJV7S7y0OXXp7dfBb7vnd0OAKQ6w8Qo5dvPD2KxYGSjnb/kT1r8TFQ50jAhDAFz3gKByE/+5AypTV2xhYKib/tMeh8Jp5QItC9+5/ouitXy00ZSlfmMuuGwzIzhwX/ZbuGnVeZ09Zccr0gtDE9R4102uisqpIPy+is6DuHdJR5LemuqdSlNGfs1/f7ndxQbgrjEzWScWo86QnrPq9K+4YYcf4IiptwrSWdcd7k1ZAE43ZBPOWuhwgrJYSv7KTXLb1et1W8925EmTV0jIxzAMDeGk3H99YoacpIdlEJr9Eb+CgTQ0/GlQzZokfLjP9GhFuIo6aveOz/ZcTVtpMelgsyGXv1YYq/e2fiMqIzSFEro1P8WYgrNNQeIbfXM2ifmJdxWqR2ukqj2+1NRyRioDAvZZVCTrQEcRBy5PbbKGew0Ud/cUcvaqNnxU7aMrzRy2nfWKZ4O3Gc1msYf5ZaFdh4k9LiGV6+Lzn1m838iVU+yH9NANkT4S7ODsj+xltkw1Oyw7JxsRRtkzFlsf49qEPbSlZHUiuUzCPUGcR7eBcqTMwv+U1lRUX89KXubRfq/x1zUvS4xdp5GgYiyydtcwLSoapklGFUTU5TMV7NPjnT/lMwFkj5IXrjKnBeJIYBOVOnujnKOK29iQ7TEmHMWhfojxGiTH3+ip1NOskcWJD/jA8y6JMjmwKe+Z7KC7UgfThbtHvyyxw8KW1WJIcFDDHyYTZOFzSJnNeN6VQ4YLfyKps08lmyL9FD2cDdxWyg5LKbsi3CSPa7YVvVmuMis43SfCB+zvz55mooMY06t2NqFjG9AoA+GkXsHfE/9IcUZyxag8yhoPwdvPmYNkMtvbP5jxjAunpSsZ241yKzheNth01GCqG3II/gBtvgv6fHvQ/KXd1K6PeWOmg641kgFF0wag6ZzwqUhZdIIr/EPUQfExpK4r08vDkxFFMiXhAQXZitq9+gcsTY+HttgFo3JJFPNoQC66VOf2tE3Y6UnwDhFLsgusQyOpVM7FPciKtBNzeYgvVphfwxYM+W81fFe0JCA2/snbiCTU4bRP9Fgqic4om75xQCEDvV8zLBmq3DdildNNzD9io0+Olmym5HzOUfa06jeDuRJq1S0IaXagTTxfpEbCTQYohU6eCUGiKL014xat0PN/ZIuYrdUl/BSN9tv6PZKBJZ2MMa1X2ssjBabO/zpoLCWWUA7okyc6078JPiM3SNnfLZc0mubGmOS2LE8Ra3SUtqT+J3KGkFQP6pC9x5kLZXPbtMBhhkeWUj+F0VAzv7FT2EPoMbvCR+u8YaDsFn+lqrapuCvzH/DcUG+Q9cYllYEWSeK7S8v5NRhAHiRhSGv6oGLeKjfCvS8K10WVtfVGwl913rVOsfcunDmWSo3el3+x/pqAJMkNdW+updJqOOQYpiVMSKgSnYtRxSR7x9nggKnYLr5Q5pR0zZvqUtx/zqnCD6Mnm2T7WPxNvKKM57Ylu5tqk7c/jpIXzWj7fHvEMRWO12pBi1+JXKwqbOZwZe721OZkmG15vUU43uxautkM3Im2asoF1QEMCkXbECWKgRgB"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1955,
+      "completion_tokens": 657,
+      "total_tokens": 2612,
+      "cost": 0.01572,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01572,
+        "upstream_inference_prompt_cost": 0.005865,
+        "upstream_inference_completions_cost": 0.009855
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 415,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 408,\n    \"failure_mode\": \"The prompt extraction logic for chat and embedding types has been inverted. Chat resources now use `kwargs.get('input', None)` instead of `_extract_chat_prompt(kwargs)`, while embedding resources incorrectly call `_extract_chat_prompt(kwargs)` instead of getting the input directly.\",\n    \"impact\": \"Chat completions will fail to properly extract structured message prompts and will get raw input instead. Embedding requests will attempt to parse chat-specific message structures that don't exist, likely returning None or raising errors. This breaks core prompt tracking for both resource types.\",\n    \"suggested_fix\": \"Swap lines 408 and 410 back: line 408 should be `prompt = _extract_chat_prompt(kwargs)` and line 410 should be `prompt = kwargs.get('input', None)`\"\n  }\n]\n```"
+}

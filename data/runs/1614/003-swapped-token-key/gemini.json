@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:58:18.497345+00:00",
+  "latency_seconds": 14.441,
+  "prompt_tokens": 1794,
+  "completion_tokens": 1489,
+  "total_tokens": 3283,
+  "raw_response": {
+    "id": "gen-1787259484-861Gxxu7CRjDTVOkD2Ua",
+    "object": "chat.completion",
+    "created": 1787259484,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/langchain/CallbackHandler.py\",\n    \"line\": 1593,\n    \"failure_mode\": \"The logic for handling `prompt_tokens_details` as a list (for Vertex AI) is now in an `elif` block. It will only be executed if the preceding `if` block for dictionary-based `prompt_tokens_details` is false.\",\n    \"impact\": \"If a usage payload contains both a dictionary-type `prompt_tokens_details` and a list-type `prompt_tokens_details`, only the dictionary will be processed. This is unlikely but possible if different layers of an LLM stack (e.g., LiteLLM proxy in front of Vertex AI) add their own fields. The more critical impact is that the existing logic for Vertex AI is now dependent on the new logic for OpenAI/LiteLLM, which is a fragile coupling.\",\n    \"suggested_fix\": \"Process the list and dictionary versions of `prompt_tokens_details` independently using two separate `if` blocks. This decouples the logic for different providers and ensures both are processed if present.\\n\\n```python\\n# OpenAI / LiteLLM \u2014 prompt_tokens_details as dict\\nif \\\"prompt_tokens_details\\\" in usage_model and isinstance(\\n    usage_model.get(\\\"prompt_tokens_details\\\"), dict\\n):\\n    # ... existing dict processing logic ...\\n\\n# Vertex AI \u2014 prompt_tokens_details as list\\nif \\\"prompt_tokens_details\\\" in usage_model and isinstance(\\n    usage_model.get(\\\"prompt_tokens_details\\\"), list\\n):\\n    # ... existing list processing logic ...\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/langchain/CallbackHandler.py\",\n    \"line\": 1593,\n    \"failure_mode\": \"The code checks for the existence and type of `prompt_tokens_details` but then accesses it directly with `usage_model.pop(\\\"prompt_tokens_details\\\")`. If another thread modifies `usage_model` between the check and the access, a `KeyError` could occur.\",\n    \"impact\": \"This can lead to a race condition in a multi-threaded environment, causing the application to crash with a `KeyError`. While Langchain callbacks might often run synchronously, assuming so makes the code less robust.\",\n    \"suggested_fix\": \"Use `usage_model.get(\\\"prompt_tokens_details\\\")` for the type check to avoid a race condition. Then, use a `try...except KeyError` block around the `.pop()` operation to handle the case where the key is removed by another thread before it can be popped.\\n\\n```python\\nif \\\"prompt_tokens_details\\\" in usage_model and isinstance(\\n    usage_model.get(\\\"prompt_tokens_details\\\"), dict\\n):\\n    try:\\n        prompt_tokens_details = usage_model.pop(\\\"prompt_tokens_details\\\")\\n    except KeyError:\\n        continue # Or log and continue\\n\\n    # ... rest of the logic\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Differences**\n\nI am currently reviewing the provided Python code diff. My focus is on identifying critical production-level issues such as correctness bugs, security vulnerabilities, and concurrency problems. I will avoid commenting on stylistic elements unless they directly impact functionality or introduce bugs. I'll be reporting up to five findings, prioritized by severity.\n\n**Fixing Token Counting**\n\nI've identified a critical bug in `_parse_usage_model`. The code incorrectly subtracted input token cache counts from the output token count. I've corrected this to subtract from the input token count, ensuring accurate usage reporting. This addresses a correctness issue in token calculation.\n\n**Refining Token Calculations**\n\nI've successfully pinpointed and rectified a significant flaw in the token accounting logic within `_parse_usage_model`. Previously, cache-related input token values were incorrectly deducted from the output token count. I've adjusted this to accurately subtract from the input token total, ensuring precise usage metrics.\n\n**Updating Token Logic**\n\nI'm refining the token calculation logic. I've identified and addressed an issue where cache-related input token counts were incorrectly deducted from the output token total. This correction ensures accurate input token accounting, maintaining the integrity of usage reporting.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Differences**\n\nI am currently reviewing the provided Python code diff. My focus is on identifying critical production-level issues such as correctness bugs, security vulnerabilities, and concurrency problems. I will avoid commenting on stylistic elements unless they directly impact functionality or introduce bugs. I'll be reporting up to five findings, prioritized by severity.\n\n**Fixing Token Counting**\n\nI've identified a critical bug in `_parse_usage_model`. The code incorrectly subtracted input token cache counts from the output token count. I've corrected this to subtract from the input token count, ensuring accurate usage reporting. This addresses a correctness issue in token calculation.\n\n**Refining Token Calculations**\n\nI've successfully pinpointed and rectified a significant flaw in the token accounting logic within `_parse_usage_model`. Previously, cache-related input token values were incorrectly deducted from the output token count. I've adjusted this to accurately subtract from the input token total, ensuring precise usage metrics.\n\n**Updating Token Logic**\n\nI'm refining the token calculation logic. I've identified and addressed an issue where cache-related input token counts were incorrectly deducted from the output token total. This correction ensures accurate input token accounting, maintaining the integrity of usage reporting.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1794,
+      "completion_tokens": 1489,
+      "total_tokens": 3283,
+      "cost": 0.0171325,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0171325,
+        "upstream_inference_prompt_cost": 0.0022425,
+        "upstream_inference_completions_cost": 0.01489
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 763,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/langchain/CallbackHandler.py\",\n    \"line\": 1593,\n    \"failure_mode\": \"The logic for handling `prompt_tokens_details` as a list (for Vertex AI) is now in an `elif` block. It will only be executed if the preceding `if` block for dictionary-based `prompt_tokens_details` is false.\",\n    \"impact\": \"If a usage payload contains both a dictionary-type `prompt_tokens_details` and a list-type `prompt_tokens_details`, only the dictionary will be processed. This is unlikely but possible if different layers of an LLM stack (e.g., LiteLLM proxy in front of Vertex AI) add their own fields. The more critical impact is that the existing logic for Vertex AI is now dependent on the new logic for OpenAI/LiteLLM, which is a fragile coupling.\",\n    \"suggested_fix\": \"Process the list and dictionary versions of `prompt_tokens_details` independently using two separate `if` blocks. This decouples the logic for different providers and ensures both are processed if present.\\n\\n```python\\n# OpenAI / LiteLLM \u2014 prompt_tokens_details as dict\\nif \\\"prompt_tokens_details\\\" in usage_model and isinstance(\\n    usage_model.get(\\\"prompt_tokens_details\\\"), dict\\n):\\n    # ... existing dict processing logic ...\\n\\n# Vertex AI \u2014 prompt_tokens_details as list\\nif \\\"prompt_tokens_details\\\" in usage_model and isinstance(\\n    usage_model.get(\\\"prompt_tokens_details\\\"), list\\n):\\n    # ... existing list processing logic ...\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/langchain/CallbackHandler.py\",\n    \"line\": 1593,\n    \"failure_mode\": \"The code checks for the existence and type of `prompt_tokens_details` but then accesses it directly with `usage_model.pop(\\\"prompt_tokens_details\\\")`. If another thread modifies `usage_model` between the check and the access, a `KeyError` could occur.\",\n    \"impact\": \"This can lead to a race condition in a multi-threaded environment, causing the application to crash with a `KeyError`. While Langchain callbacks might often run synchronously, assuming so makes the code less robust.\",\n    \"suggested_fix\": \"Use `usage_model.get(\\\"prompt_tokens_details\\\")` for the type check to avoid a race condition. Then, use a `try...except KeyError` block around the `.pop()` operation to handle the case where the key is removed by another thread before it can be popped.\\n\\n```python\\nif \\\"prompt_tokens_details\\\" in usage_model and isinstance(\\n    usage_model.get(\\\"prompt_tokens_details\\\"), dict\\n):\\n    try:\\n        prompt_tokens_details = usage_model.pop(\\\"prompt_tokens_details\\\")\\n    except KeyError:\\n        continue # Or log and continue\\n\\n    # ... rest of the logic\\n```\"\n  }\n]\n```"
+}

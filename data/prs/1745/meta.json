@@ -1,0 +1,29 @@
+{
+  "number": 1745,
+  "title": "fix(openai): handle null choices in chat completion responses",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1745",
+  "base_sha": "8c8b120199dd16ea03c6d976e6110c62e3f120cf",
+  "head_sha": "f601727b0e0a39ee452c04c8e345ba6e3ba4c2ed",
+  "merged_at": "2026-07-08T15:53:17Z",
+  "additions": 67,
+  "deletions": 4,
+  "changed_lines": 71,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/openai.py",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_openai.py",
+      "status": "modified",
+      "additions": 63,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:57.071138+00:00"
+}

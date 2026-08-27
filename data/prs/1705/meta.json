@@ -1,0 +1,29 @@
+{
+  "number": 1705,
+  "title": "fix(observe): preserve current observation type on span update",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1705",
+  "base_sha": "5c9efae400e6288f840c625d196b235a8fecbf52",
+  "head_sha": "9a9fce4b32fc00eacbe70174b27051a5bf2f9c45",
+  "merged_at": "2026-06-15T11:25:01Z",
+  "additions": 47,
+  "deletions": 11,
+  "changed_lines": 58,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 11,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_observe.py",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:20.085921+00:00"
+}

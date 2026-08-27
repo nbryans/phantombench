@@ -1,0 +1,29 @@
+{
+  "number": 1564,
+  "title": "fix(openai): correct token details field names for Response API usage",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1564",
+  "base_sha": "21d79fc4115f6be372f5a023b3ba39c7407d83a0",
+  "head_sha": "2aa2440b942b4a4475c31cf5d7af771284eb78ba",
+  "merged_at": "2026-03-19T16:58:41Z",
+  "additions": 102,
+  "deletions": 2,
+  "changed_lines": 104,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/openai.py",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_parse_usage.py",
+      "status": "added",
+      "additions": 100,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:08.172116+00:00"
+}

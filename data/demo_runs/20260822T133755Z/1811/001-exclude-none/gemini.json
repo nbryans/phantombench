@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-22T13:38:06.041988+00:00",
+  "latency_seconds": 10.643,
+  "prompt_tokens": 1073,
+  "completion_tokens": 1061,
+  "total_tokens": 2134,
+  "raw_response": {
+    "id": "gen-1787405875-k1Hx5QZKaG5Ba0hBIUUT",
+    "object": "chat.completion",
+    "created": 1787405875,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 142,\n    \"failure_mode\": \"The recursive call to `self.default()` with a dictionary will raise a `TypeError` because `json.JSONEncoder.default()` does not handle dictionaries. The intent was likely to process the values within the dictionary, not the dictionary itself.\",\n    \"impact\": \"Any attempt to serialize a Pydantic model will fail with a `TypeError: Object of type dict is not JSON serializable`. This breaks a core serialization path and will prevent Pydantic models from being sent to the Langfuse API.\",\n    \"suggested_fix\": \"The recursive call should not be to `self.default()`, which is designed to handle single non-serializable objects. Instead, the dictionary from `model_dump()` should be returned directly. The `json.dumps` process will then apply the `default` method to each value within the dictionary, achieving the desired serialization of nested non-finite floats.\\n\\n```python\\nreturn obj.model_dump(exclude_none=True)\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nMy focus is now on a thorough review of the provided pull request diff. I'm prioritizing the identification of production-level concerns and will meticulously examine only the code presented within the diff. I aim to report up to five findings, ranked by their severity.\n\n**Reviewing Serialization Logic**\n\nI'm examining the serialization utility, specifically how it handles potential non-finite floats. The recent modification to recursively pass the dumped model back through `default()` aims to prevent invalid JSON tokens for NaN/Infinity. This change appears to be a sound defensive measure.\n\n**Refining Serialization Handling**\n\nI've completed my review of the serialization logic. The adjustment to recursively process Pydantic model dumps appears to correctly address the issue of non-finite floats being serialized as invalid JSON tokens. This is a robust solution.\n\n**Analyzing Serialization Update**\n\nI'm reviewing the recent serialization logic modification. The updated approach recursively passes Pydantic model dumps back through the `default` method. This seems to effectively address potential issues with non-finite floats like NaN and Infinity being serialized into invalid JSON tokens.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nMy focus is now on a thorough review of the provided pull request diff. I'm prioritizing the identification of production-level concerns and will meticulously examine only the code presented within the diff. I aim to report up to five findings, ranked by their severity.\n\n**Reviewing Serialization Logic**\n\nI'm examining the serialization utility, specifically how it handles potential non-finite floats. The recent modification to recursively pass the dumped model back through `default()` aims to prevent invalid JSON tokens for NaN/Infinity. This change appears to be a sound defensive measure.\n\n**Refining Serialization Handling**\n\nI've completed my review of the serialization logic. The adjustment to recursively process Pydantic model dumps appears to correctly address the issue of non-finite floats being serialized as invalid JSON tokens. This is a robust solution.\n\n**Analyzing Serialization Update**\n\nI'm reviewing the recent serialization logic modification. The updated approach recursively passes Pydantic model dumps back through the `default` method. This seems to effectively address potential issues with non-finite floats like NaN and Infinity being serialized into invalid JSON tokens.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1073,
+      "completion_tokens": 1061,
+      "total_tokens": 2134,
+      "cost": 0.01195125,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01195125,
+        "upstream_inference_prompt_cost": 0.00134125,
+        "upstream_inference_completions_cost": 0.01061
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 798,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_utils/serializer.py\",\n    \"line\": 142,\n    \"failure_mode\": \"The recursive call to `self.default()` with a dictionary will raise a `TypeError` because `json.JSONEncoder.default()` does not handle dictionaries. The intent was likely to process the values within the dictionary, not the dictionary itself.\",\n    \"impact\": \"Any attempt to serialize a Pydantic model will fail with a `TypeError: Object of type dict is not JSON serializable`. This breaks a core serialization path and will prevent Pydantic models from being sent to the Langfuse API.\",\n    \"suggested_fix\": \"The recursive call should not be to `self.default()`, which is designed to handle single non-serializable objects. Instead, the dictionary from `model_dump()` should be returned directly. The `json.dumps` process will then apply the `default` method to each value within the dictionary, achieving the desired serialization of nested non-finite floats.\\n\\n```python\\nreturn obj.model_dump(exclude_none=True)\\n```\"\n  }\n]\n```"
+}

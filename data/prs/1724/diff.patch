@@ -1,0 +1,225 @@
+diff --git a/langfuse/_client/client.py b/langfuse/_client/client.py
+index 00f7d803a..c9b4ca265 100644
+--- a/langfuse/_client/client.py
++++ b/langfuse/_client/client.py
+@@ -33,7 +33,7 @@
+ from opentelemetry import trace as otel_trace_api
+ from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
+ from opentelemetry.sdk.trace.export import SpanExporter
+-from opentelemetry.sdk.trace.id_generator import RandomIdGenerator
++from opentelemetry.sdk.trace.id_generator import IdGenerator, RandomIdGenerator
+ from opentelemetry.util._decorator import (
+     _AgnosticContextManager,
+     _agnosticcontextmanager,
+@@ -230,6 +230,7 @@ def mask_otel_spans(
+         should_export_span (Optional[Callable[[ReadableSpan], bool]]): Callback to decide whether to export a span. If omitted, Langfuse uses the default filter (Langfuse SDK spans, spans with `gen_ai.*` attributes, and known LLM instrumentation scopes).
+         additional_headers (Optional[Dict[str, str]]): Additional headers to include in all API requests and in the default OTLPSpanExporter requests. These headers will be merged with default headers. Note: If httpx_client is provided, additional_headers must be set directly on your custom httpx_client as well. If `span_exporter` is provided, these headers are not wired into that exporter and must be configured on the exporter instance directly.
+         tracer_provider(Optional[TracerProvider]): OpenTelemetry TracerProvider to use for Langfuse. This can be useful to set to have disconnected tracing between Langfuse and other OpenTelemetry-span emitting libraries. Note: To track active spans, the context is still shared between TracerProviders. This may lead to broken trace trees.
++        id_generator (Optional[IdGenerator]): OpenTelemetry ID generator to use when Langfuse creates its own TracerProvider. If omitted, the OpenTelemetry SDK default is used. If `tracer_provider` is provided, or an OpenTelemetry TracerProvider is already registered globally, configure the ID generator on that provider instead.
+         span_exporter (Optional[SpanExporter]): Custom OpenTelemetry span exporter for the Langfuse span processor. If omitted, Langfuse creates an OTLPSpanExporter pointed at the Langfuse OTLP endpoint. If provided, Langfuse does not wire `base_url`, exporter headers, exporter auth, or exporter timeout into it. Configure endpoint, headers, and timeout on the exporter instance directly. If you are sending spans to Langfuse v4 or using Langfuse Cloud Fast Preview, include `x-langfuse-ingestion-version=4` on the exporter to enable real time processing of exported spans.
+ 
+     Example:
+@@ -295,6 +296,7 @@ def __init__(
+         should_export_span: Optional[Callable[[ReadableSpan], bool]] = None,
+         additional_headers: Optional[Dict[str, str]] = None,
+         tracer_provider: Optional[TracerProvider] = None,
++        id_generator: Optional[IdGenerator] = None,
+         span_exporter: Optional[SpanExporter] = None,
+     ):
+         self._base_url = (
+@@ -393,6 +395,7 @@ def __init__(
+             should_export_span=should_export_span,
+             additional_headers=additional_headers,
+             tracer_provider=tracer_provider,
++            id_generator=id_generator,
+             span_exporter=span_exporter,
+         )
+         self._mask = self._resources.mask
+diff --git a/langfuse/_client/get_client.py b/langfuse/_client/get_client.py
+index ad1c14855..a360430ac 100644
+--- a/langfuse/_client/get_client.py
++++ b/langfuse/_client/get_client.py
+@@ -55,6 +55,7 @@ def _create_client_from_instance(
+         should_export_span=instance.should_export_span,
+         additional_headers=instance.additional_headers,
+         tracer_provider=instance.tracer_provider,
++        id_generator=instance.id_generator,
+         span_exporter=instance.span_exporter,
+         httpx_client=instance.httpx_client,
+     )
+diff --git a/langfuse/_client/resource_manager.py b/langfuse/_client/resource_manager.py
+index ab8416dcb..14e746b86 100644
+--- a/langfuse/_client/resource_manager.py
++++ b/langfuse/_client/resource_manager.py
+@@ -25,6 +25,7 @@
+ from opentelemetry.sdk.resources import Resource
+ from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
+ from opentelemetry.sdk.trace.export import SpanExporter
++from opentelemetry.sdk.trace.id_generator import IdGenerator
+ from opentelemetry.sdk.trace.sampling import Decision, TraceIdRatioBased
+ from opentelemetry.trace import Tracer
+ 
+@@ -123,6 +124,7 @@ def __new__(
+         should_export_span: Optional[Callable[[ReadableSpan], bool]] = None,
+         additional_headers: Optional[Dict[str, str]] = None,
+         tracer_provider: Optional[TracerProvider] = None,
++        id_generator: Optional[IdGenerator] = None,
+         span_exporter: Optional[SpanExporter] = None,
+     ) -> "LangfuseResourceManager":
+         if public_key in cls._instances:
+@@ -160,6 +162,7 @@ def __new__(
+                     should_export_span=should_export_span,
+                     additional_headers=additional_headers,
+                     tracer_provider=tracer_provider,
++                    id_generator=id_generator,
+                     span_exporter=span_exporter,
+                 )
+ 
+@@ -188,6 +191,7 @@ def _initialize_instance(
+         should_export_span: Optional[Callable[[ReadableSpan], bool]] = None,
+         additional_headers: Optional[Dict[str, str]] = None,
+         tracer_provider: Optional[TracerProvider] = None,
++        id_generator: Optional[IdGenerator] = None,
+         span_exporter: Optional[SpanExporter] = None,
+     ) -> None:
+         self.public_key = public_key
+@@ -208,6 +212,7 @@ def _initialize_instance(
+         self.blocked_instrumentation_scopes = blocked_instrumentation_scopes
+         self.should_export_span = should_export_span
+         self.additional_headers = additional_headers
++        self.id_generator = id_generator
+         self.span_exporter = span_exporter
+         self.tracer_provider: Optional[TracerProvider] = None
+ 
+@@ -269,7 +274,10 @@ def _initialize_instance(
+         # OTEL Tracer
+         if tracing_enabled:
+             tracer_provider = tracer_provider or _init_tracer_provider(
+-                environment=environment, release=release, sample_rate=sample_rate
++                environment=environment,
++                release=release,
++                sample_rate=sample_rate,
++                id_generator=id_generator,
+             )
+             self.tracer_provider = tracer_provider
+ 
+@@ -490,6 +498,7 @@ def _init_tracer_provider(
+     environment: Optional[str] = None,
+     release: Optional[str] = None,
+     sample_rate: Optional[float] = None,
++    id_generator: Optional[IdGenerator] = None,
+ ) -> TracerProvider:
+     environment = environment or os.environ.get(LANGFUSE_TRACING_ENVIRONMENT)
+     release = release or os.environ.get(LANGFUSE_RELEASE) or get_common_release_envs()
+@@ -512,10 +521,17 @@ def _init_tracer_provider(
+             sampler=TraceIdRatioBased(sample_rate)
+             if sample_rate is not None and sample_rate < 1
+             else None,
++            id_generator=id_generator,
+         )
+         otel_trace_api.set_tracer_provider(provider)
+ 
+     else:
++        if id_generator is not None:
++            langfuse_logger.warning(
++                "Configuration: id_generator was ignored because an OpenTelemetry TracerProvider is already registered. "
++                "Pass a TracerProvider configured with the desired id_generator to Langfuse(tracer_provider=...) instead."
++            )
++
+         provider = default_provider
+ 
+     return provider
+diff --git a/tests/unit/test_otel.py b/tests/unit/test_otel.py
+index 229c0a8ca..46a085a71 100644
+--- a/tests/unit/test_otel.py
++++ b/tests/unit/test_otel.py
+@@ -12,7 +12,7 @@
+     SpanExporter,
+     SpanExportResult,
+ )
+-from opentelemetry.sdk.trace.id_generator import RandomIdGenerator
++from opentelemetry.sdk.trace.id_generator import IdGenerator, RandomIdGenerator
+ 
+ from langfuse import propagate_attributes
+ from langfuse._client.attributes import LangfuseOtelSpanAttributes
+@@ -46,6 +46,31 @@ def clear(self):
+         self._finished_spans.clear()
+ 
+ 
++class PredictableIdGenerator(IdGenerator):
++    """Deterministic generator for tests that need exact OTel IDs."""
++
++    def __init__(
++        self,
++        *,
++        trace_ids: Sequence[int] = (),
++        span_ids: Sequence[int] = (),
++    ) -> None:
++        self._trace_ids = list(trace_ids)
++        self._span_ids = list(span_ids)
++
++    def generate_trace_id(self) -> int:
++        if not self._trace_ids:
++            raise AssertionError("No trace IDs left in PredictableIdGenerator")
++
++        return self._trace_ids.pop(0)
++
++    def generate_span_id(self) -> int:
++        if not self._span_ids:
++            raise AssertionError("No span IDs left in PredictableIdGenerator")
++
++        return self._span_ids.pop(0)
++
++
+ class TestOTelBase:
+     """Base class for OTEL tests with common fixtures and helper methods."""
+ 
+@@ -3426,6 +3451,48 @@ def mock_generate_span_id(self):
+         assert observation_id == "1234567890abcdef"
+         assert len(observation_id) == 16  # 8 bytes hex-encoded = 16 characters
+ 
++    def test_langfuse_owned_provider_uses_otel_default_id_generator(
++        self, mock_processor_init
++    ):
++        """Langfuse-owned providers keep the OpenTelemetry default generator."""
++
++        client = Langfuse(
++            public_key="test-public-key",
++            secret_key="test-secret-key",
++            base_url="http://test-host",
++            tracing_enabled=True,
++        )
++
++        assert client._resources is not None
++        assert client._resources.tracer_provider is not None
++        assert isinstance(
++            client._resources.tracer_provider.id_generator,
++            RandomIdGenerator,
++        )
++
++    def test_langfuse_owned_provider_accepts_custom_id_generator(
++        self, mock_processor_init
++    ):
++        """Custom ID generators are passed to the provider Langfuse creates."""
++
++        id_generator = PredictableIdGenerator(
++            trace_ids=[0x1234567890ABCDEF1234567890ABCDEF],
++            span_ids=[0x1234567890ABCDEF],
++        )
++        client = Langfuse(
++            public_key="test-public-key",
++            secret_key="test-secret-key",
++            base_url="http://test-host",
++            tracing_enabled=True,
++            id_generator=id_generator,
++        )
++
++        span = client.start_observation(name="custom-id-span")
++        span.end()
++
++        assert span.trace_id == "1234567890abcdef1234567890abcdef"
++        assert span.id == "1234567890abcdef"
++
+     def test_observation_id_with_seed(self, langfuse_client):
+         """Test observation_id generation with seed (should be deterministic)."""
+         seed = "test-identifier"

@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-22T13:38:12.270612+00:00",
+  "latency_seconds": 16.874,
+  "prompt_tokens": 4348,
+  "completion_tokens": 852,
+  "total_tokens": 5200,
+  "raw_response": {
+    "id": "gen-1787405875-6COb03rjzkvwzK1yRGrI",
+    "object": "chat.completion",
+    "created": 1787405875,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 665,\n    \"failure_mode\": \"The span.end() call is incorrectly nested inside the `if self.capture_output:` block in the async generator wrapper. When capture_output=False, the span is never ended when the generator is exhausted.\",\n    \"impact\": \"Resource leak: spans remain open indefinitely when async generators are used with capture_output=False, causing memory leaks and incorrect telemetry. The sync generator version at line 591 correctly calls span.end() outside the block.\",\n    \"suggested_fix\": \"Move line 665 `self.span.end()` to be at the same indentation level as line 655 `if self.capture_output:`, so it executes regardless of the capture_output value, matching the sync generator pattern at line 591.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "Let me analyze this diff carefully.\n\nThe main changes are:\n1. Refactoring duplicated code into a `_handle_observe_result` method\n2. Adding a `capture_output` parameter to generator wrapper methods and classes\n3. Conditionally collecting items and updating output based on `capture_output` flag\n4. Tests verifying that `capture_output=False` works correctly\n\nLet me look for bugs:\n\n1. In `_handle_observe_result` (line 502+), the method now handles all cases including generators, async generators, and StreamingResponse. However, I notice that when `capture_output` is True, generators are wrapped, but when `capture_output` is False, the code still wraps generators because the check `if capture_output is True` only applies to the final non-generator case.\n\nWait, looking more carefully at lines 502-530, the method doesn't check `capture_output` before wrapping generators. It always wraps them if they're generators. The `capture_output` flag is passed to the wrapper methods, and they handle it.\n\n2. Looking at line 621 in `_ContextPreservedAsyncGeneratorWrapper.__anext__`, there's an indentation issue potentially. Let me check... At line 664-665, `self.span.end()` is only called if `capture_output` is True. But at line 591, in the sync version, `self.span.end()` is called regardless of `capture_output`. This is inconsistent!\n\nLooking at line 591 (sync version):\n```python\nself.span.update(output=output)\n\nself.span.end()\n```\nThe `self.span.end()` is outside the `if self.capture_output:` block.\n\nBut in the async version at lines 664-665:\n```python\nself.span.update(output=output)\nself.span.end()\n```\nWait, the indentation shows `self.span.end()` is indented at the same level as `self.span.update(output=output)`, which means it's inside the `if self.capture_output:` block. \n\nThere's a critical inconsistency between the sync and async implementations. In the synchronous generator wrapper, `self.span.end()` executes outside the `capture_output` conditional block, but in the async version it's nested inside it. This means async generators with `capture_output=False` never properly close their spans, creating resource leaks.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me analyze this diff carefully.\n\nThe main changes are:\n1. Refactoring duplicated code into a `_handle_observe_result` method\n2. Adding a `capture_output` parameter to generator wrapper methods and classes\n3. Conditionally collecting items and updating output based on `capture_output` flag\n4. Tests verifying that `capture_output=False` works correctly\n\nLet me look for bugs:\n\n1. In `_handle_observe_result` (line 502+), the method now handles all cases including generators, async generators, and StreamingResponse. However, I notice that when `capture_output` is True, generators are wrapped, but when `capture_output` is False, the code still wraps generators because the check `if capture_output is True` only applies to the final non-generator case.\n\nWait, looking more carefully at lines 502-530, the method doesn't check `capture_output` before wrapping generators. It always wraps them if they're generators. The `capture_output` flag is passed to the wrapper methods, and they handle it.\n\n2. Looking at line 621 in `_ContextPreservedAsyncGeneratorWrapper.__anext__`, there's an indentation issue potentially. Let me check... At line 664-665, `self.span.end()` is only called if `capture_output` is True. But at line 591, in the sync version, `self.span.end()` is called regardless of `capture_output`. This is inconsistent!\n\nLooking at line 591 (sync version):\n```python\nself.span.update(output=output)\n\nself.span.end()\n```\nThe `self.span.end()` is outside the `if self.capture_output:` block.\n\nBut in the async version at lines 664-665:\n```python\nself.span.update(output=output)\nself.span.end()\n```\nWait, the indentation shows `self.span.end()` is indented at the same level as `self.span.update(output=output)`, which means it's inside the `if self.capture_output:` block. \n\nThere's a critical inconsistency between the sync and async implementations. In the synchronous generator wrapper, `self.span.end()` executes outside the `capture_output` conditional block, but in the async version it's nested inside it. This means async generators with `capture_output=False` never properly close their spans, creating resource leaks.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4348,
+      "completion_tokens": 852,
+      "total_tokens": 5200,
+      "cost": 0.025824,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.025824,
+        "upstream_inference_prompt_cost": 0.013044,
+        "upstream_inference_completions_cost": 0.01278
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 624,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 665,\n    \"failure_mode\": \"The span.end() call is incorrectly nested inside the `if self.capture_output:` block in the async generator wrapper. When capture_output=False, the span is never ended when the generator is exhausted.\",\n    \"impact\": \"Resource leak: spans remain open indefinitely when async generators are used with capture_output=False, causing memory leaks and incorrect telemetry. The sync generator version at line 591 correctly calls span.end() outside the block.\",\n    \"suggested_fix\": \"Move line 665 `self.span.end()` to be at the same indentation level as line 655 `if self.capture_output:`, so it executes regardless of the capture_output value, matching the sync generator pattern at line 591.\"\n  }\n]\n```"
+}

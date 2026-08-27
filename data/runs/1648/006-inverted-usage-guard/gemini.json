@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:00:07.659122+00:00",
+  "latency_seconds": 13.008,
+  "prompt_tokens": 1896,
+  "completion_tokens": 1331,
+  "total_tokens": 3227,
+  "raw_response": {
+    "id": "gen-1787259594-m9tEJd0pVkCsV35nvXlb",
+    "object": "chat.completion",
+    "created": 1787259594,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 644,\n    \"failure_mode\": \"The condition `if chunk_usage is None:` is the opposite of what is intended. It sets `usage` to `None` when a chunk without usage information is received, effectively discarding previously received usage data.\",\n    \"impact\": \"If a streaming response from OpenAI includes a `usage` object in one chunk and not in a subsequent one (which is common), the final recorded usage for the operation will be `None`. This leads to a loss of token usage data, which is critical for cost tracking and analysis.\",\n    \"suggested_fix\": \"The condition should be inverted to only update `usage` when `chunk_usage` is not `None`. Change `if chunk_usage is None:` to `if chunk_usage is not None:`.\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 658,\n    \"failure_mode\": \"The code `if delta is None: delta = {}` is introduced to handle chunks that have `delta: null`, such as Azure's content filter chunks. However, this can cause a `TypeError` on the following line `if delta.get(\\\"role\\\", None) is not None:` if `delta` was previously `None` and the `_is_openai_v1()` check on line 655 was false.\",\n    \"impact\": \"When processing a streaming response that includes a chunk with `delta: null` (e.g., from Azure OpenAI), and the OpenAI client version is pre-v1, the application will crash with a `TypeError`. This breaks streaming for users on older OpenAI SDK versions who use Azure.\",\n    \"suggested_fix\": \"Move the `if delta is None: delta = {}` block to be before the `_is_openai_v1()` check. This ensures `delta` is always a dictionary before any attempt to access its contents.\\n\\n```python\\n# Suggested change around line 655\\n                delta = choice.get(\\\"delta\\\", None)\\n\\n                if delta is None:\\n                    delta = {}\\n\\n                choice_finish_reason = choice.get(\\\"finish_reason\\\", None)\\n                if choice_finish_reason is not None:\\n                    finish_reason = choice_finish_reason\\n\\n                if _is_openai_v1() and delta is not None:\\n                     delta = delta.__dict__\\n\\n                if delta.get(\\\"role\\\", None) is not None:\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Correctness**\n\nI'm currently focused on evaluating the recent changes for any production-impacting issues. My primary concern is identifying potential defects related to correctness, security, and concurrency. I'm deliberately bypassing minor stylistic concerns to ensure I only flag critical bugs for your expert review.\n\n**Reviewing Code for Defects**\n\nI'm currently scrutinizing the recent code modifications, prioritizing correctness and security concerns. My focus is on identifying critical production-level defects, deliberately setting aside stylistic nuances for now. I will report any significant findings that warrant your expert attention.\n\n**Focusing on Correctness**\n\nI'm currently concentrating on the core logic changes within `langfuse/openai.py`, specifically how `usage` and `delta` are handled. My analysis suggests a potential issue where `usage` might be incorrectly assigned `None` due to the new conditional logic. I'm also examining the `delta` handling for similar logical flaws.\n\n**Analyzing Code Logic**\n\nI am currently examining the `usage` and `delta` handling in `langfuse/openai.py`. My analysis points to a critical logic flaw where `usage` could be incorrectly set to `None` due to the new conditional structure, potentially breaking downstream data processing and reporting.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Correctness**\n\nI'm currently focused on evaluating the recent changes for any production-impacting issues. My primary concern is identifying potential defects related to correctness, security, and concurrency. I'm deliberately bypassing minor stylistic concerns to ensure I only flag critical bugs for your expert review.\n\n**Reviewing Code for Defects**\n\nI'm currently scrutinizing the recent code modifications, prioritizing correctness and security concerns. My focus is on identifying critical production-level defects, deliberately setting aside stylistic nuances for now. I will report any significant findings that warrant your expert attention.\n\n**Focusing on Correctness**\n\nI'm currently concentrating on the core logic changes within `langfuse/openai.py`, specifically how `usage` and `delta` are handled. My analysis suggests a potential issue where `usage` might be incorrectly assigned `None` due to the new conditional logic. I'm also examining the `delta` handling for similar logical flaws.\n\n**Analyzing Code Logic**\n\nI am currently examining the `usage` and `delta` handling in `langfuse/openai.py`. My analysis points to a critical logic flaw where `usage` could be incorrectly set to `None` due to the new conditional structure, potentially breaking downstream data processing and reporting.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1896,
+      "completion_tokens": 1331,
+      "total_tokens": 3227,
+      "cost": 0.01568,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01568,
+        "upstream_inference_prompt_cost": 0.00237,
+        "upstream_inference_completions_cost": 0.01331
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 729,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 644,\n    \"failure_mode\": \"The condition `if chunk_usage is None:` is the opposite of what is intended. It sets `usage` to `None` when a chunk without usage information is received, effectively discarding previously received usage data.\",\n    \"impact\": \"If a streaming response from OpenAI includes a `usage` object in one chunk and not in a subsequent one (which is common), the final recorded usage for the operation will be `None`. This leads to a loss of token usage data, which is critical for cost tracking and analysis.\",\n    \"suggested_fix\": \"The condition should be inverted to only update `usage` when `chunk_usage` is not `None`. Change `if chunk_usage is None:` to `if chunk_usage is not None:`.\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 658,\n    \"failure_mode\": \"The code `if delta is None: delta = {}` is introduced to handle chunks that have `delta: null`, such as Azure's content filter chunks. However, this can cause a `TypeError` on the following line `if delta.get(\\\"role\\\", None) is not None:` if `delta` was previously `None` and the `_is_openai_v1()` check on line 655 was false.\",\n    \"impact\": \"When processing a streaming response that includes a chunk with `delta: null` (e.g., from Azure OpenAI), and the OpenAI client version is pre-v1, the application will crash with a `TypeError`. This breaks streaming for users on older OpenAI SDK versions who use Azure.\",\n    \"suggested_fix\": \"Move the `if delta is None: delta = {}` block to be before the `_is_openai_v1()` check. This ensures `delta` is always a dictionary before any attempt to access its contents.\\n\\n```python\\n# Suggested change around line 655\\n                delta = choice.get(\\\"delta\\\", None)\\n\\n                if delta is None:\\n                    delta = {}\\n\\n                choice_finish_reason = choice.get(\\\"finish_reason\\\", None)\\n                if choice_finish_reason is not None:\\n                    finish_reason = choice_finish_reason\\n\\n                if _is_openai_v1() and delta is not None:\\n                     delta = delta.__dict__\\n\\n                if delta.get(\\\"role\\\", None) is not None:\\n```\"\n  }\n]\n```"
+}

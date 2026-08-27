@@ -1,0 +1,36 @@
+{
+  "number": 1587,
+  "title": "fix(experiments): maintain propagated context in async experiments",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1587",
+  "base_sha": "840cf2a94bb48770a3f256742f946137c2f59392",
+  "head_sha": "1a581e8a220715b4db1d5d01c5b2020e303c5aea",
+  "merged_at": "2026-03-30T12:04:29Z",
+  "additions": 50,
+  "deletions": 1,
+  "changed_lines": 51,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/_client/utils.py",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_propagate_attributes.py",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_utils.py",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:01.174536+00:00"
+}

@@ -1,0 +1,19 @@
+id: "006"
+pr_number: 1648
+file: "langfuse/openai.py"
+line_start: 644
+line_end: 644
+defect_class: "local_mechanical"
+summary: >
+  In _extract_streamed_openai_response, the guard that carries the running
+  `usage` forward across streamed chunks is inverted: it now overwrites
+  `usage` with `chunk_usage` only when chunk_usage IS None, instead of only
+  when it is present. Since most intermediate chunks (and Azure's chunks
+  without a trailing usage payload) have usage=None, `usage` gets reset to
+  None on every such chunk, so by the time the stream ends the previously
+  captured usage totals are silently discarded instead of accumulated.
+detection_hint: >
+  A correct catch must state that the condition on chunk_usage is inverted
+  (`is None` instead of `is not None`), so usage is overwritten with None on
+  chunks that lack it rather than being preserved from the last chunk that
+  had it — not merely note that usage handling changed in this loop.

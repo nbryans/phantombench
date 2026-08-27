@@ -1,0 +1,115 @@
+diff --git a/langfuse/openai.py b/langfuse/openai.py
+--- a/langfuse/openai.py
++++ b/langfuse/openai.py
+@@ -755,7 +755,7 @@
+         if chunk_usage is not None:
+             usage = chunk_usage
+ 
+-        choices = chunk.get("choices", [])
++        choices = chunk.get("choices") or []
+ 
+         for choice in choices:
+             if _is_openai_v1():
+@@ -898,9 +898,9 @@
+     completion = None
+ 
+     if resource.type == "completion":
+-        choices = response.get("choices", [])
++        choices = response.get("choices") or []
+         if len(choices) > 0:
+-            choice = choices[-1]
++            choice = choices[0]
+ 
+             completion = choice.text if _is_openai_v1() else choice.get("text", None)
+ 
+@@ -908,7 +908,7 @@
+         completion = _extract_response_api_completion(response.get("output", {}))
+ 
+     elif resource.type == "chat":
+-        choices = response.get("choices", [])
++        choices = response.get("choices") or []
+         if len(choices) > 0:
+             # If multiple choices were generated, we'll show all of them in the UI as a list.
+             if len(choices) > 1:
+@@ -927,7 +927,7 @@
+                 )
+ 
+     elif resource.type == "embedding":
+-        data = response.get("data", [])
++        data = response.get("data") or []
+         if len(data) > 0:
+             first_embedding = data[0]
+             embedding_vector = (
+diff --git a/tests/unit/test_openai.py b/tests/unit/test_openai.py
+--- a/tests/unit/test_openai.py
++++ b/tests/unit/test_openai.py
+@@ -311,6 +311,69 @@
+     }
+ 
+ 
++def test_chat_completion_with_none_choices_does_not_crash(
++    langfuse_memory_client, get_span, json_attr
++):
++    openai_client = lf_openai.OpenAI(api_key="test")
++    response = SimpleNamespace(
++        model="gpt-4o-mini",
++        choices=None,
++        usage=SimpleNamespace(prompt_tokens=3, completion_tokens=1, total_tokens=4),
++    )
++
++    with patch.object(openai_client.chat.completions, "_post", return_value=response):
++        result = openai_client.chat.completions.create(
++            name="unit-openai-chat-none-choices",
++            model="gpt-4o-mini",
++            messages=[{"role": "user", "content": "1 + 1 = ?"}],
++        )
++
++    assert result is response
++
++    langfuse_memory_client.flush()
++    span = get_span("unit-openai-chat-none-choices")
++
++    assert LangfuseOtelSpanAttributes.OBSERVATION_LEVEL not in span.attributes
++    assert (
++        span.attributes[LangfuseOtelSpanAttributes.OBSERVATION_MODEL] == "gpt-4o-mini"
++    )
++    assert json_attr(span, LangfuseOtelSpanAttributes.OBSERVATION_USAGE_DETAILS) == {
++        "prompt_tokens": 3,
++        "completion_tokens": 1,
++        "total_tokens": 4,
++    }
++
++
++def test_openai_stream_with_none_choices_chunk_does_not_crash(
++    langfuse_memory_client, get_span
++):
++    openai_client = lf_openai.OpenAI(api_key="test")
++    chunks_with_none_choices = [
++        SimpleNamespace(model="gpt-4o-mini", choices=None, usage=None),
++        *_make_chat_stream_chunks(),
++    ]
++    raw_stream = DummyOpenAIStream(chunks_with_none_choices, DummySyncResponse())
++
++    with patch.object(openai_client.chat.completions, "_post", return_value=raw_stream):
++        stream = openai_client.chat.completions.create(
++            name="unit-openai-stream-none-choices",
++            model="gpt-4o-mini",
++            messages=[{"role": "user", "content": "1 + 1 = ?"}],
++            stream=True,
++        )
++
++    chunks = list(stream)
++    stream.close()
++
++    assert len(chunks) == 3
++
++    langfuse_memory_client.flush()
++    span = get_span("unit-openai-stream-none-choices")
++
++    assert span.attributes[LangfuseOtelSpanAttributes.OBSERVATION_OUTPUT] == "2"
++    assert span.attributes["langfuse.observation.metadata.finish_reason"] == "stop"
++
++
+ def test_streaming_chat_completion_preserves_tool_calls_after_content():
+     model, completion, usage, metadata = (
+         lf_openai_module._extract_streamed_openai_response(

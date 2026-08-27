@@ -1,0 +1,12 @@
+--- a/langfuse/_client/observe.py
++++ b/langfuse/_client/observe.py
+@@ -662,8 +662,7 @@
+                     output = "".join(self.items)
+ 
+                 self.span.update(output=output)
+-
+-            self.span.end()
++                self.span.end()
+ 
+             raise  # Re-raise StopAsyncIteration
+         except (Exception, asyncio.CancelledError) as e:

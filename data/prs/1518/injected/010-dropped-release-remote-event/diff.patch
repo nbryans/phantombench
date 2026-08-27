@@ -1,0 +1,226 @@
+diff --git a/langfuse/_client/client.py b/langfuse/_client/client.py
+--- a/langfuse/_client/client.py
++++ b/langfuse/_client/client.py
+@@ -52,6 +52,7 @@
+     LANGFUSE_DEBUG,
+     LANGFUSE_HOST,
+     LANGFUSE_PUBLIC_KEY,
++    LANGFUSE_RELEASE,
+     LANGFUSE_SAMPLE_RATE,
+     LANGFUSE_SECRET_KEY,
+     LANGFUSE_TIMEOUT,
+@@ -77,6 +78,7 @@
+ )
+ from langfuse._client.utils import get_sha256_hash_hex, run_async_safely
+ from langfuse._utils import _get_timestamp
++from langfuse._utils.environment import get_common_release_envs
+ from langfuse._utils.parse_error import handle_fern_exception
+ from langfuse._utils.prompt_cache import PromptCache
+ from langfuse.api import (
+@@ -252,6 +254,11 @@
+         self._environment = environment or cast(
+             str, os.environ.get(LANGFUSE_TRACING_ENVIRONMENT)
+         )
++        self._release = (
++            release
++            or os.environ.get(LANGFUSE_RELEASE, None)
++            or get_common_release_envs()
++        )
+         self._project_id: Optional[str] = None
+         sample_rate = sample_rate or float(os.environ.get(LANGFUSE_SAMPLE_RATE, 1.0))
+         if not 0.0 <= sample_rate <= 1.0:
+@@ -633,6 +640,7 @@
+                 otel_span=otel_span,
+                 langfuse_client=self,
+                 environment=self._environment,
++                release=self._release,
+                 input=input,
+                 output=output,
+                 metadata=metadata,
+@@ -655,6 +663,7 @@
+                 otel_span=otel_span,
+                 langfuse_client=self,
+                 environment=self._environment,
++                release=self._release,
+                 input=input,
+                 output=output,
+                 metadata=metadata,
+@@ -1168,6 +1177,7 @@
+                 "otel_span": otel_span,
+                 "langfuse_client": self,
+                 "environment": self._environment,
++                "release": self._release,
+                 "input": input,
+                 "output": output,
+                 "metadata": metadata,
+@@ -1346,6 +1356,7 @@
+                 otel_span=current_otel_span,
+                 langfuse_client=self,
+                 environment=self._environment,
++                release=self._release,
+             )
+ 
+             if name:
+@@ -1403,6 +1414,7 @@
+                 otel_span=current_otel_span,
+                 langfuse_client=self,
+                 environment=self._environment,
++                release=self._release,
+             )
+ 
+             span.set_trace_io(
+@@ -1502,6 +1514,7 @@
+                             otel_span=otel_span,
+                             langfuse_client=self,
+                             environment=self._environment,
++                            release=self._environment,
+                             input=input,
+                             output=output,
+                             metadata=metadata,
+@@ -1519,6 +1532,7 @@
+                 otel_span=otel_span,
+                 langfuse_client=self,
+                 environment=self._environment,
++                release=self._release,
+                 input=input,
+                 output=output,
+                 metadata=metadata,
+diff --git a/langfuse/_client/span.py b/langfuse/_client/span.py
+--- a/langfuse/_client/span.py
++++ b/langfuse/_client/span.py
+@@ -85,6 +85,7 @@
+         output: Optional[Any] = None,
+         metadata: Optional[Any] = None,
+         environment: Optional[str] = None,
++        release: Optional[str] = None,
+         version: Optional[str] = None,
+         level: Optional[SpanLevel] = None,
+         status_message: Optional[str] = None,
+@@ -105,6 +106,7 @@
+             output: Output data from the span (any JSON-serializable object)
+             metadata: Additional metadata to associate with the span
+             environment: The tracing environment
++            release: Release identifier for the application
+             version: Version identifier for the code or component
+             level: Importance level of the span (info, warning, error)
+             status_message: Optional status message for the span
+@@ -129,6 +131,12 @@
+         if self._environment is not None:
+             self._otel_span.set_attribute(
+                 LangfuseOtelSpanAttributes.ENVIRONMENT, self._environment
++            )
++
++        self._release = release or self._langfuse_client._release
++        if self._release is not None:
++            self._otel_span.set_attribute(
++                LangfuseOtelSpanAttributes.RELEASE, self._release
+             )
+ 
+         # Handle media only if span is sampled
+@@ -925,6 +933,7 @@
+                     output=output,
+                     metadata=metadata,
+                     environment=self._environment,
++                    release=self._release,
+                     version=version,
+                     level=level,
+                     status_message=status_message,
+@@ -945,6 +954,7 @@
+             "otel_span": new_otel_span,
+             "langfuse_client": self._langfuse_client,
+             "environment": self._environment,
++            "release": self._release,
+             "input": input,
+             "output": output,
+             "metadata": metadata,
+@@ -1225,6 +1235,7 @@
+                 output=output,
+                 metadata=metadata,
+                 environment=self._environment,
++                release=self._release,
+                 version=version,
+                 level=level,
+                 status_message=status_message,
+@@ -1251,6 +1262,7 @@
+         output: Optional[Any] = None,
+         metadata: Optional[Any] = None,
+         environment: Optional[str] = None,
++        release: Optional[str] = None,
+         version: Optional[str] = None,
+         level: Optional[SpanLevel] = None,
+         status_message: Optional[str] = None,
+@@ -1264,6 +1276,7 @@
+             output: Output data from the span (any JSON-serializable object)
+             metadata: Additional metadata to associate with the span
+             environment: The tracing environment
++            release: Release identifier for the application
+             version: Version identifier for the code or component
+             level: Importance level of the span (info, warning, error)
+             status_message: Optional status message for the span
+@@ -1276,6 +1289,7 @@
+             output=output,
+             metadata=metadata,
+             environment=environment,
++            release=release,
+             version=version,
+             level=level,
+             status_message=status_message,
+@@ -1299,6 +1313,7 @@
+         output: Optional[Any] = None,
+         metadata: Optional[Any] = None,
+         environment: Optional[str] = None,
++        release: Optional[str] = None,
+         version: Optional[str] = None,
+         level: Optional[SpanLevel] = None,
+         status_message: Optional[str] = None,
+@@ -1318,6 +1333,7 @@
+             output: Output from the generation (e.g., completions)
+             metadata: Additional metadata to associate with the generation
+             environment: The tracing environment
++            release: Release identifier for the application
+             version: Version identifier for the model or component
+             level: Importance level of the generation (info, warning, error)
+             status_message: Optional status message for the generation
+@@ -1336,6 +1352,7 @@
+             output=output,
+             metadata=metadata,
+             environment=environment,
++            release=release,
+             version=version,
+             level=level,
+             status_message=status_message,
+@@ -1360,6 +1377,7 @@
+         output: Optional[Any] = None,
+         metadata: Optional[Any] = None,
+         environment: Optional[str] = None,
++        release: Optional[str] = None,
+         version: Optional[str] = None,
+         level: Optional[SpanLevel] = None,
+         status_message: Optional[str] = None,
+@@ -1373,6 +1391,7 @@
+             output: Output from the event
+             metadata: Additional metadata to associate with the generation
+             environment: The tracing environment
++            release: Release identifier for the application
+             version: Version identifier for the model or component
+             level: Importance level of the generation (info, warning, error)
+             status_message: Optional status message for the generation
+@@ -1385,6 +1404,7 @@
+             output=output,
+             metadata=metadata,
+             environment=environment,
++            release=release,
+             version=version,
+             level=level,
+             status_message=status_message,
+diff --git a/tests/test_resource_manager.py b/tests/test_resource_manager.py
+--- a/tests/test_resource_manager.py
++++ b/tests/test_resource_manager.py
+@@ -27,6 +27,7 @@
+     retrieved_client = get_client()
+ 
+     assert retrieved_client._environment == settings["environment"]
++    assert retrieved_client._release == settings["release"]
+ 
+     assert retrieved_client._resources is not None
+     rm = retrieved_client._resources

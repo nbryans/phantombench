@@ -1,0 +1,36 @@
+{
+  "number": 1648,
+  "title": "fix(openai): handle Azure stream chunks without delta",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1648",
+  "base_sha": "fdcecb73aedb034d5f010de0768b30fe68dc1b2a",
+  "head_sha": "2f1b345c35d41355db80b4550a3fbf344ffa84a9",
+  "merged_at": "2026-05-08T14:07:37Z",
+  "additions": 105,
+  "deletions": 4,
+  "changed_lines": 109,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/openai.py",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 3,
+      "is_source": true
+    },
+    {
+      "path": "tests/e2e/test_core_sdk.py",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_openai.py",
+      "status": "modified",
+      "additions": 93,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:29.074350+00:00"
+}

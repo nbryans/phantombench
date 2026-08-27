@@ -1,0 +1,10 @@
+--- a/langfuse/_utils/serializer.py
++++ b/langfuse/_utils/serializer.py
+@@ -215,6 +215,6 @@
+     if v.tzinfo is not None:
+         return _serialize_zoned_datetime(v)
+     else:
+-        local_tz = dt.datetime.now().astimezone().tzinfo
++        local_tz = dt.timezone.utc
+         localized_dt = v.replace(tzinfo=local_tz)
+         return _serialize_zoned_datetime(localized_dt)

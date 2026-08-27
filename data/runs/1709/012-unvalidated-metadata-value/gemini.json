@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:00:57.533099+00:00",
+  "latency_seconds": 10.564,
+  "prompt_tokens": 1809,
+  "completion_tokens": 1075,
+  "total_tokens": 2884,
+  "raw_response": {
+    "id": "gen-1787259647-JqsDUthsBjSgUPVsmzmp",
+    "object": "chat.completion",
+    "created": 1787259647,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/propagation.py\",\n    \"line\": 291,\n    \"failure_mode\": \"The original, non-string value is stored in `validated_metadata` after its string-coerced version passes validation. However, `validated_metadata` is typed as `Dict[str, str]` and is later passed to a function expecting string values, which will then be set as OpenTelemetry span attributes.\",\n    \"impact\": \"This will cause a `TypeError` at runtime if a non-string value is passed in the metadata, as the OpenTelemetry `set_attribute` function will receive a value of an unexpected type. The test passes because it uses simple types that `str()` can convert, but complex objects without a useful `__str__` representation will be stored as unhelpful strings, and the type mismatch remains a bug.\",\n    \"suggested_fix\": \"Store the coerced string value in `validated_metadata` instead of the original value. This aligns with the function's type hints and documented behavior.\\n\\n```python\\n# at langfuse/_client/propagation.py:291\\nvalidated_metadata[key] = coerced_value\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code for Production Issues**\n\nI'm currently examining the provided Python diff, focusing specifically on potential production-level concerns. My review is limited strictly to the changes presented, and I aim to identify up to five key issues, prioritized by their severity.\n\n**Refining Metadata Handling**\n\nI'm currently reviewing the changes to metadata handling within the propagation module. My focus is on the type hint adjustments and updated documentation regarding value coercion and length limits. I'm assessing the implications of allowing `Any` for metadata values and the strictness of the new string coercion and character limit policies.\n\n**Analyzing Code for Production Issues**\n\nI'm currently examining the provided Python diff, focusing specifically on potential production-level concerns. My review is limited strictly to the changes presented, and I aim to identify up to five key issues, prioritized by their severity.\n\n**Refining Metadata Handling**\n\nI'm currently reviewing the changes to metadata handling within the propagation module. My focus is on the type hint adjustments and updated documentation regarding value coercion and length limits. I'm assessing the implications of allowing `Any` for metadata values and the strictness of the new string coercion and character limit policies.\n\n**Identifying Data Type Mismatches**\n\nI've spotted a critical issue where metadata values are coerced for validation but the original, potentially non-string value, is stored. This directly contradicts the `validated_metadata` dictionary's type hint (`Dict[str, str]`) and will lead to runtime errors when `_set_attributes_from_dict` attempts to set attributes with incorrect types. This is a blocking concern.\n\n**Analyzing Code for Production Issues**\n\nI'm currently examining the Python diff, prioritizing potential production-level concerns. My review is strictly confined to the provided changes, aiming to identify and rank up to five critical issues based on their severity.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code for Production Issues**\n\nI'm currently examining the provided Python diff, focusing specifically on potential production-level concerns. My review is limited strictly to the changes presented, and I aim to identify up to five key issues, prioritized by their severity.\n\n**Refining Metadata Handling**\n\nI'm currently reviewing the changes to metadata handling within the propagation module. My focus is on the type hint adjustments and updated documentation regarding value coercion and length limits. I'm assessing the implications of allowing `Any` for metadata values and the strictness of the new string coercion and character limit policies.\n\n**Analyzing Code for Production Issues**\n\nI'm currently examining the provided Python diff, focusing specifically on potential production-level concerns. My review is limited strictly to the changes presented, and I aim to identify up to five key issues, prioritized by their severity.\n\n**Refining Metadata Handling**\n\nI'm currently reviewing the changes to metadata handling within the propagation module. My focus is on the type hint adjustments and updated documentation regarding value coercion and length limits. I'm assessing the implications of allowing `Any` for metadata values and the strictness of the new string coercion and character limit policies.\n\n**Identifying Data Type Mismatches**\n\nI've spotted a critical issue where metadata values are coerced for validation but the original, potentially non-string value, is stored. This directly contradicts the `validated_metadata` dictionary's type hint (`Dict[str, str]`) and will lead to runtime errors when `_set_attributes_from_dict` attempts to set attributes with incorrect types. This is a blocking concern.\n\n**Analyzing Code for Production Issues**\n\nI'm currently examining the Python diff, prioritizing potential production-level concerns. My review is strictly confined to the provided changes, aiming to identify and rank up to five critical issues based on their severity.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1809,
+      "completion_tokens": 1075,
+      "total_tokens": 2884,
+      "cost": 0.01301125,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01301125,
+        "upstream_inference_prompt_cost": 0.00226125,
+        "upstream_inference_completions_cost": 0.01075
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 790,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/propagation.py\",\n    \"line\": 291,\n    \"failure_mode\": \"The original, non-string value is stored in `validated_metadata` after its string-coerced version passes validation. However, `validated_metadata` is typed as `Dict[str, str]` and is later passed to a function expecting string values, which will then be set as OpenTelemetry span attributes.\",\n    \"impact\": \"This will cause a `TypeError` at runtime if a non-string value is passed in the metadata, as the OpenTelemetry `set_attribute` function will receive a value of an unexpected type. The test passes because it uses simple types that `str()` can convert, but complex objects without a useful `__str__` representation will be stored as unhelpful strings, and the type mismatch remains a bug.\",\n    \"suggested_fix\": \"Store the coerced string value in `validated_metadata` instead of the original value. This aligns with the function's type hints and documented behavior.\\n\\n```python\\n# at langfuse/_client/propagation.py:291\\nvalidated_metadata[key] = coerced_value\\n```\"\n  }\n]\n```"
+}

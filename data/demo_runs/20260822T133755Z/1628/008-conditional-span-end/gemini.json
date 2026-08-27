@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-22T13:38:09.541764+00:00",
+  "latency_seconds": 14.144,
+  "prompt_tokens": 4036,
+  "completion_tokens": 1469,
+  "total_tokens": 5505,
+  "raw_response": {
+    "id": "gen-1787405876-PtqOe6BxWJx3FSmZCQRd",
+    "object": "chat.completion",
+    "created": 1787405876,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 668,\n    \"failure_mode\": \"In the async generator wrapper, `self.span.end()` is only called if `capture_output` is true. If `capture_output` is false, the span is never ended, causing it to leak.\",\n    \"impact\": \"Spans for async generators and streaming responses will not be reported to Langfuse when `capture_output=False`. This leads to incomplete traces and resource leaks in the monitoring system, as the spans are never considered finished.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block in `_ContextPreservedAsyncGeneratorWrapper.__anext__` to ensure it is always called when the generator is exhausted.\\n\\n```python\\n        except StopAsyncIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopAsyncIteration\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 586,\n    \"failure_mode\": \"When `capture_output` is false, the `_ContextPreservedSyncGeneratorWrapper` does not update the span with the output, but it still calls `self.span.update(output=output).end()`. The `output` variable is uninitialized in this case, leading to an `UnboundLocalError`.\",\n    \"impact\": \"Any decorated synchronous generator function called with `capture_output=False` will raise an `UnboundLocalError` when the generator is fully consumed. This will crash the consumer of the generator and prevent the associated span from being correctly finalized and sent.\",\n    \"suggested_fix\": \"Move the call to `self.span.update(output=output)` inside the `if self.capture_output:` block, and call `self.span.end()` unconditionally outside the block.\\n\\n```python\\n        except StopIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopIteration\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nI am currently reviewing the provided Python code diff for the `langfuse` library. My focus is on identifying any production-level concerns such as correctness, security vulnerabilities, or potential concurrency issues. I will be outputting my findings as a JSON array.\n\n**Evaluating Code Structure**\n\nI've analyzed the refactoring in `_observe_async` and `_observe_sync`, noting the extraction of result handling into `_handle_observe_result`. This appears to improve code maintainability by reducing duplication.\n\n**Refining Result Handling**\n\nMy current focus is on the detailed implementation within `_handle_observe_result` and its associated wrapper classes. I'm scrutinizing the conditional logic for capturing output, particularly how it interacts with generator and streaming responses to ensure no data loss or unexpected behavior occurs.\n\n**Investigating Generator Logic**\n\nI am currently examining the conditional logic within the `StopIteration`/`StopAsyncIteration` exception handlers of the generator wrappers. I've identified a potential issue where `self.span.end()` is called unconditionally in the sync wrapper, but conditionally in the async wrapper, which could lead to inconsistent span finalization.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nI am currently reviewing the provided Python code diff for the `langfuse` library. My focus is on identifying any production-level concerns such as correctness, security vulnerabilities, or potential concurrency issues. I will be outputting my findings as a JSON array.\n\n**Evaluating Code Structure**\n\nI've analyzed the refactoring in `_observe_async` and `_observe_sync`, noting the extraction of result handling into `_handle_observe_result`. This appears to improve code maintainability by reducing duplication.\n\n**Refining Result Handling**\n\nMy current focus is on the detailed implementation within `_handle_observe_result` and its associated wrapper classes. I'm scrutinizing the conditional logic for capturing output, particularly how it interacts with generator and streaming responses to ensure no data loss or unexpected behavior occurs.\n\n**Investigating Generator Logic**\n\nI am currently examining the conditional logic within the `StopIteration`/`StopAsyncIteration` exception handlers of the generator wrappers. I've identified a potential issue where `self.span.end()` is called unconditionally in the sync wrapper, but conditionally in the async wrapper, which could lead to inconsistent span finalization.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4036,
+      "completion_tokens": 1469,
+      "total_tokens": 5505,
+      "cost": 0.019735,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.019735,
+        "upstream_inference_prompt_cost": 0.005045,
+        "upstream_inference_completions_cost": 0.01469
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 750,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 668,\n    \"failure_mode\": \"In the async generator wrapper, `self.span.end()` is only called if `capture_output` is true. If `capture_output` is false, the span is never ended, causing it to leak.\",\n    \"impact\": \"Spans for async generators and streaming responses will not be reported to Langfuse when `capture_output=False`. This leads to incomplete traces and resource leaks in the monitoring system, as the spans are never considered finished.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block in `_ContextPreservedAsyncGeneratorWrapper.__anext__` to ensure it is always called when the generator is exhausted.\\n\\n```python\\n        except StopAsyncIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopAsyncIteration\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 586,\n    \"failure_mode\": \"When `capture_output` is false, the `_ContextPreservedSyncGeneratorWrapper` does not update the span with the output, but it still calls `self.span.update(output=output).end()`. The `output` variable is uninitialized in this case, leading to an `UnboundLocalError`.\",\n    \"impact\": \"Any decorated synchronous generator function called with `capture_output=False` will raise an `UnboundLocalError` when the generator is fully consumed. This will crash the consumer of the generator and prevent the associated span from being correctly finalized and sent.\",\n    \"suggested_fix\": \"Move the call to `self.span.update(output=output)` inside the `if self.capture_output:` block, and call `self.span.end()` unconditionally outside the block.\\n\\n```python\\n        except StopIteration:\\n            # Handle output and span cleanup when generator is exhausted\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n\\n            raise  # Re-raise StopIteration\\n```\"\n  }\n]\n```"
+}

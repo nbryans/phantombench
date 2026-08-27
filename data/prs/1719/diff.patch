@@ -1,0 +1,70 @@
+diff --git a/langfuse/langchain/CallbackHandler.py b/langfuse/langchain/CallbackHandler.py
+index 2f6efe84f..e3f2b762b 100644
+--- a/langfuse/langchain/CallbackHandler.py
++++ b/langfuse/langchain/CallbackHandler.py
+@@ -978,6 +978,9 @@ def on_tool_start(
+             observation_type = self._get_observation_type_from_serialized(
+                 serialized, "tool", **kwargs
+             )
++            tool_input = kwargs.get("inputs")
++            if tool_input is None:
++                tool_input = input_str
+ 
+             parent_observation = self._get_parent_observation(parent_run_id)
+             if isinstance(parent_observation, Langfuse):
+@@ -985,7 +988,7 @@ def on_tool_start(
+                     trace_context=self._trace_context,
+                     name=self.get_langchain_run_name(serialized, **kwargs),
+                     as_type=observation_type,
+-                    input=input_str,
++                    input=tool_input,
+                     metadata=meta,
+                     level="DEBUG" if tags and LANGSMITH_TAG_HIDDEN in tags else None,
+                 )
+@@ -993,7 +996,7 @@ def on_tool_start(
+                 span = parent_observation.start_observation(
+                     name=self.get_langchain_run_name(serialized, **kwargs),
+                     as_type=observation_type,
+-                    input=input_str,
++                    input=tool_input,
+                     metadata=meta,
+                     level="DEBUG" if tags and LANGSMITH_TAG_HIDDEN in tags else None,
+                 )
+diff --git a/tests/unit/test_langchain.py b/tests/unit/test_langchain.py
+index 8d3b3517b..c33c1b360 100644
+--- a/tests/unit/test_langchain.py
++++ b/tests/unit/test_langchain.py
+@@ -791,6 +791,33 @@ class DummyControlFlowError(RuntimeError):
+     assert not _has_run_state(handler, retriever_run_id)
+ 
+ 
++def test_tool_start_prefers_structured_inputs_when_available(
++    langfuse_memory_client, get_span, json_attr
++):
++    handler = CallbackHandler()
++    run_id = uuid4()
++    structured_inputs = {
++        "path": "/tmp/example.md",
++        "content": '# Title\n\nThis has "quotes" and JSON-like text: {"a": 1}',
++    }
++
++    handler.on_tool_start(
++        {"name": "write_document"},
++        str(structured_inputs),
++        run_id=run_id,
++        inputs=structured_inputs,
++    )
++    handler.on_tool_end("ok", run_id=run_id)
++
++    langfuse_memory_client.flush()
++    span = get_span("write_document")
++
++    assert (
++        json_attr(span, LangfuseOtelSpanAttributes.OBSERVATION_INPUT)
++        == structured_inputs
++    )
++
++
+ def test_handled_tool_error_marks_observation_error(
+     langfuse_memory_client, get_span, json_attr
+ ):

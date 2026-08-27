@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:01:38.387425+00:00",
+  "latency_seconds": 10.463,
+  "prompt_tokens": 1711,
+  "completion_tokens": 915,
+  "total_tokens": 2626,
+  "raw_response": {
+    "id": "gen-1787259688-xBDrLO3PdHjqLs01P5Xp",
+    "object": "chat.completion",
+    "created": 1787259688,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 903,\n    \"failure_mode\": \"The logic for selecting a completion choice has been changed from taking the last choice (`choices[-1]`) to the first choice (`choices[0]`). This is a silent semantic change that alters which completion is recorded.\",\n    \"impact\": \"For OpenAI completion requests with `n > 1`, a different completion will be logged by Langfuse than before. This could lead to confusing or incorrect data in Langfuse if users were relying on the previous behavior, as the logged completion will not match what they might be using in their application if they also select a non-first choice.\",\n    \"suggested_fix\": \"The choice of which completion to log should be deliberate. If the first choice is considered the canonical one, this change is correct but should be documented as a breaking change. If the intent is to support logging a specific choice, consider making it configurable. To revert to the previous behavior, change the line back to `choice = choices[-1]`.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nI am currently reviewing the provided Python code diff. My focus is on identifying any production-level issues that may arise from these specific changes, as a senior engineer would. I will report up to five findings in the requested JSON format, or confirm no issues if none are found.\n\n**Analyzing Code Changes**\n\nI am currently reviewing the provided Python code diff. My focus is on identifying any production-level issues that may arise from these specific changes, as a senior engineer would. I will report up to five findings in the requested JSON format, or confirm no issues if none are found.\n\n**Refining Code Logic**\n\nI've been scrutinizing the modifications in `langfuse/openai.py`. Specifically, I've noted defensive programming improvements for handling potential `None` values from `chunk.get(\"choices\")` and `response.get(\"choices\")`, which appear to bolster robustness. However, a change from `choices[-1]` to `choices[0]` warrants further examination for its impact on expected behavior.\n\n**Investigating Logic Shifts**\n\nI'm continuing to analyze the implications of the `choices[-1]` to `choices[0]` change in `langfuse/openai.py`. This shift from the last to the first choice could alter how certain API responses are processed and might introduce subtle but significant behavioral differences that need careful consideration for production stability.\n\n**Analyzing Code Changes**\n\nI've been examining the Python code modifications in `langfuse/openai.py`. My current focus is on the change from `choices[-1]` to `choices[0]`, which shifts the selection from the last to the first choice. This alteration in logic warrants careful consideration for its potential impact on established response handling and user expectations in production environments.\n\n**Investigating Logic Shifts**\n\nI'm continuing to analyze the implications of the `choices[-1]` to `choices[0]` change in `langfuse/openai.py`. This shift from the last to the first choice could alter how certain API responses are processed and might introduce subtle but significant behavioral differences that need careful consideration for production stability.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nI am currently reviewing the provided Python code diff. My focus is on identifying any production-level issues that may arise from these specific changes, as a senior engineer would. I will report up to five findings in the requested JSON format, or confirm no issues if none are found.\n\n**Analyzing Code Changes**\n\nI am currently reviewing the provided Python code diff. My focus is on identifying any production-level issues that may arise from these specific changes, as a senior engineer would. I will report up to five findings in the requested JSON format, or confirm no issues if none are found.\n\n**Refining Code Logic**\n\nI've been scrutinizing the modifications in `langfuse/openai.py`. Specifically, I've noted defensive programming improvements for handling potential `None` values from `chunk.get(\"choices\")` and `response.get(\"choices\")`, which appear to bolster robustness. However, a change from `choices[-1]` to `choices[0]` warrants further examination for its impact on expected behavior.\n\n**Investigating Logic Shifts**\n\nI'm continuing to analyze the implications of the `choices[-1]` to `choices[0]` change in `langfuse/openai.py`. This shift from the last to the first choice could alter how certain API responses are processed and might introduce subtle but significant behavioral differences that need careful consideration for production stability.\n\n**Analyzing Code Changes**\n\nI've been examining the Python code modifications in `langfuse/openai.py`. My current focus is on the change from `choices[-1]` to `choices[0]`, which shifts the selection from the last to the first choice. This alteration in logic warrants careful consideration for its potential impact on established response handling and user expectations in production environments.\n\n**Investigating Logic Shifts**\n\nI'm continuing to analyze the implications of the `choices[-1]` to `choices[0]` change in `langfuse/openai.py`. This shift from the last to the first choice could alter how certain API responses are processed and might introduce subtle but significant behavioral differences that need careful consideration for production stability.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1711,
+      "completion_tokens": 915,
+      "total_tokens": 2626,
+      "cost": 0.01128875,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01128875,
+        "upstream_inference_prompt_cost": 0.00213875,
+        "upstream_inference_completions_cost": 0.00915
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 663,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 903,\n    \"failure_mode\": \"The logic for selecting a completion choice has been changed from taking the last choice (`choices[-1]`) to the first choice (`choices[0]`). This is a silent semantic change that alters which completion is recorded.\",\n    \"impact\": \"For OpenAI completion requests with `n > 1`, a different completion will be logged by Langfuse than before. This could lead to confusing or incorrect data in Langfuse if users were relying on the previous behavior, as the logged completion will not match what they might be using in their application if they also select a non-first choice.\",\n    \"suggested_fix\": \"The choice of which completion to log should be deliberate. If the first choice is considered the canonical one, this change is correct but should be documented as a breaking change. If the intent is to support logging a specific choice, consider making it configurable. To revert to the previous behavior, change the line back to `choice = choices[-1]`.\"\n  }\n]\n```"
+}

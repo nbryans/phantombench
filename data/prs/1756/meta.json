@@ -1,0 +1,29 @@
+{
+  "number": 1756,
+  "title": "fix(experiments): preserve run metadata precedence",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1756",
+  "base_sha": "8906682fa3176f0c7d87cc05ab43524231c75626",
+  "head_sha": "6446c0a4d9c99beb56829a65e74da7b8f4782586",
+  "merged_at": "2026-07-29T10:16:10Z",
+  "additions": 36,
+  "deletions": 4,
+  "changed_lines": 40,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 4,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_propagate_attributes.py",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:27.618786+00:00"
+}

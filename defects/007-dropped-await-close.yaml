@@ -1,0 +1,21 @@
+id: "007"
+pr_number: 1792
+file: "langfuse/_client/observe.py"
+line_start: 737
+line_end: 737
+defect_class: "async_lifecycle"
+summary: >
+  _ContextPreservedAsyncGeneratorWrapper.aclose()'s main path now calls
+  self._close_generator() without awaiting it. Since _close_generator is a
+  coroutine function, calling it without await just constructs a coroutine
+  object and does nothing — the wrapped async generator's own aclose() is
+  never scheduled, so the generator is never actually closed. Execution
+  falls through to the `else` branch and calls self._finalize(), so the
+  span still ends normally, giving the appearance of a clean shutdown while
+  the underlying generator resource silently leaks.
+detection_hint: >
+  A correct catch must state that `await` was dropped before
+  self._close_generator(), so the coroutine is created but never scheduled
+  and the wrapped generator's aclose() never actually runs — not merely
+  note that the call still "looks the same" or that some coroutine gets
+  created.

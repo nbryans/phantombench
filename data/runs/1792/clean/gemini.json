@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:14:32.034289+00:00",
+  "latency_seconds": 16.971,
+  "prompt_tokens": 4085,
+  "completion_tokens": 1533,
+  "total_tokens": 5618,
+  "raw_response": {
+    "id": "gen-1787260455-1AMouB0IrUPlYbfrKb9N",
+    "object": "chat.completion",
+    "created": 1787260455,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 620,\n    \"failure_mode\": \"The `close()` method on the synchronous generator wrapper does not re-raise exceptions that occur during the generator's cleanup, potentially masking cleanup failures.\",\n    \"impact\": \"If the wrapped generator's `finally` block raises an exception, it will be silently swallowed. This can hide bugs, lead to resource leaks if cleanup is incomplete, and make debugging difficult as the failure is not reported to the caller of `close()`.\",\n    \"suggested_fix\": \"Wrap the call to `self.context.run(self.generator.close)` in a try/except block. If an exception occurs, finalize the span with the error and then re-raise the exception to the caller.\\n\\n```python\\n    def close(self) -> None:\\n        if self._span_ended:\\n            # Still close the generator so cleanup runs in the preserved context, not at GC time.\\n            try:\\n                self.context.run(self.generator.close)\\n            except Exception as e:\\n                # Don't finalize, span is already ended. But we should propagate the error.\\n                raise\\n            return\\n\\n        try:\\n            self.context.run(self.generator.close)\\n        except (Exception, GeneratorExit) as error:\\n            self._finalize_with_error(error)\\n            raise\\n        else:\\n            self._finalize()\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 700,\n    \"failure_mode\": \"The `_generator_never_resumed` method's fallback for Python < 3.12 incorrectly identifies a suspended generator that has been iterated over as 'never resumed'.\",\n    \"impact\": \"This incorrect detection can cause `asyncio.CancelledError` to be mishandled. The error might be deferred (`_pending_error`) when it should be handled immediately, leading to incorrect span finalization logic and potentially confusing behavior for consumers of the generator wrapper.\",\n    \"suggested_fix\": \"The fallback logic should check if the generator's frame's instruction pointer (`f_lasti`) is at its initial state (usually 0 or a small number before the first `yield`). A simple and effective check is `frame.f_lasti == 0` for CPython, which indicates the generator's code has not yet executed.\\n\\n```python\\n    def _generator_never_resumed(self) -> bool:\\n        try:\\n            state = inspect.getasyncgenstate(self.generator)\\n        except (AttributeError, TypeError):\\n            # getasyncgenstate is Python 3.12+; fall back to the attributes it reads.\\n            frame = getattr(self.generator, \\\"ag_frame\\\", None)\\n            # f_lasti == 0 is a CPython-specific but reliable way to check if the frame has started execution.\\n            return frame is not None and frame.f_lasti == 0\\n\\n        return state == \\\"AGEN_CREATED\\\"\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nI am currently focused on scrutinizing the recent code modifications within the pull request. My primary objective is to pinpoint any production-impacting defects, aiming for a maximum of five. I'm deliberately avoiding stylistic or naming suggestions unless they directly lead to a functional error. For each identified issue, I will meticulously detail its severity.\n\n**Refining Defect Identification**\n\nI'm continuing my deep dive, specifically honing in on potential production blockers within the recent code. My focus remains on functional regressions, meticulously documenting each with severity, failure mode, and suggested remedies. My aim is to ensure only critical issues rise to the surface for your expert review.\n\n**Analyzing Code Changes**\n\nI am currently focused on scrutinizing the recent code modifications within the pull request. My primary objective is to pinpoint any production-impacting defects, aiming for a maximum of five. I'm deliberately avoiding stylistic or naming suggestions unless they directly lead to a functional error. For each identified issue, I will meticulously detail its severity.\n\n**Refining Defect Identification**\n\nI'm continuing my deep dive, specifically honing in on potential production blockers within the recent code. My focus remains on functional regressions, meticulously documenting each with severity, failure mode, and suggested remedies. My aim is to ensure only critical issues rise to the surface for your expert review.\n\n**Identifying Generator Issues**\n\nI'm examining the `_ContextPreservedAsyncGeneratorWrapper` for potential issues. Specifically, I'm looking at the `_generator_never_resumed` method and its reliance on `inspect.getasyncgenstate` or fallback attributes. The logic to detect an unresumed async generator seems complex and might be susceptible to edge cases or future Python changes, potentially leading to incorrect state detection and subsequent errors.\n\n**Analyzing Generator Logic**\n\nI'm currently delving into the intricacies of the `_ContextPreservedAsyncGeneratorWrapper`. My focus is on the `_generator_never_resumed` method and its approach to detecting unresumed async generators, particularly the fallback logic when `inspect.getasyncgenstate` isn't available. I'm evaluating its robustness against potential edge cases.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nI am currently focused on scrutinizing the recent code modifications within the pull request. My primary objective is to pinpoint any production-impacting defects, aiming for a maximum of five. I'm deliberately avoiding stylistic or naming suggestions unless they directly lead to a functional error. For each identified issue, I will meticulously detail its severity.\n\n**Refining Defect Identification**\n\nI'm continuing my deep dive, specifically honing in on potential production blockers within the recent code. My focus remains on functional regressions, meticulously documenting each with severity, failure mode, and suggested remedies. My aim is to ensure only critical issues rise to the surface for your expert review.\n\n**Analyzing Code Changes**\n\nI am currently focused on scrutinizing the recent code modifications within the pull request. My primary objective is to pinpoint any production-impacting defects, aiming for a maximum of five. I'm deliberately avoiding stylistic or naming suggestions unless they directly lead to a functional error. For each identified issue, I will meticulously detail its severity.\n\n**Refining Defect Identification**\n\nI'm continuing my deep dive, specifically honing in on potential production blockers within the recent code. My focus remains on functional regressions, meticulously documenting each with severity, failure mode, and suggested remedies. My aim is to ensure only critical issues rise to the surface for your expert review.\n\n**Identifying Generator Issues**\n\nI'm examining the `_ContextPreservedAsyncGeneratorWrapper` for potential issues. Specifically, I'm looking at the `_generator_never_resumed` method and its reliance on `inspect.getasyncgenstate` or fallback attributes. The logic to detect an unresumed async generator seems complex and might be susceptible to edge cases or future Python changes, potentially leading to incorrect state detection and subsequent errors.\n\n**Analyzing Generator Logic**\n\nI'm currently delving into the intricacies of the `_ContextPreservedAsyncGeneratorWrapper`. My focus is on the `_generator_never_resumed` method and its approach to detecting unresumed async generators, particularly the fallback logic when `inspect.getasyncgenstate` isn't available. I'm evaluating its robustness against potential edge cases.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4085,
+      "completion_tokens": 1533,
+      "total_tokens": 5618,
+      "cost": 0.02043625,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.02043625,
+        "upstream_inference_prompt_cost": 0.00510625,
+        "upstream_inference_completions_cost": 0.01533
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 798,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 620,\n    \"failure_mode\": \"The `close()` method on the synchronous generator wrapper does not re-raise exceptions that occur during the generator's cleanup, potentially masking cleanup failures.\",\n    \"impact\": \"If the wrapped generator's `finally` block raises an exception, it will be silently swallowed. This can hide bugs, lead to resource leaks if cleanup is incomplete, and make debugging difficult as the failure is not reported to the caller of `close()`.\",\n    \"suggested_fix\": \"Wrap the call to `self.context.run(self.generator.close)` in a try/except block. If an exception occurs, finalize the span with the error and then re-raise the exception to the caller.\\n\\n```python\\n    def close(self) -> None:\\n        if self._span_ended:\\n            # Still close the generator so cleanup runs in the preserved context, not at GC time.\\n            try:\\n                self.context.run(self.generator.close)\\n            except Exception as e:\\n                # Don't finalize, span is already ended. But we should propagate the error.\\n                raise\\n            return\\n\\n        try:\\n            self.context.run(self.generator.close)\\n        except (Exception, GeneratorExit) as error:\\n            self._finalize_with_error(error)\\n            raise\\n        else:\\n            self._finalize()\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 700,\n    \"failure_mode\": \"The `_generator_never_resumed` method's fallback for Python < 3.12 incorrectly identifies a suspended generator that has been iterated over as 'never resumed'.\",\n    \"impact\": \"This incorrect detection can cause `asyncio.CancelledError` to be mishandled. The error might be deferred (`_pending_error`) when it should be handled immediately, leading to incorrect span finalization logic and potentially confusing behavior for consumers of the generator wrapper.\",\n    \"suggested_fix\": \"The fallback logic should check if the generator's frame's instruction pointer (`f_lasti`) is at its initial state (usually 0 or a small number before the first `yield`). A simple and effective check is `frame.f_lasti == 0` for CPython, which indicates the generator's code has not yet executed.\\n\\n```python\\n    def _generator_never_resumed(self) -> bool:\\n        try:\\n            state = inspect.getasyncgenstate(self.generator)\\n        except (AttributeError, TypeError):\\n            # getasyncgenstate is Python 3.12+; fall back to the attributes it reads.\\n            frame = getattr(self.generator, \\\"ag_frame\\\", None)\\n            # f_lasti == 0 is a CPython-specific but reliable way to check if the frame has started execution.\\n            return frame is not None and frame.f_lasti == 0\\n\\n        return state == \\\"AGEN_CREATED\\\"\\n```\"\n  }\n]\n```"
+}

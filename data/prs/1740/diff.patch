@@ -1,0 +1,371 @@
+diff --git a/langfuse/_client/environment_variables.py b/langfuse/_client/environment_variables.py
+index 6b421578a..0a95d53ba 100644
+--- a/langfuse/_client/environment_variables.py
++++ b/langfuse/_client/environment_variables.py
+@@ -156,3 +156,17 @@
+ 
+ **Default value**: ``60``
+ """
++
++LANGFUSE_OPENAI_SKIP_RAW_RESPONSES = "LANGFUSE_OPENAI_SKIP_RAW_RESPONSES"
++"""
++.. envvar: LANGFUSE_OPENAI_SKIP_RAW_RESPONSES
++
++Controls whether the OpenAI integration skips instrumenting calls made via the
++OpenAI SDK's `.with_raw_response` and `.with_streaming_response` APIs.
++
++Set this to `True` when another instrumented library calls the OpenAI SDK
++internally through the raw-response API (e.g. LiteLLM with the `langfuse_otel`
++callback) to avoid duplicate observations for the same LLM call.
++
++**Default value**: ``False``
++"""
+diff --git a/langfuse/openai.py b/langfuse/openai.py
+index ed1483900..97bb0f89e 100644
+--- a/langfuse/openai.py
++++ b/langfuse/openai.py
+@@ -14,10 +14,17 @@
+ 
+ The integration is fully interoperable with the `observe()` decorator and the low-level tracing SDK.
+ 
++Calls made via the OpenAI SDK's `.with_raw_response` API are traced as well, except for
++raw streaming calls which are passed through untraced. Set the environment variable
++`LANGFUSE_OPENAI_SKIP_RAW_RESPONSES=True` to exclude all raw-response calls from tracing,
++e.g. when another instrumented library (such as LiteLLM) calls the OpenAI SDK internally
++through the raw-response API and would otherwise produce duplicate observations.
++
+ See docs for more details: https://langfuse.com/docs/integrations/openai
+ """
+ 
+ import json
++import os
+ import types
+ from collections import defaultdict
+ from dataclasses import dataclass
+@@ -31,6 +38,9 @@
+ from pydantic_core import to_jsonable_python
+ from wrapt import wrap_function_wrapper
+ 
++from langfuse._client.environment_variables import (
++    LANGFUSE_OPENAI_SKIP_RAW_RESPONSES,
++)
+ from langfuse._client.get_client import get_client
+ from langfuse._client.span import LangfuseGeneration
+ from langfuse._utils import _get_timestamp
+@@ -45,6 +55,11 @@
+         "Please install OpenAI to use this feature: 'pip install openai'"
+     )
+ 
++try:
++    from openai._constants import RAW_RESPONSE_HEADER
++except ImportError:
++    RAW_RESPONSE_HEADER = "X-Stainless-Raw-Response"
++
+ 
+ @dataclass
+ class OpenAiDefinition:
+@@ -1128,11 +1143,73 @@ async def traced_aclose() -> Any:
+     return response
+ 
+ 
++def _get_raw_response_mode(kwargs: Any) -> Optional[str]:
++    """Return the value of the OpenAI SDK's internal raw-response sentinel header.
++
++    The SDK's `.with_raw_response` wrapper sets it to "true" and
++    `.with_streaming_response` sets it to "stream" before invoking the same
++    resource method that Langfuse instruments. Returns None for regular calls.
++    """
++    extra_headers = kwargs.get("extra_headers", None)
++
++    if extra_headers is None or isinstance(extra_headers, NotGiven):
++        return None
++
++    try:
++        return cast(Optional[str], extra_headers.get(RAW_RESPONSE_HEADER, None))
++    except AttributeError:
++        return None
++
++
++def _should_skip_raw_response_instrumentation(kwargs: Any) -> bool:
++    raw_response_mode = _get_raw_response_mode(kwargs)
++
++    if raw_response_mode is None:
++        return False
++
++    if os.environ.get(LANGFUSE_OPENAI_SKIP_RAW_RESPONSES, "False").lower() in (
++        "true",
++        "1",
++    ):
++        return True
++
++    # Raw streaming responses cannot be instrumented without consuming the
++    # caller's stream or raw body, so they are always passed through untraced.
++    return raw_response_mode == "stream" or kwargs.get("stream", False) is True
++
++
++def _unwrap_raw_response(openai_response: Any) -> Any:
++    """Return the parsed model for raw API responses so data extraction works.
++
++    Libraries wrapping the OpenAI SDK (e.g. LiteLLM) call it via
++    `.with_raw_response`, in which case the instrumented method returns a raw
++    response object instead of the parsed model. `.parse()` caches its result
++    on the response, so callers parsing later are unaffected.
++    """
++    if openai_response is None:
++        return openai_response
++
++    try:
++        from openai._legacy_response import LegacyAPIResponse
++        from openai._response import APIResponse
++
++        if isinstance(openai_response, (LegacyAPIResponse, APIResponse)):
++            return openai_response.parse()
++    except Exception as e:
++        logger.debug(f"Failed to parse raw OpenAI response for tracing: {e}")
++
++    return openai_response
++
++
+ @_langfuse_wrapper
+ def _wrap(
+     open_ai_resource: OpenAiDefinition, wrapped: Any, args: Any, kwargs: Any
+ ) -> Any:
+     arg_extractor = OpenAiArgsExtractor(*args, **kwargs)
++
++    if _should_skip_raw_response_instrumentation(kwargs):
++        return wrapped(**arg_extractor.get_openai_args())
++
+     langfuse_args = arg_extractor.get_langfuse_args()
+ 
+     langfuse_data = _get_langfuse_data_from_kwargs(open_ai_resource, langfuse_args)
+@@ -1175,19 +1252,20 @@ def _wrap(
+             )
+ 
+         else:
++            parsed_response = _unwrap_raw_response(openai_response)
+             model, completion, usage = _get_langfuse_data_from_default_response(
+                 open_ai_resource,
+-                (openai_response and openai_response.__dict__)
++                (parsed_response and parsed_response.__dict__)
+                 if _is_openai_v1()
+-                else openai_response,
++                else parsed_response,
+             )
+ 
+             generation.update(
+                 model=model,
+                 output=completion,
+                 usage_details=usage,
+-                cost_details=_parse_cost(openai_response.usage)
+-                if hasattr(openai_response, "usage")
++                cost_details=_parse_cost(parsed_response.usage)
++                if hasattr(parsed_response, "usage")
+                 else None,
+             ).end()
+ 
+@@ -1210,6 +1288,10 @@ async def _wrap_async(
+     open_ai_resource: OpenAiDefinition, wrapped: Any, args: Any, kwargs: Any
+ ) -> Any:
+     arg_extractor = OpenAiArgsExtractor(*args, **kwargs)
++
++    if _should_skip_raw_response_instrumentation(kwargs):
++        return await wrapped(**arg_extractor.get_openai_args())
++
+     langfuse_args = arg_extractor.get_langfuse_args()
+ 
+     langfuse_data = _get_langfuse_data_from_kwargs(open_ai_resource, langfuse_args)
+@@ -1252,19 +1334,20 @@ async def _wrap_async(
+             )
+ 
+         else:
++            parsed_response = _unwrap_raw_response(openai_response)
+             model, completion, usage = _get_langfuse_data_from_default_response(
+                 open_ai_resource,
+-                (openai_response and openai_response.__dict__)
++                (parsed_response and parsed_response.__dict__)
+                 if _is_openai_v1()
+-                else openai_response,
++                else parsed_response,
+             )
+             generation.update(
+                 model=model,
+                 output=completion,
+                 usage=usage,  # backward compat for all V2 self hosters
+                 usage_details=usage,
+-                cost_details=_parse_cost(openai_response.usage)
+-                if hasattr(openai_response, "usage")
++                cost_details=_parse_cost(parsed_response.usage)
++                if hasattr(parsed_response, "usage")
+                 else None,
+             ).end()
+ 
+diff --git a/tests/unit/test_openai.py b/tests/unit/test_openai.py
+index 937c96bf0..c06ce9df2 100644
+--- a/tests/unit/test_openai.py
++++ b/tests/unit/test_openai.py
+@@ -889,3 +889,165 @@ def test_embedding_exports_dimensions_and_count(
+     assert json_attr(span, LangfuseOtelSpanAttributes.OBSERVATION_USAGE_DETAILS) == {
+         "input": 2
+     }
++
++
++def _chat_completion_payload():
++    return {
++        "id": "chatcmpl-test",
++        "object": "chat.completion",
++        "created": 1700000000,
++        "model": "gpt-4o-mini-2024-07-18",
++        "choices": [
++            {
++                "index": 0,
++                "message": {"role": "assistant", "content": "2"},
++                "finish_reason": "stop",
++            }
++        ],
++        "usage": {
++            "prompt_tokens": 10,
++            "completion_tokens": 1,
++            "total_tokens": 11,
++            "prompt_tokens_details": {"cached_tokens": 4, "audio_tokens": 0},
++        },
++    }
++
++
++def _chat_completion_chunk_sse_body():
++    return (
++        'data: {"id":"chatcmpl-test","object":"chat.completion.chunk",'
++        '"created":1700000000,"model":"gpt-4o-mini-2024-07-18",'
++        '"choices":[{"index":0,"delta":{"role":"assistant","content":"2"},'
++        '"finish_reason":null}]}\n\n'
++        "data: [DONE]\n\n"
++    )
++
++
++def _mock_transport_openai_client(async_client: bool = False):
++    import httpx
++
++    def handler(request: httpx.Request) -> httpx.Response:
++        if b'"stream": true' in request.content or b'"stream":true' in request.content:
++            return httpx.Response(
++                200,
++                content=_chat_completion_chunk_sse_body().encode(),
++                headers={"content-type": "text/event-stream"},
++            )
++
++        return httpx.Response(200, json=_chat_completion_payload())
++
++    if async_client:
++        return lf_openai.AsyncOpenAI(
++            api_key="test",
++            http_client=httpx.AsyncClient(transport=httpx.MockTransport(handler)),
++        )
++
++    return lf_openai.OpenAI(
++        api_key="test",
++        http_client=httpx.Client(transport=httpx.MockTransport(handler)),
++    )
++
++
++def test_with_raw_response_chat_completion_captures_output_and_usage(
++    langfuse_memory_client, get_span, json_attr
++):
++    openai_client = _mock_transport_openai_client()
++
++    raw_response = openai_client.chat.completions.with_raw_response.create(
++        model="gpt-4o-mini",
++        messages=[{"role": "user", "content": "1 + 1 = ?"}],
++    )
++
++    parsed = raw_response.parse()
++    assert parsed.choices[0].message.content == "2"
++
++    langfuse_memory_client.flush()
++    span = get_span("OpenAI-generation")
++
++    assert span.attributes[LangfuseOtelSpanAttributes.OBSERVATION_TYPE] == "generation"
++    assert json_attr(span, LangfuseOtelSpanAttributes.OBSERVATION_OUTPUT) == {
++        "role": "assistant",
++        "content": "2",
++    }
++
++    usage = json_attr(span, LangfuseOtelSpanAttributes.OBSERVATION_USAGE_DETAILS)
++    assert usage["prompt_tokens"] == 10
++    assert usage["completion_tokens"] == 1
++    assert usage["total_tokens"] == 11
++    assert usage["prompt_tokens_details"] == {"cached_tokens": 4, "audio_tokens": 0}
++
++
++@pytest.mark.asyncio
++async def test_async_with_raw_response_chat_completion_captures_output_and_usage(
++    langfuse_memory_client, get_span, json_attr
++):
++    openai_client = _mock_transport_openai_client(async_client=True)
++
++    raw_response = await openai_client.chat.completions.with_raw_response.create(
++        model="gpt-4o-mini",
++        messages=[{"role": "user", "content": "1 + 1 = ?"}],
++    )
++
++    parsed = raw_response.parse()
++    assert parsed.choices[0].message.content == "2"
++
++    langfuse_memory_client.flush()
++    span = get_span("OpenAI-generation")
++
++    assert json_attr(span, LangfuseOtelSpanAttributes.OBSERVATION_OUTPUT) == {
++        "role": "assistant",
++        "content": "2",
++    }
++
++    usage = json_attr(span, LangfuseOtelSpanAttributes.OBSERVATION_USAGE_DETAILS)
++    assert usage["prompt_tokens_details"] == {"cached_tokens": 4, "audio_tokens": 0}
++
++
++def test_with_raw_response_skip_flag_disables_instrumentation(
++    langfuse_memory_client, memory_exporter, get_span, monkeypatch
++):
++    monkeypatch.setenv("LANGFUSE_OPENAI_SKIP_RAW_RESPONSES", "True")
++    openai_client = _mock_transport_openai_client()
++
++    raw_response = openai_client.chat.completions.with_raw_response.create(
++        model="gpt-4o-mini",
++        messages=[{"role": "user", "content": "1 + 1 = ?"}],
++    )
++    assert raw_response.parse().choices[0].message.content == "2"
++
++    langfuse_memory_client.flush()
++    assert all(
++        span.name != "OpenAI-generation"
++        for span in memory_exporter.get_finished_spans()
++    )
++
++    openai_client.chat.completions.create(
++        name="unit-openai-direct-with-skip-flag",
++        model="gpt-4o-mini",
++        messages=[{"role": "user", "content": "1 + 1 = ?"}],
++    )
++
++    langfuse_memory_client.flush()
++    span = get_span("unit-openai-direct-with-skip-flag")
++    assert span.attributes[LangfuseOtelSpanAttributes.OBSERVATION_TYPE] == "generation"
++
++
++def test_with_raw_response_streaming_passes_through_untraced(
++    langfuse_memory_client, memory_exporter
++):
++    openai_client = _mock_transport_openai_client()
++
++    raw_response = openai_client.chat.completions.with_raw_response.create(
++        model="gpt-4o-mini",
++        messages=[{"role": "user", "content": "1 + 1 = ?"}],
++        stream=True,
++    )
++
++    chunks = list(raw_response.parse())
++    assert chunks[0].choices[0].delta.content == "2"
++
++    langfuse_memory_client.flush()
++    assert all(
++        span.name != "OpenAI-generation"
++        for span in memory_exporter.get_finished_spans()
++    )

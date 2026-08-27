@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:56:54.338309+00:00",
+  "latency_seconds": 15.672,
+  "prompt_tokens": 3028,
+  "completion_tokens": 870,
+  "total_tokens": 3898,
+  "raw_response": {
+    "id": "gen-1787259398-pl3phdN2EHdHQwZ1g31R",
+    "object": "chat.completion",
+    "created": 1787259398,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/client.py\",\n    \"line\": 2679,\n    \"failure_mode\": \"The returned `experiment_id` is always set to `shared_fallback_experiment_id`, even when the experiment uses a Langfuse dataset with a `dataset_run_id`. At line 2769, the actual experiment_id used in spans is `dataset_run_id or fallback_experiment_id`, but this discrepancy means callers receive the wrong ID.\",\n    \"impact\": \"When using Langfuse datasets, callers receive a fallback experiment_id that doesn't match the dataset_run_id actually propagated to all spans and traces, breaking correlation and lookups.\",\n    \"suggested_fix\": \"Change line 2679 to `experiment_id=dataset_run_id or shared_fallback_experiment_id,` to return the actual experiment_id used, matching the logic at line 2769.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "Let me carefully review this diff for production-level issues.\n\nThe main changes are:\n1. Adding a `shared_fallback_experiment_id` that is generated once per experiment run\n2. Using this ID as a fallback when `dataset_run_id` is not available\n3. Adding `experiment_id` to the `ExperimentResult` return value\n4. Updating tests to verify this behavior\n\nLet me look for issues:\n\n1. **Line 2581**: `shared_fallback_experiment_id = self._create_observation_id()` - This creates a single ID that will be shared across all items. This is intentional based on the test.\n\n2. **Line 2769**: `experiment_id = dataset_run_id or fallback_experiment_id` - This changes from creating a new ID per item (`self._create_observation_id()`) to using the shared fallback. This is a semantic change that could affect existing behavior if anything else depends on each item having a unique experiment_id when dataset_run_id is None.\n\n3. **Lines 2626-2632**: The logic for getting `dataset_run_id` has changed. Previously it was `valid_results[0].dataset_run_id if valid_results else None` which would fail if `valid_results` is empty. The new code uses `next()` with a filter and fallback to None. This is actually safer.\n\n4. **Line 2679**: `experiment_id=shared_fallback_experiment_id` - The experiment_id is being set to the fallback ID, but what if there IS a dataset_run_id? Looking at the logic, when there's a dataset, all items will have the same dataset_run_id, so it would be more accurate to use that as the experiment_id in the return value. But the code uses `shared_fallback_experiment_id` always, even when `dataset_run_id` might be the actual experiment_id used.\n\nWait, let me check this more carefully. \n\nAt line 2769, when processing an item, the code sets `experiment_id = dataset_run_id or fallback_experiment_id`, so it uses the dataset_run_id when available. However, at line 2679 in the return value, it always uses `shared_fallback_experiment_id` regardless of whether a dataset_run_id was actually used. This is a correctness bug\u2014the returned experiment_id should reflect the actual ID used for items, which would be the dataset_run_id when present, not always the fallback.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me carefully review this diff for production-level issues.\n\nThe main changes are:\n1. Adding a `shared_fallback_experiment_id` that is generated once per experiment run\n2. Using this ID as a fallback when `dataset_run_id` is not available\n3. Adding `experiment_id` to the `ExperimentResult` return value\n4. Updating tests to verify this behavior\n\nLet me look for issues:\n\n1. **Line 2581**: `shared_fallback_experiment_id = self._create_observation_id()` - This creates a single ID that will be shared across all items. This is intentional based on the test.\n\n2. **Line 2769**: `experiment_id = dataset_run_id or fallback_experiment_id` - This changes from creating a new ID per item (`self._create_observation_id()`) to using the shared fallback. This is a semantic change that could affect existing behavior if anything else depends on each item having a unique experiment_id when dataset_run_id is None.\n\n3. **Lines 2626-2632**: The logic for getting `dataset_run_id` has changed. Previously it was `valid_results[0].dataset_run_id if valid_results else None` which would fail if `valid_results` is empty. The new code uses `next()` with a filter and fallback to None. This is actually safer.\n\n4. **Line 2679**: `experiment_id=shared_fallback_experiment_id` - The experiment_id is being set to the fallback ID, but what if there IS a dataset_run_id? Looking at the logic, when there's a dataset, all items will have the same dataset_run_id, so it would be more accurate to use that as the experiment_id in the return value. But the code uses `shared_fallback_experiment_id` always, even when `dataset_run_id` might be the actual experiment_id used.\n\nWait, let me check this more carefully. \n\nAt line 2769, when processing an item, the code sets `experiment_id = dataset_run_id or fallback_experiment_id`, so it uses the dataset_run_id when available. However, at line 2679 in the return value, it always uses `shared_fallback_experiment_id` regardless of whether a dataset_run_id was actually used. This is a correctness bug\u2014the returned experiment_id should reflect the actual ID used for items, which would be the dataset_run_id when present, not always the fallback.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3028,
+      "completion_tokens": 870,
+      "total_tokens": 3898,
+      "cost": 0.022134,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.022134,
+        "upstream_inference_prompt_cost": 0.009084,
+        "upstream_inference_completions_cost": 0.01305
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 624,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/client.py\",\n    \"line\": 2679,\n    \"failure_mode\": \"The returned `experiment_id` is always set to `shared_fallback_experiment_id`, even when the experiment uses a Langfuse dataset with a `dataset_run_id`. At line 2769, the actual experiment_id used in spans is `dataset_run_id or fallback_experiment_id`, but this discrepancy means callers receive the wrong ID.\",\n    \"impact\": \"When using Langfuse datasets, callers receive a fallback experiment_id that doesn't match the dataset_run_id actually propagated to all spans and traces, breaking correlation and lookups.\",\n    \"suggested_fix\": \"Change line 2679 to `experiment_id=dataset_run_id or shared_fallback_experiment_id,` to return the actual experiment_id used, matching the logic at line 2769.\"\n  }\n]\n```"
+}

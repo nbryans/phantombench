@@ -1,0 +1,29 @@
+{
+  "number": 1544,
+  "title": "fix: apply stricter early routing for base64 media to prevent SSE dat\u2026",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1544",
+  "base_sha": "bb139f283abfa8bf7f9dc0a983a95a85f9d04051",
+  "head_sha": "7911ba0ec1fd659af8af52e5fe16cbe0c7d992cf",
+  "merged_at": "2026-03-02T09:50:21Z",
+  "additions": 122,
+  "deletions": 1,
+  "changed_lines": 123,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_task_manager/media_manager.py",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_media_manager.py",
+      "status": "modified",
+      "additions": 116,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:18.820088+00:00"
+}

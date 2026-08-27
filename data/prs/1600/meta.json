@@ -1,0 +1,36 @@
+{
+  "number": 1600,
+  "title": "fix(experiments): fix unstable local experiment IDs for local data",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1600",
+  "base_sha": "a3f15c603ac662b634cf4d6b301e5ec060e425f6",
+  "head_sha": "c05e9261ac55128cc32a379228191fac3b3dd2b9",
+  "merged_at": "2026-04-01T08:56:46Z",
+  "additions": 64,
+  "deletions": 8,
+  "changed_lines": 72,
+  "changed_files_count": 3,
+  "files": [
+    {
+      "path": "langfuse/_client/client.py",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 2,
+      "is_source": true
+    },
+    {
+      "path": "langfuse/experiment.py",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_propagate_attributes.py",
+      "status": "modified",
+      "additions": 43,
+      "deletions": 6,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:55.225003+00:00"
+}

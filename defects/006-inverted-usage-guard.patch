@@ -1,0 +1,11 @@
+--- a/langfuse/openai.py
++++ b/langfuse/openai.py
+@@ -641,7 +641,7 @@
+ 
+         model = model or chunk.get("model", None) or None
+         chunk_usage = chunk.get("usage", None)
+-        if chunk_usage is not None:
++        if chunk_usage is None:
+             usage = chunk_usage
+ 
+         choices = chunk.get("choices", [])

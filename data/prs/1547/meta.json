@@ -1,0 +1,22 @@
+{
+  "number": 1547,
+  "title": "fix(experiment): replace escaped newlines with actual newlines in format output",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1547",
+  "base_sha": "72aa1565a75766cdd0d1bc4962f34240b327bdc1",
+  "head_sha": "9b49ca9712ee4360b7363cc88c886e8b43f86bae",
+  "merged_at": "2026-03-02T09:44:09Z",
+  "additions": 26,
+  "deletions": 26,
+  "changed_lines": 52,
+  "changed_files_count": 1,
+  "files": [
+    {
+      "path": "langfuse/experiment.py",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 26,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:17.188399+00:00"
+}

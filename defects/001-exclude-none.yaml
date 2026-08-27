@@ -1,0 +1,18 @@
+id: "001"
+pr_number: 1811
+file: "langfuse/_utils/serializer.py"
+line_start: 143
+line_end: 143
+defect_class: "contract_violation"
+summary: >
+  model_dump() is now called with exclude_none=True, so any field holding
+  None is silently dropped from the serialized event instead of being
+  preserved as null. This changes the wire contract for every pydantic
+  model serialized here, not just ones with non-finite floats — downstream
+  consumers that expect a key to be present (even as null) will see it
+  missing instead.
+detection_hint: >
+  A correct catch must identify that exclude_none=True changes serialization
+  behaviour for None-valued fields across all pydantic models passing
+  through this path, causing silent field/key loss for consumers — not
+  merely note that the NaN/Inf handling itself looks correct.

@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:09:24.524401+00:00",
+  "latency_seconds": 18.931,
+  "prompt_tokens": 4480,
+  "completion_tokens": 707,
+  "total_tokens": 5187,
+  "raw_response": {
+    "id": "gen-1787260145-lzA91LHlU5p74J7Y1oPb",
+    "object": "chat.completion",
+    "created": 1787260145,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[]\n```",
+          "refusal": null,
+          "reasoning": "Let me analyze this diff carefully for potential production issues.\n\nThe diff shows a refactoring where duplicate code for handling observe results is being extracted into a common method `_handle_observe_result`. The key changes are:\n\n1. Both async and sync wrappers now call `_handle_observe_result` instead of having duplicate inline logic\n2. `_wrap_sync_generator_result` and `_wrap_async_generator_result` now take a `capture_output` parameter\n3. `_handle_observe_result` is a new method that consolidates the logic\n4. The generator wrapper classes now respect `capture_output` and only collect items when it's True\n5. When `capture_output` is False, items are not collected and output is not updated\n\nLet me look for potential bugs:\n\n1. **Critical**: In `_handle_observe_result`, the generator wrapping logic doesn't check `capture_output` before wrapping, but the old code did check `if capture_output is True:` before all the generator handling. This means generators will ALWAYS be wrapped now, even when `capture_output=False`. However, looking more carefully, the wrapping still needs to happen for context preservation (as shown in the test), so this might be intentional. The `capture_output` parameter is now passed down to the wrapper classes to control whether to collect items.\n\n2. Looking at the old code more carefully: the old code had all the generator handling INSIDE the `if capture_output is True:` block. In the new code, the generator handling happens regardless of `capture_output`, but the parameter is passed down. This is actually a semantic change but appears intentional based on the tests.\n\nActually, wait - looking at the test, it verifies that context is preserved even when `capture_output=False`, which means the wrappers must still be applied. So this change is intentional and correct.\n\nLet me look for actual bugs:\n\n3. In the generator wrapper `__next__` and `__anext__`, the call to `self.span.end()` is now separated from `self.span.update(output=output)`. The old code was `self.span.update(output=output).end()` which suggests `update` returns `self` for chaining. \n\nThe new code calls `self.span.end()` separately, which should work fine as long as `end()` doesn't depend on state from `update()`. When `capture_output=False`, `self.span.end()` is called but `self.span.update(output=output)` is skipped entirely\u2014this appears intentional based on the test expectations. The refactoring consolidates duplicate logic while preserving generator wrapping for context tracking, and the `capture_output` flag now controls whether output is actually collected rather than whether wrapping occurs.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me analyze this diff carefully for potential production issues.\n\nThe diff shows a refactoring where duplicate code for handling observe results is being extracted into a common method `_handle_observe_result`. The key changes are:\n\n1. Both async and sync wrappers now call `_handle_observe_result` instead of having duplicate inline logic\n2. `_wrap_sync_generator_result` and `_wrap_async_generator_result` now take a `capture_output` parameter\n3. `_handle_observe_result` is a new method that consolidates the logic\n4. The generator wrapper classes now respect `capture_output` and only collect items when it's True\n5. When `capture_output` is False, items are not collected and output is not updated\n\nLet me look for potential bugs:\n\n1. **Critical**: In `_handle_observe_result`, the generator wrapping logic doesn't check `capture_output` before wrapping, but the old code did check `if capture_output is True:` before all the generator handling. This means generators will ALWAYS be wrapped now, even when `capture_output=False`. However, looking more carefully, the wrapping still needs to happen for context preservation (as shown in the test), so this might be intentional. The `capture_output` parameter is now passed down to the wrapper classes to control whether to collect items.\n\n2. Looking at the old code more carefully: the old code had all the generator handling INSIDE the `if capture_output is True:` block. In the new code, the generator handling happens regardless of `capture_output`, but the parameter is passed down. This is actually a semantic change but appears intentional based on the tests.\n\nActually, wait - looking at the test, it verifies that context is preserved even when `capture_output=False`, which means the wrappers must still be applied. So this change is intentional and correct.\n\nLet me look for actual bugs:\n\n3. In the generator wrapper `__next__` and `__anext__`, the call to `self.span.end()` is now separated from `self.span.update(output=output)`. The old code was `self.span.update(output=output).end()` which suggests `update` returns `self` for chaining. \n\nThe new code calls `self.span.end()` separately, which should work fine as long as `end()` doesn't depend on state from `update()`. When `capture_output=False`, `self.span.end()` is called but `self.span.update(output=output)` is skipped entirely\u2014this appears intentional based on the test expectations. The refactoring consolidates duplicate logic while preserving generator wrapping for context tracking, and the `capture_output` flag now controls whether output is actually collected rather than whether wrapping occurs.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4480,
+      "completion_tokens": 707,
+      "total_tokens": 5187,
+      "cost": 0.024045,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.024045,
+        "upstream_inference_prompt_cost": 0.01344,
+        "upstream_inference_completions_cost": 0.010605
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 695,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[]\n```"
+}

@@ -1,0 +1,25 @@
+id: "012"
+pr_number: 1709
+file: "langfuse/_client/propagation.py"
+line_start: 294
+line_end: 294
+defect_class: "security"
+summary: >
+  The metadata-propagation loop in _propagate_attributes coerces each
+  value to a string, validates the coerced string (type + 200-char
+  length), and was meant to store that validated, coerced string in
+  validated_metadata. Instead it stores the original, uncoerced `value`.
+  The length/type guard now runs against a decoy string while the value
+  that actually gets propagated into validated_metadata — and from there
+  into OpenTelemetry baggage/span attributes crossing a process/service
+  boundary — is whatever raw, unbounded, non-string object the caller
+  passed in, completely bypassing the sanitization the validation call
+  appears to enforce.
+detection_hint: >
+  A correct catch must state that validated_metadata[key] is assigned the
+  raw `value` instead of the validated `coerced_value`, so the type/length
+  check that runs on coerced_value provides no actual guarantee about what
+  gets stored and propagated — arbitrary unbounded or non-string objects
+  can reach the propagation/baggage layer despite appearing to pass
+  validation — not merely note that coercion happens somewhere in this
+  function or that `value` and `coerced_value` both appear on this line.

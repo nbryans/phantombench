@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:09:05.579356+00:00",
+  "latency_seconds": 10.995,
+  "prompt_tokens": 1853,
+  "completion_tokens": 1090,
+  "total_tokens": 2943,
+  "raw_response": {
+    "id": "gen-1787260134-hXATQwD8quzJ2Vmtxwuy",
+    "object": "chat.completion",
+    "created": 1787260134,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/langchain/CallbackHandler.py\",\n    \"line\": 1599,\n    \"failure_mode\": \"The code subtracts detailed token counts from `usage_model['input']` but not from `usage_model['total']`. This leads to an inconsistent state where `input + output` does not equal `total`.\",\n    \"impact\": \"The reported total usage will be inflated, as it includes token counts that have been broken out into more specific categories (like `input_cached_tokens`). This can lead to incorrect billing or usage analysis for consumers of this data.\",\n    \"suggested_fix\": \"Subtract the detailed token counts from `usage_model['total']` as well, similar to how it's done for `usage_model['input']`. This will maintain the invariant `input + output = total` after adjustments.\\n\\n```python\\n                if \\\"input\\\" in usage_model:\\n                    usage_model[\\\"input\\\"] = max(0, usage_model[\\\"input\\\"] - value)\\n                if \\\"total\\\" in usage_model:\\n                    usage_model[\\\"total\\\"] = max(0, usage_model[\\\"total\\\"] - value)\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nMy primary focus is on dissecting the provided Python diff. I'm scrutinizing it for any potential production-level issues, such as correctness bugs, security vulnerabilities, or concurrency problems. My analysis will exclude minor style or naming conventions unless they directly lead to functional defects.\n\n**Evaluating New Logic**\n\nI am currently evaluating the newly introduced logic for handling `prompt_tokens_details` when it's a dictionary, specifically for OpenAI and LiteLLM integrations. I'm cross-referencing this with the existing list-based handling for Vertex AI to ensure a consistent and robust parsing mechanism.\n\n**Reviewing Token Parsing Logic**\n\nI'm currently evaluating the recently implemented logic for parsing `prompt_tokens_details` when it appears as a dictionary, specifically within the context of OpenAI and LiteLLM integrations. My focus is on ensuring this new parsing approach aligns correctly with the existing handling for list-based structures, aiming for a cohesive and error-free token usage reporting system.\n\n**Analyzing Token Detail Handling**\n\nI'm currently refining my analysis of the `_parse_usage_model` function, specifically focusing on the new logic introduced for handling `prompt_tokens_details` when it's a dictionary. My evaluation includes assessing its interaction with existing list-based processing and ensuring the expected token count adjustments are correctly implemented based on the unit tests provided.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nMy primary focus is on dissecting the provided Python diff. I'm scrutinizing it for any potential production-level issues, such as correctness bugs, security vulnerabilities, or concurrency problems. My analysis will exclude minor style or naming conventions unless they directly lead to functional defects.\n\n**Evaluating New Logic**\n\nI am currently evaluating the newly introduced logic for handling `prompt_tokens_details` when it's a dictionary, specifically for OpenAI and LiteLLM integrations. I'm cross-referencing this with the existing list-based handling for Vertex AI to ensure a consistent and robust parsing mechanism.\n\n**Reviewing Token Parsing Logic**\n\nI'm currently evaluating the recently implemented logic for parsing `prompt_tokens_details` when it appears as a dictionary, specifically within the context of OpenAI and LiteLLM integrations. My focus is on ensuring this new parsing approach aligns correctly with the existing handling for list-based structures, aiming for a cohesive and error-free token usage reporting system.\n\n**Analyzing Token Detail Handling**\n\nI'm currently refining my analysis of the `_parse_usage_model` function, specifically focusing on the new logic introduced for handling `prompt_tokens_details` when it's a dictionary. My evaluation includes assessing its interaction with existing list-based processing and ensuring the expected token count adjustments are correctly implemented based on the unit tests provided.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1853,
+      "completion_tokens": 1090,
+      "total_tokens": 2943,
+      "cost": 0.01321625,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01321625,
+        "upstream_inference_prompt_cost": 0.00231625,
+        "upstream_inference_completions_cost": 0.0109
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 796,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/langchain/CallbackHandler.py\",\n    \"line\": 1599,\n    \"failure_mode\": \"The code subtracts detailed token counts from `usage_model['input']` but not from `usage_model['total']`. This leads to an inconsistent state where `input + output` does not equal `total`.\",\n    \"impact\": \"The reported total usage will be inflated, as it includes token counts that have been broken out into more specific categories (like `input_cached_tokens`). This can lead to incorrect billing or usage analysis for consumers of this data.\",\n    \"suggested_fix\": \"Subtract the detailed token counts from `usage_model['total']` as well, similar to how it's done for `usage_model['input']`. This will maintain the invariant `input + output = total` after adjustments.\\n\\n```python\\n                if \\\"input\\\" in usage_model:\\n                    usage_model[\\\"input\\\"] = max(0, usage_model[\\\"input\\\"] - value)\\n                if \\\"total\\\" in usage_model:\\n                    usage_model[\\\"total\\\"] = max(0, usage_model[\\\"total\\\"] - value)\\n```\"\n  }\n]\n```"
+}

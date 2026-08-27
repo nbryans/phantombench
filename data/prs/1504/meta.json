@@ -1,0 +1,29 @@
+{
+  "number": 1504,
+  "title": "fix(batch-evaluation): pass trace ID for score creation if scope = observations",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1504",
+  "base_sha": "26a8589b7f06b1ed7ccdbf9116649bac07d158c8",
+  "head_sha": "15c881c4f4a4a35f211f3321e795030b96637e2b",
+  "merged_at": "2026-01-27T06:09:56Z",
+  "additions": 38,
+  "deletions": 1,
+  "changed_lines": 39,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/batch_evaluation.py",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "is_source": true
+    },
+    {
+      "path": "tests/test_batch_evaluation.py",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 1,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:53:38.084635+00:00"
+}

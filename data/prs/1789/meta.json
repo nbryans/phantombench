@@ -1,0 +1,29 @@
+{
+  "number": 1789,
+  "title": "fix(api): initialize compatibility exports safely",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1789",
+  "base_sha": "0dd41f06fe92f3348abd0fe54f206a76bbaaaa09",
+  "head_sha": "e8dfba165f1adc8de7cda27928be57a91850bccb",
+  "merged_at": "2026-07-29T12:28:53Z",
+  "additions": 25,
+  "deletions": 4,
+  "changed_lines": 29,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "scripts/patch_generated_score_compat.py",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 3,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_patch_generated_score_compat.py",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:25.111689+00:00"
+}

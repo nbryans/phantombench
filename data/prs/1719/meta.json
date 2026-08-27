@@ -1,0 +1,29 @@
+{
+  "number": 1719,
+  "title": "fix(langchain): prefer structured tool inputs",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1719",
+  "base_sha": "f93d505af982a69da89ed7e5b57f5c0fe52939b5",
+  "head_sha": "a37bde8259cffcaa07fe98ee90f11ed5aaa54a26",
+  "merged_at": "2026-06-23T08:09:19Z",
+  "additions": 32,
+  "deletions": 2,
+  "changed_lines": 34,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/langchain/CallbackHandler.py",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_langchain.py",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:08.328599+00:00"
+}

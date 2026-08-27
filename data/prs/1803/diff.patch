@@ -1,0 +1,169 @@
+diff --git a/langfuse/_client/client.py b/langfuse/_client/client.py
+index d97708efd..2b2889545 100644
+--- a/langfuse/_client/client.py
++++ b/langfuse/_client/client.py
+@@ -222,7 +222,7 @@ class Langfuse:
+ 
+             The hook receives one OpenTelemetry export batch. A batch is not guaranteed to contain a complete trace, request, or Langfuse observation tree. The hook usually runs on the OpenTelemetry batch span processor worker thread; during `flush()` and shutdown it may run on the caller thread. Keep it synchronous, deterministic, and fast.
+ 
+-            Return `None` to leave the batch unchanged. Return `MaskOtelSpansResult` with `OtelSpanPatch` values to delete or replace attributes on selected spans. If the hook raises or returns an invalid batch result, Langfuse drops the whole export batch. If one returned span patch is invalid, Langfuse drops only that span from the Langfuse export.
++            Return `None` to leave the batch unchanged. Return `MaskOtelSpansResult` with `OtelSpanPatch` values to delete or replace attributes on selected spans. If a batch contains duplicate trace and span identifiers, Langfuse keeps only the last matching span. If the hook raises or returns an invalid batch result, Langfuse drops the whole export batch. If one returned span patch is invalid, Langfuse drops only that span from the Langfuse export.
+ 
+             Example:
+                 ```python
+diff --git a/langfuse/_client/span_exporter.py b/langfuse/_client/span_exporter.py
+index 582c4574c..bbdc569cf 100644
+--- a/langfuse/_client/span_exporter.py
++++ b/langfuse/_client/span_exporter.py
+@@ -264,10 +264,9 @@ def _apply_mask_otel_spans(
+         span_attributes: Sequence[tuple[ReadableSpan, Dict[str, AttributeValue]]],
+     ) -> Optional[list[tuple[ReadableSpan, Dict[str, AttributeValue]]]]:
+         mask_otel_spans = cast(MaskOtelSpansFunction, self._mask_otel_spans)
+-        maskable_span_attributes: list[
+-            tuple[ReadableSpan, Dict[str, AttributeValue]]
+-        ] = []
+-        span_data_by_identifier: Dict[OtelSpanIdentifier, OtelSpanData] = {}
++        span_attributes_by_identifier: Dict[
++            OtelSpanIdentifier, tuple[ReadableSpan, Dict[str, AttributeValue]]
++        ] = {}
+ 
+         for span, attributes in span_attributes:
+             if not _has_valid_span_context(span):
+@@ -279,22 +278,23 @@ def _apply_mask_otel_spans(
+ 
+             identifier = _create_otel_span_identifier(span)
+ 
+-            if identifier in span_data_by_identifier:
+-                langfuse_logger.error(
+-                    "Masking error: mask_otel_spans received duplicate span identifiers. "
+-                    "Dropping export batch. "
+-                    f"trace_id='{identifier.trace_id}' span_id='{identifier.span_id}'"
+-                )
+-                return None
++            if identifier in span_attributes_by_identifier:
++                span_attributes_by_identifier.pop(identifier)
+ 
+-            span_data_by_identifier[identifier] = _create_otel_span_data(
+-                span=span, attributes=attributes, identifier=identifier
+-            )
+-            maskable_span_attributes.append((span, attributes))
++            span_attributes_by_identifier[identifier] = (span, attributes)
++
++        maskable_span_attributes = list(span_attributes_by_identifier.values())
+ 
+         if not maskable_span_attributes:
+             return []
+ 
++        span_data_by_identifier = {
++            identifier: _create_otel_span_data(
++                span=span, attributes=attributes, identifier=identifier
++            )
++            for identifier, (span, attributes) in span_attributes_by_identifier.items()
++        }
++
+         try:
+             result: Any = mask_otel_spans(
+                 params=MaskOtelSpansParams(
+diff --git a/langfuse/types.py b/langfuse/types.py
+index 023709765..357438d56 100644
+--- a/langfuse/types.py
++++ b/langfuse/types.py
+@@ -126,7 +126,9 @@ class MaskOtelSpansParams:
+     A single call receives one OpenTelemetry export batch, not necessarily a
+     complete trace, request, or Langfuse observation tree. Batch contents depend
+     on OpenTelemetry span processor settings such as `flush_at`,
+-    `flush_interval`, explicit `flush()`, and shutdown.
++    `flush_interval`, explicit `flush()`, and shutdown. If a batch contains
++    duplicate trace and span identifiers, Langfuse keeps only the last matching
++    span before calling the masking function.
+ 
+     Example:
+         ```python
+diff --git a/tests/unit/test_mask_otel_spans.py b/tests/unit/test_mask_otel_spans.py
+index 4834a84d0..5d1d52ee4 100644
+--- a/tests/unit/test_mask_otel_spans.py
++++ b/tests/unit/test_mask_otel_spans.py
+@@ -574,6 +574,83 @@ def mask_otel_spans(*, params: MaskOtelSpansParams):
+     )
+ 
+ 
++def test_mask_otel_spans_keeps_last_duplicate_without_dropping_batch():
++    exporter = InMemorySpanExporter()
++    seen_params: list[MaskOtelSpansParams] = []
++
++    def mask_otel_spans(*, params: MaskOtelSpansParams):
++        seen_params.append(params)
++        duplicate_identifier = next(
++            identifier
++            for identifier, span in params.spans.items()
++            if span.name == "duplicate-last"
++        )
++
++        return MaskOtelSpansResult(
++            span_patches={
++                duplicate_identifier: OtelSpanPatch(
++                    set_attributes={"masking.applied": True}
++                )
++            }
++        )
++
++    transforming_exporter = span_exporter_module.LangfuseTransformingSpanExporter(
++        exporter=exporter,
++        media_manager=None,
++        mask_otel_spans=mask_otel_spans,
++    )
++    duplicate_context = SpanContext(
++        trace_id=1,
++        span_id=2,
++        is_remote=False,
++        trace_flags=TraceFlags(TraceFlags.SAMPLED),
++        trace_state=TraceState(),
++    )
++    unrelated_context = SpanContext(
++        trace_id=3,
++        span_id=4,
++        is_remote=False,
++        trace_flags=TraceFlags(TraceFlags.SAMPLED),
++        trace_state=TraceState(),
++    )
++    spans = [
++        ReadableSpan(
++            name="duplicate-first",
++            context=duplicate_context,
++            attributes={"attempt": 1},
++        ),
++        ReadableSpan(
++            name="unrelated",
++            context=unrelated_context,
++            attributes={"unrelated": True},
++        ),
++        ReadableSpan(
++            name="duplicate-last",
++            context=duplicate_context,
++            attributes={"attempt": 2},
++        ),
++    ]
++
++    result = transforming_exporter.export(spans)
++
++    assert result == SpanExportResult.SUCCESS
++    assert len(seen_params) == 1
++    assert [span.name for span in seen_params[0].spans.values()] == [
++        "unrelated",
++        "duplicate-last",
++    ]
++
++    exported_spans = exporter.get_finished_spans()
++    assert [span.name for span in exported_spans] == [
++        "unrelated",
++        "duplicate-last",
++    ]
++    assert exported_spans[1].attributes == {
++        "attempt": 2,
++        "masking.applied": True,
++    }
++
++
+ def test_exporter_exception_does_not_stop_background_export_thread():
+     exporter = FailsOnceSpanExporter()
+     media_manager, _ = _media_manager()

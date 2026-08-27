@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:58:33.755913+00:00",
+  "latency_seconds": 15.244,
+  "prompt_tokens": 4348,
+  "completion_tokens": 781,
+  "total_tokens": 5129,
+  "raw_response": {
+    "id": "gen-1787259498-pv4WSQGOBaHDFm0MHZtg",
+    "object": "chat.completion",
+    "created": 1787259498,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 655,\n    \"failure_mode\": \"In the async generator wrapper, `self.span.end()` is only called when `capture_output=True`. When `capture_output=False`, the span is never ended, causing a resource leak and incomplete tracing.\",\n    \"impact\": \"Any async generator or StreamingResponse observed with `capture_output=False` will leave spans open indefinitely, corrupting traces and potentially leaking memory. This breaks the production use case shown in the test.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to match the sync version at line 592. It should be at the same indentation level as the `if self.capture_output:` statement.\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "Let me analyze this diff carefully. This appears to be a refactoring that extracts common logic into a new method `_handle_observe_result` and adds support for a `capture_output` flag to generator wrappers.\n\nKey changes:\n1. Extracted duplicated code into `_handle_observe_result` method\n2. Added `capture_output` parameter to wrapper methods and classes\n3. Modified generator wrappers to conditionally capture output based on `capture_output` flag\n4. In async generator wrapper, there's a difference in when `span.end()` is called\n\nLet me look for potential issues:\n\n1. In the async generator wrapper (`_ContextPreservedAsyncGeneratorWrapper.__anext__`), there's an inconsistency:\n   - Lines 654-655: When `capture_output` is True, it does `self.span.update(output=output)` and then `self.span.end()`\n   - Line 655: `self.span.end()` is ONLY called when `capture_output` is True\n   - But in the sync version (line 592), `self.span.end()` is called OUTSIDE the `if self.capture_output:` block\n   \n   This means when `capture_output=False`, the async generator span never ends! This is a critical bug.\n\n2. Looking at line 506 in `_handle_observe_result`, the method doesn't check `capture_output` before calling the wrapper methods or before updating output. Wait, looking more carefully:\n   - Lines 501-507, 509-515, 519-527: These all pass `capture_output` to the wrapper methods, which is good\n   - Line 530: Only updates output if `capture_output is True` - this is correct\n   \n   But wait, there's a problem. The old code checked `if capture_output is True:` before doing ANY of the generator wrapping logic. The new code ALWAYS wraps generators, regardless of `capture_output`. This could be a semantic change.\n   \n   Looking at the wrapper constructors, they now take `capture_output` and conditionally collect items. So the wrapping still happens, but collection is conditional. This seems intentional.\n\n3. The indentation issue in async generator: Line 655 `self.span.end()` is indented inside the `if self.capture_output:` block. This is definitely wrong compared to the sync version (line 592).",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me analyze this diff carefully. This appears to be a refactoring that extracts common logic into a new method `_handle_observe_result` and adds support for a `capture_output` flag to generator wrappers.\n\nKey changes:\n1. Extracted duplicated code into `_handle_observe_result` method\n2. Added `capture_output` parameter to wrapper methods and classes\n3. Modified generator wrappers to conditionally capture output based on `capture_output` flag\n4. In async generator wrapper, there's a difference in when `span.end()` is called\n\nLet me look for potential issues:\n\n1. In the async generator wrapper (`_ContextPreservedAsyncGeneratorWrapper.__anext__`), there's an inconsistency:\n   - Lines 654-655: When `capture_output` is True, it does `self.span.update(output=output)` and then `self.span.end()`\n   - Line 655: `self.span.end()` is ONLY called when `capture_output` is True\n   - But in the sync version (line 592), `self.span.end()` is called OUTSIDE the `if self.capture_output:` block\n   \n   This means when `capture_output=False`, the async generator span never ends! This is a critical bug.\n\n2. Looking at line 506 in `_handle_observe_result`, the method doesn't check `capture_output` before calling the wrapper methods or before updating output. Wait, looking more carefully:\n   - Lines 501-507, 509-515, 519-527: These all pass `capture_output` to the wrapper methods, which is good\n   - Line 530: Only updates output if `capture_output is True` - this is correct\n   \n   But wait, there's a problem. The old code checked `if capture_output is True:` before doing ANY of the generator wrapping logic. The new code ALWAYS wraps generators, regardless of `capture_output`. This could be a semantic change.\n   \n   Looking at the wrapper constructors, they now take `capture_output` and conditionally collect items. So the wrapping still happens, but collection is conditional. This seems intentional.\n\n3. The indentation issue in async generator: Line 655 `self.span.end()` is indented inside the `if self.capture_output:` block. This is definitely wrong compared to the sync version (line 592).",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4348,
+      "completion_tokens": 781,
+      "total_tokens": 5129,
+      "cost": 0.024759,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.024759,
+        "upstream_inference_prompt_cost": 0.013044,
+        "upstream_inference_completions_cost": 0.011715
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 564,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 655,\n    \"failure_mode\": \"In the async generator wrapper, `self.span.end()` is only called when `capture_output=True`. When `capture_output=False`, the span is never ended, causing a resource leak and incomplete tracing.\",\n    \"impact\": \"Any async generator or StreamingResponse observed with `capture_output=False` will leave spans open indefinitely, corrupting traces and potentially leaking memory. This breaks the production use case shown in the test.\",\n    \"suggested_fix\": \"Move `self.span.end()` outside the `if self.capture_output:` block to match the sync version at line 592. It should be at the same indentation level as the `if self.capture_output:` statement.\"\n  }\n]\n```"
+}

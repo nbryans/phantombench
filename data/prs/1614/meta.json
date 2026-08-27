@@ -1,0 +1,29 @@
+{
+  "number": 1614,
+  "title": "fix(langchain): handle prompt_tokens_details as dict in _parse_usage_model",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1614",
+  "base_sha": "bf6d012865f8cbf89786b4239bdca929a3b4635d",
+  "head_sha": "69fed923c5b1e50c7aaccbaddd61c12cd8e3e0dd",
+  "merged_at": "2026-06-15T13:59:08Z",
+  "additions": 80,
+  "deletions": 1,
+  "changed_lines": 81,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/langchain/CallbackHandler.py",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 1,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_parse_usage_model.py",
+      "status": "modified",
+      "additions": 62,
+      "deletions": 0,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:52:16.031026+00:00"
+}

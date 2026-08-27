@@ -1,0 +1,61 @@
+# "Who Reviews the Reviewer?" — target configuration.
+# Pointing this harness at a different repo should only ever require editing
+# this file. langfuse-python was chosen for its MIT license, active merge
+# history, and merged PRs spanning all five defect classes.
+
+repo:
+  owner: langfuse
+  name: langfuse-python
+
+scrape:
+  state: closed
+  min_changed_files: 1
+  max_changed_files: 5
+  min_changed_lines: 20
+  max_changed_lines: 300
+  over_fetch: 400
+  # Regexes matched against PR title; matches are dropped before curation.
+  exclude_title_patterns:
+    - "^feat\\(api\\): update API spec"
+    - "^chore\\(deps\\)"
+    - "^[Bb]ump "
+
+# All three models are routed through OpenRouter's OpenAI-compatible API, so
+# adding a fourth model is a new list entry, not a new provider client.
+# Verify these slugs against https://openrouter.ai/models before a full run —
+# providers rename/deprecate model IDs.
+models:
+  - id: claude
+    provider: openrouter
+    model: anthropic/claude-sonnet-4.5
+  - id: gpt
+    provider: openrouter
+    model: openai/gpt-5
+  - id: gemini
+    provider: openrouter
+    model: google/gemini-2.5-pro
+
+# The live-talk subset (§7). Three units, in narrative order: an injected
+# defect all three models catch, the *same PR* unmodified, and an injected
+# defect that draws a fabricated finding alongside the real one. Every
+# configured model runs on every unit, all in parallel.
+demo:
+  units:
+    - 1745/005-wrong-choice-index
+    - 1745/clean
+    - 1811/001-exclude-none
+  # Hard per-call deadline. The full run's slowest call was 103.7s, which would
+  # blow §7's 90s budget on its own, so the demo cuts a call off rather than
+  # letting one straggler run past the end of the slot.
+  timeout_seconds: 75
+  # --replay pacing: recorded latencies divided by this. 1.0 replays the real run.
+  replay_speed: 1.0
+
+review:
+  temperature: 0
+  max_output_tokens: 4000
+  # Some routed models (GPT-5, Gemini 2.5 Pro) spend internal reasoning tokens
+  # out of the same max_output_tokens budget and can return empty content if
+  # unconstrained. "low" bounds that spend; ignored by models that don't
+  # support it (e.g. claude-sonnet-4.5 via this endpoint).
+  reasoning_effort: low

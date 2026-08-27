@@ -1,0 +1,66 @@
+{
+  "model_id": "gpt",
+  "model": "openai/gpt-5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:05:00.336889+00:00",
+  "latency_seconds": 9.829,
+  "prompt_tokens": 1493,
+  "completion_tokens": 816,
+  "total_tokens": 2309,
+  "raw_response": {
+    "id": "gen-1787259890-XVIF4BboTcaumg18hevQ",
+    "object": "chat.completion",
+    "created": 1787259890,
+    "model": "openai/gpt-5",
+    "provider": "OpenAI",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "completed",
+        "message": {
+          "role": "assistant",
+          "content": "[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 546,\n    \"failure_mode\": \"Parsing now only recognizes 'input_tokens_details' and 'output_tokens_details' keys; older payloads using 'input_token_details'/'output_token_details' will no longer be processed.\",\n    \"impact\": \"Clients emitting legacy field names will silently lose token detail parsing, leading to missing usage metrics downstream without any error.\",\n    \"suggested_fix\": \"Support both legacy and current keys. For example, before the loop, normalize usage_dict by copying 'input_token_details' to 'input_tokens_details' (and 'output_token_details' to 'output_tokens_details') if the new keys are absent; or iterate over a list of alias pairs and handle whichever is present.\"\n  }\n]",
+          "refusal": null,
+          "reasoning": null,
+          "reasoning_details": [
+            {
+              "type": "reasoning.encrypted",
+              "data": "gAAAAABqh2v6TxuXrKAS7Y9YTFX0Sy1HcacG_jIdQvoroA7EZ8AA8lL08_B2FwNO4XGA5-359QccX0OK39mGOD-t-7SyFDsprC8nOdgg0RAtAdS6WWp-n5lyJoW_CRvT-7SI2kL5y2_qPfQwR-rgIvNmktpsf49jJGh_Z7wbAzPm-UnHVA0oWVKPsbZWxnufZTR58ZJ_HEt6t8EsL4RpoFYCc--29oBS59SX3CPgl4PpAC5plTw2WnkQuRr7rJTb_ORdJIyuRzKKFnyfNfPFCMfydrG66coTN88r6wMYZwdDC2P8A8OGabStzQPS4-0FCmZ0nU4JPeOk9fyF0zgIbcbBOysKhS2Hj5eevsSUD_DEPDQPN6ZLNzolwJiSriEVyGkFtw2-S1h5C5rd4JOAK_o4eSrIyB7Qug_HIl2Gn6sTyoZfRGD8bxYG6NkWbm7hy-X485EYOiXCLH53_yGHyE3Chfg-b_dIUTqhwLovBghnsBgj1y8l2e7DH8oW9yBjk_Rk-fUA88HOXCtjly_bvi79u5WZygWI_fYwYOcfnKrpAH5mLdcdRB97G1PifGfhJIH7hnvHVIYquqAZkftsb_thmrQAw2CrLQRF9-K-7zDWqy2OSHLHFL8T02XmIWiL858KxrTZPCQRFFbVW1xhGYQpMGjtJMxiUtlwjd55jw4Iah0aIHqDGlf0EnpvLz-f8jsydC47yNnuP-A1Y4Sq-Iz4p82Xnx53jGJBj7APBMFAx2tDD9epnrJ992CaG4V7bUV_O4zg52SGxbNJyqRTvQdqiIKX8FlUiLRovSX5Tq0TgAcwWssWHAIZBpfE-F0iCQnjNe6lYcJktkzhftOJp0RNtpUKMJMUdO8DnY2CNPdVngWlNIsmM0rxOph32fqrF5hrDXq9Wt8Vxj175lnHTbl-TbnEPd5e6UtqJTM-fTMI-gWTGkI49TwHy6pK9mr8dlzYK0cQRRGVR70tEpGmxX0iVQXBT-aWlUgu7lNZm_kXTh81rsBIWhPxOytbrH1OkjFMB5iLkxhQ4b8Z6YlzzwWLVrbDxgnHPtvKvBJDrlVbIddXVUjk7e3uI424kENHXZrFnmeE6Lirk_hGmQsRRBuNEYziNBetQGxha4hYa3JtCvyNNtHFZzxBBidFBjqzLQw9b7mVmFsCbNVqKHQynU7nZ34sjqzVrNNTf1pAAy1ktmiDVTPZRng172mNlcBHDZ-BBy7anq5vP8h5KZcdO2RSM7GdxPr5Luh-RiM8SxUKw5RIYw_zGUzjviXjoOD3oYpXgl2qSB6Shsv4ff2UPUtCh8kROvSwf1mlyGTXvCaeYCaAFYEH8ljalaj2HPlWBkF1MzyWK-npJryP_bozcSWxF5hBTV03PM2od2hCLWSIBDt4xRhFnRCKNnO7vQ870155WmmUwxS1UCP9uvbzMC1WOYinqcMM_ncvtb2TTnWDtgU6zF1HejeFMN14xAgFtAUxsiaepsqkkAxEDpXawJX0W8xJWuadvM5DEtxyvGr-YtjBxXg0tC68EUxd93bdpR9yR0tOpR8LV-ERCIWE-xdSCGi2DHYKaYY6ePCVgnWtZopkYKU4JNgoHT8izen1OJYihxZelWuj1Q7sLj9jfW9T9qpmhScHHATVboXx0ZPPR43jFPJY7-4WFzc3x2jBUlvY6i1dxB3yBSCPN4Nk7yiicSYgAR0ozPGh3nDwa2waRD43F9b7c-Xu_SdnwfmbuKqvdylBvyH0hjEQXnYsqh75OfTyALPpE34kr5Y5jeyXE8B9-uAKfjy5qK5Fp_kPGa1vZGmmZGOjmFTil8bfbGFI9B4zEOQ9V-_lgMtd0wxYjrfH8vjtJNmkEABQC2oeq91lSuM5I9COcBRspRPQFeNFlADni8LV6AdD78UrfuGfiJTfxgIisD0fc0HKlz8Y4ENOlr7N89MPMLzSNSFSycB_XjxN3au_Ki6T2ynZv_VVvvOUzzwnqqTKHZF_dWnyEzCsVC4SGUp87Nrr-huM1ZXTQDXu2UVPi_wTHLsiwVhJqZOPmY7klyNnDbeWolwNyJhzBrX2u2pVhTZOnl94_HyaJnBeDRO_XZLNDVGq4ri4cLbESoBOeAbZMj1j7yExtNpP71SrP4iEVfbEKu8U6ZVvZbUIGUQ3zZeUFGUxrx7xzEIyjC1yLXyb7ScnyHfqUZL7gCA5VBg7ccR7zU0HogMDXY16SyqLggKYq4IIAiJpkh2SXvZJi4JW4-lZELrsQ6uIgwCJdotcYecS5nS0apahsBprnixiuEh3L1knQ5tQ6s8WqSwFXekQctZ3tu4scx1rGcQVtIJbJlGR3SJgKB1IrhTs4REsZ8dfbrCJ6ov1T_k8LkRaSyg9jFNPn3i1tshOXaqSpW8VFNKKgIu1DnvoFRIjBkK-4o0yhFuE6PgOrNhgObNfAe2hcsnpg6BZL895QXhqbnUQNgjFpNE4MIece7s7JWk4EnW4fkS0cXDO66yd1tBk3e2zKt7wuioTrpNJWpO32zGABQgcHy6wV31WpQOVRPwN6E_MrnNHn5aGZXFpPfjT_T9Ydba5IuJ4U9CtX29-WCTq5hHqRbmSWGTSdMKt-zz8s23bU2HYZS-7hYereEL51If3_xdCKnDuT3dS3JoOqsd0mcN1jlD7fiqrSVjFrhWZj7GctGDl54WuziOJ9vPgH5C3mipXRGFQPVruccXHJ3G2R8DBO95gPSKCJ9JLhPj0xsyACwkIfg4-sKbQZuNZYrKKM00y5IZpCd2AjrGP1qXX9LlVf340T55LAtLNT0hZwIh4hIqwEzAc0jUcotkIO-j9P5HbbAGvL4791qxCAm95DyYReV4BD21OVYSCP-WBS9QvdN3lNxgl0U9Pi_QDL0JuFpfx1nLdbkn361aCCEbedoaVz8UIxjYINyugqHkRlX97Pm6d7shCYPhrQYSku1Z0ypoAayXTnWgDHPno-k0e2O-KfaBv7VV6Y2T7CHIMcEAqFYLd2pLG_ZfjP8fCbsjzonnoszYlRRaXBnSNvqVE_5x-I69OzOTEMJUl6ttBlmatVRqY-T3-j6qcoZqnw2YD_t2jG8RJB1Gvt4GoAyB2Vq0iayYI2J2VgnL6sxsKjW83Yn_1xjXpWuGxig-hrqSMoPDe7HPbDmdR-AYzLkzaiNIdzUNAnxK1q2q1rZEJQYzmpBvs9N6uiYeY0753sGqSZePAGQgLNABQNU1qk_KBeOdcLLIE_fbQwwLfa_HsRo5gCtJgcsYGslRKW6zhjN3qtbLfdevXOuAJYpYQjCnJ6J3x0b69vB89KyjL-16xOSh0uFOSlTy6sMCDdhrygE_Cukgj7wA0BrVBoA-Kmtl0mCTR9J7-SRR-nLpLrPoUA933J_SiC7nFjasNDjGDtJwHIHjMNIaRP4kQESn3XOR2SFAzyr4rwQPNB2f8PR8HLLRtRW7P4jyGTONB4YKDXB5uBX4Lm8UZn31SSfrQjJ1_PTWqCSf2Bvdbv4ldylvYHIMIuMZRDj4LCL0ZjZdc2R84rUI2SWOumfyBdufQxtVxWCIGpA7MhEeJv1RubfHdk4nff_MQ7fRfS9GuK_FWwI8m3XFQD6gSBFGB-o_pNxnVuquutBjMxNGZqKJHt37kYAg0ebb29oaXIjOiGgXb62441YXg0g_ha8WawmiJ4sn26__z0Ih4gWTopvHVtPTyTtD0QJ05jPWuPAa-TVtxvjQy0ls8nFW57Jeg6kNjTnc9JQRsI2-midMm-yR5DfBHfI08j4l9XAFMjknEtN2Hw8kB5HlZ7Wgg-SD9rbamxjbBoJ-QiIueH0MDRVR_wpyq8ytCaHU8kj_n7xgr3utSMW3ViyV1_13Rf5Btv02Jk7wp7g6EmsK0GgdCnXM7v_SsO78EDpkpwF5PbmuEZ_QZcNY-jiW1k2dfJ0NHBmt-CT4E3gsLAwbbwsypvDmOc8W_yt4CGx3JtERAQCp80Mi9P1Zyn7wd1Evdwaqp4zRQChVm19lpCphDG5jwN3VN5Ih4YZRIVzAX7aeL87EXaZxQzBQj7hHbQrFwovVtOCup1XIEixs0EvEjsHe-7ws8i8ZqO2wzmPTCjaG_C_khb6fN5_H1PuszAGEEL_r1gyzOoJRLY8Ft46-1FV6RmQArJE86hRWYeJNWgSlKByC7JR5Es84p7fp-vCT0mJr1OzJIqRoEfb8Owj5otxblMm44UvAoM7enyHk2HCs-ibMcJax46-u5Uk8fd5VXBxPH6vFiH9qbr_bvfMZksjllDtQPjkVOHp8PkoJ4GBriHVrZjs7cxbrPJm6OUqTad7GpEaerRs2YEtrwGVozlGLl1vvrH2cC-c5ohcQ3xDpbXCmoOaS_Lsk_Xq7uhfjw0_NarZqdMXX87qIHgbW7Y-Sh_2JNY-t3x74LBwg378cGTSCEglRifnJUIDUp-u4Wb6AmLQ4z9k0qd2u8ESw2CMcuoFnCULWmU_5bSQVxX8FWTPPU_dg5L8ky6M22w7XwD4X6Y-cbCy6MgaZj9RyANcdZTKWPXQ-XRGtTLA7VnG4NCY87B_XQzzgeIQJqN2dlLD-x5D7calWyqhay7fgvZv-oYF_twzkGro4TBOeFfjc3iv7Ks1k0F2afU0d5TQYnD42P0I_ay-b-G_q4Yp-7VlfeGhIqGqUQ9IN_rvxxmumOWaocAO_zh_ClCDIK58Cht4Dx-7F_pQh4_90V9gPa17Vg7p3usW5KpciUhvevbsF849LwGSonVUzr7IxrFKImgG2Kerka3Ayv_KM8AegYs-FkIW3SxZ01He8-1-pGWUHBVKUHrebdZlPa1w8uuN6SxI8vAJdQkkJf4ZKBCTI4t29uCndKPeyzS43zWHifdIwE3RTvWkzcrFTtJqG0IzhkjUUwQG3nxW-iYsjF0ExpVdVtBHlPKASgjn8SRurdJMkwQVznnfCERGHts0K5EMShohsmIs9emx2gCefZbXW1MdFFP5eJdWZOzwCy1ElJN18QRgnKmh8QbKwuowKmWfm0OnVFlH5wxgfP3ElM3zWgxnxFLOIMJSp8K_MIKltzgwqkxUJw3jVCiIAQzTMsm7B4PL7t5L5IRI5xfsjx9z0-IAp8ExWD_74ntVpjOBzbpqr5uH5F4afHULEneefHsEJUw8S3R8HgiU4oKuNJJtQaTrtUASZDyhBdzTop-ifv7j39Y3wryL1DTXe5W4aPNswXc52i7DdM1emuq8qXnXwEWcCZltPuDMJawBoRyjY5wP1PXx2SubXx-8BFjrTfLqU3YupeaAgaIT-zuJCMX9V8zUkyJvBkeFtDsMf-hscq0NY5uaUCdHKSqNVU3UVnAXRClbn8kNeq-VRV_9LQQoMFkWmsHoc-V9VVPUBpHwE2eGHRt6Hy3GdNaXM=.eyJlbmRwb2ludF9zbHVnIjoib3BlbmFpL2dwdC01LTIwMjUtMDgtMDd8b3BlbmFpL2RlZmF1bHQifQ",
+              "format": "openai-responses-v1",
+              "id": "rs_0bbd5f5f63a892dc016a876bf334e087d1af69f63adae9ef5e",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1493,
+      "completion_tokens": 816,
+      "total_tokens": 2309,
+      "cost": 0.01002625,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01002625,
+        "upstream_inference_prompt_cost": 0.00186625,
+        "upstream_inference_completions_cost": 0.00816
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 576,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 546,\n    \"failure_mode\": \"Parsing now only recognizes 'input_tokens_details' and 'output_tokens_details' keys; older payloads using 'input_token_details'/'output_token_details' will no longer be processed.\",\n    \"impact\": \"Clients emitting legacy field names will silently lose token detail parsing, leading to missing usage metrics downstream without any error.\",\n    \"suggested_fix\": \"Support both legacy and current keys. For example, before the loop, normalize usage_dict by copying 'input_token_details' to 'input_tokens_details' (and 'output_token_details' to 'output_tokens_details') if the new keys are absent; or iterate over a list of alias pairs and handle whichever is present.\"\n  }\n]"
+}

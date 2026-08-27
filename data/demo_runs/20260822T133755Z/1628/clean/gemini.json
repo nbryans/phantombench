@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-22T13:38:08.645774+00:00",
+  "latency_seconds": 13.248,
+  "prompt_tokens": 4187,
+  "completion_tokens": 1443,
+  "total_tokens": 5630,
+  "raw_response": {
+    "id": "gen-1787405875-kJvSfZ2VTvpx9xL7q9yJ",
+    "object": "chat.completion",
+    "created": 1787405875,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 595,\n    \"failure_mode\": \"When a synchronous generator is exhausted, `self.span.end()` is called, but `self.span.update()` is only called if `capture_output` is true. This results in a `TypeError` because `None.end()` is called when `capture_output` is false.\",\n    \"impact\": \"Any function decorated with `@observe(capture_output=False)` that returns a synchronous generator will crash with a `TypeError: 'NoneType' object has no attribute 'end'` when the generator is fully consumed. This breaks a key feature being modified in this change.\",\n    \"suggested_fix\": \"Ensure `self.span.end()` is called on the span object regardless of the `capture_output` setting. The `update` call can remain conditional.\\n\\n```python\\n# langfuse/_client/observe.py:595\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n```\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 670,\n    \"failure_mode\": \"When an asynchronous generator is exhausted, `self.span.end()` is called, but `self.span.update()` is only called if `capture_output` is true. This results in a `TypeError` because `None.end()` is called when `capture_output` is false.\",\n    \"impact\": \"Any function decorated with `@observe(capture_output=False)` that returns an asynchronous generator will crash with a `TypeError: 'NoneType' object has no attribute 'end'` when the generator is fully consumed. This breaks a key feature being modified in this change.\",\n    \"suggested_fix\": \"Ensure `self.span.end()` is called on the span object regardless of the `capture_output` setting. The `update` call can remain conditional.\\n\\n```python\\n# langfuse/_client/observe.py:670\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Differences**\n\nI'm currently reviewing the provided Python code diff, adopting a senior engineer's perspective. My focus is squarely on identifying any production-level concerns, such as potential issues with correctness, security vulnerabilities, or concurrency problems. I will disregard stylistic choices or naming conventions unless they directly contribute to a bug.\n\n**Examining Code Refactoring**\n\nI'm scrutinizing the refactored wrapper logic, particularly how `_handle_observe_result` integrates. I've observed that the `is_return_type_generator` flag, though set, appears unused in the immediate wrapper context. My next step is to trace its purpose or confirm if it's indeed vestigial.\n\n**Analyzing Code Structure**\n\nI am currently dissecting the refactored wrapper logic, specifically how the new `_handle_observe_result` method is integrated. I've noticed the `is_return_type_generator` flag is being set but doesn't appear to be actively utilized within the immediate wrapper scope. My next action is to trace its intended purpose or verify if it's now redundant.\n\n**Investigating Generator Handling**\n\nI'm currently focusing on the newly introduced `_handle_observe_result` method and its interaction with generator/streaming responses. I've noticed the `is_return_type_generator` flag is set but doesn't seem to be used after the call to `_handle_observe_result` within the wrappers. I need to determine if this is intended or if it's a lingering piece of code.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Differences**\n\nI'm currently reviewing the provided Python code diff, adopting a senior engineer's perspective. My focus is squarely on identifying any production-level concerns, such as potential issues with correctness, security vulnerabilities, or concurrency problems. I will disregard stylistic choices or naming conventions unless they directly contribute to a bug.\n\n**Examining Code Refactoring**\n\nI'm scrutinizing the refactored wrapper logic, particularly how `_handle_observe_result` integrates. I've observed that the `is_return_type_generator` flag, though set, appears unused in the immediate wrapper context. My next step is to trace its purpose or confirm if it's indeed vestigial.\n\n**Analyzing Code Structure**\n\nI am currently dissecting the refactored wrapper logic, specifically how the new `_handle_observe_result` method is integrated. I've noticed the `is_return_type_generator` flag is being set but doesn't appear to be actively utilized within the immediate wrapper scope. My next action is to trace its intended purpose or verify if it's now redundant.\n\n**Investigating Generator Handling**\n\nI'm currently focusing on the newly introduced `_handle_observe_result` method and its interaction with generator/streaming responses. I've noticed the `is_return_type_generator` flag is set but doesn't seem to be used after the call to `_handle_observe_result` within the wrappers. I need to determine if this is intended or if it's a lingering piece of code.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4187,
+      "completion_tokens": 1443,
+      "total_tokens": 5630,
+      "cost": 0.01966375,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01966375,
+        "upstream_inference_prompt_cost": 0.00523375,
+        "upstream_inference_completions_cost": 0.01443
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 759,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 595,\n    \"failure_mode\": \"When a synchronous generator is exhausted, `self.span.end()` is called, but `self.span.update()` is only called if `capture_output` is true. This results in a `TypeError` because `None.end()` is called when `capture_output` is false.\",\n    \"impact\": \"Any function decorated with `@observe(capture_output=False)` that returns a synchronous generator will crash with a `TypeError: 'NoneType' object has no attribute 'end'` when the generator is fully consumed. This breaks a key feature being modified in this change.\",\n    \"suggested_fix\": \"Ensure `self.span.end()` is called on the span object regardless of the `capture_output` setting. The `update` call can remain conditional.\\n\\n```python\\n# langfuse/_client/observe.py:595\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n```\"\n  },\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 670,\n    \"failure_mode\": \"When an asynchronous generator is exhausted, `self.span.end()` is called, but `self.span.update()` is only called if `capture_output` is true. This results in a `TypeError` because `None.end()` is called when `capture_output` is false.\",\n    \"impact\": \"Any function decorated with `@observe(capture_output=False)` that returns an asynchronous generator will crash with a `TypeError: 'NoneType' object has no attribute 'end'` when the generator is fully consumed. This breaks a key feature being modified in this change.\",\n    \"suggested_fix\": \"Ensure `self.span.end()` is called on the span object regardless of the `capture_output` setting. The `update` call can remain conditional.\\n\\n```python\\n# langfuse/_client/observe.py:670\\n            if self.capture_output:\\n                output: Any = self.items\\n\\n                if self.transform_fn is not None:\\n                    output = self.transform_fn(self.items)\\n\\n                elif all(isinstance(item, str) for item in self.items):\\n                    output = \\\"\\\".join(self.items)\\n\\n                self.span.update(output=output)\\n\\n            self.span.end()\\n```\"\n  }\n]\n```"
+}

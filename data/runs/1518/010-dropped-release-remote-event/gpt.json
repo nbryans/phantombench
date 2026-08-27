@@ -1,0 +1,72 @@
+{
+  "model_id": "gpt",
+  "model": "openai/gpt-5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:54:30.374330+00:00",
+  "latency_seconds": 18.859,
+  "prompt_tokens": 2326,
+  "completion_tokens": 1261,
+  "total_tokens": 3587,
+  "raw_response": {
+    "id": "gen-1787259251-RQEuz9IsKKk1qIIX5xQt",
+    "object": "chat.completion",
+    "created": 1787259251,
+    "model": "openai/gpt-5",
+    "provider": "OpenAI",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "completed",
+        "message": {
+          "role": "assistant",
+          "content": "[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/client.py\",\n    \"line\": 1514,\n    \"failure_mode\": \"The span creation call passes release=self._environment instead of the intended release value, causing the release attribute on that span to be set to the environment string.\",\n    \"impact\": \"Spans created in this branch will have incorrect release metadata, breaking filtering, grouping, or analytics that rely on accurate release identifiers.\",\n    \"suggested_fix\": \"Change the argument to use the correct release field: release=self._release.\"\n  }\n]",
+          "refusal": null,
+          "reasoning": "**Identifying error location**\n\nI see there's an error at the line that reads `release=self._environment`. The diff indicates that this happens at line 1514 in the new file. I need to focus on this exact line number to address the issue. Instead of sending two findings, it seems I'm only going to return one. I\u2019ll format it as a JSON array that contains just this single finding. That should keep things clear and organized!",
+          "reasoning_details": [
+            {
+              "type": "reasoning.summary",
+              "summary": "**Identifying error location**\n\nI see there's an error at the line that reads `release=self._environment`. The diff indicates that this happens at line 1514 in the new file. I need to focus on this exact line number to address the issue. Instead of sending two findings, it seems I'm only going to return one. I\u2019ll format it as a JSON array that contains just this single finding. That should keep things clear and organized!",
+              "format": "openai-responses-v1",
+              "index": 0
+            },
+            {
+              "type": "reasoning.encrypted",
+              "data": "gAAAAABqh2mFqNIMsO32SydqJnxthI3YZxzsvQ1-uGsHaIIuxSds4cEwb1UMMfs8A5a2-HYoMkgs3uCRWHYfBKbDr48EsMXrEnEgnHurxhbT7NkqePsr5qTS2ZYec-RrHsTkxW9pE_lPTqftkI1UUtmQ3Rhk_CW-4Gt9UjPki_SGKsranLMaGhFxAbPBZf9HSaXC9n3v4GOzws9ttIOmaMH4yrBGZ-qeHrwdY6T_kQoF_6D2Cp8hpti-m2V05Et1NQiN_1HfK9RiWASaFyP4wOKKzgcCyMmOqVcQx6xt1dQWIgoLonDl77Mzsxp8f1OCaxsrPpmzyIuF2saThsqgkl6EMgY-XGF5v7vHix6IJn4TI8J-QY_SrYkC12-DjXQmcbB1s6g94UiZP6oPxHJqblVHH56L8_X6k35JP2XDKNPpULuG48ihIXSkXu3GOHTPZCR4uDrHNpxJB4B_FzrmMvHpAoAPNgvytgqU90FMZQVgocCsfbF3A6mar2qTddE568R2lMd07K9NajkdkXZomX_HOXI86RnZG2-UVUlrBHUdY-bdpMvSADo79Nmyr9ELdczta5Rw3ycwg6TMQGTSMO4bChEqmhuYSNDq-dz3VrkibeA_yjFrYqS7NCHFFxJgkUWOlqc61bSvyDn3Y10sL7DgQmnyHY421VVnTxY915POkBvpw84tLwMdH4btPs50D951kFNXvmuEaDIjWLrCHhrNIycs7ZmaUI5n926dC6pa5w_iuXNQj8awmz3wV5VksbZWSOGV5539os4A_Pr_aT4B9Iw6_y7iwpMoQ2Y0s-xN7IdrHRT5D9eljEOtsxee2iSPRomqGxGT2aXMJ4w-dFIit7eiBYyX7xsL7om9lEpT8bnjqU1GdM24_dQyEoxFyFnlNJNCUTLhyFNFr977KLThBcZ8W2jOoeHTWP8_PVygbt5FvMDKrUM7M0-jokdyIQzWtibksGxQqgN3xtQs1qEKGEFFgyJ3djsvH6i3vYo9gskAW-QQUrtgL5kRK6NCfXtk80oTqNsrw5ruIohVpsqc-pNHb8tMGbPidfESOSSkLd6hVnTdGAvHFIzX0lOarkf7LCoNNIxW6sPAz_g_h1suPokpu-98CTrJxcUD9LLiH9YCivBBSEHbBZwshqzx0Pw0k0UwDrAzg7RbWnMZfgK9Z-f3ltzy8HXxG7srRA00nFKB18-46PkBVosctnnuzQABpS-SiY3EzzaCoHEy1ceKcs_xrE4QNTMq11OBDybf2tN5fCUffI6NwdoBcQpozGPwjgZ3T0ky0PugLmdn-wyMwLnjI9E8s6py8PaLCAzb87hppcXSFCtIvI809HS-Lom2hQYIRio6AeAAwMofxFOL3cGSPxDH2mIRr1zmGtKl5jmWX2ILooNTR69wtAum35smy05QJlQ8GaQ1EZp1L0R6aJn7cLKod18GfBg3MwzuU5r-NS7hflAw2slN9kRV6MJsQ_Ma6-v5t42ICzy6ngzSsSp45ppIUOO8m9OgdydZMP3KhILJGBB4SpdA1a9xZaUVsUrNJk6fHfSqdJ0TlZrPPi4kdDLOExxUQw9Bf-X7BwcBTvAHPM_F__Z6HJa0tPGHCQ5H3jvGmie_7dxrKydE-FFcIoUZ8ioORoZ-ohrVgV1L2G4BG1lQ1mTeExbyDfqc6j86CCyJaP7WTKPM3-7Zbwp8_Yi69-o_HCJLre9rZle8OzUVvbwWadcZohtfemvGUod9qvdb9IFwgwvOMe8uwwRWhkX57-U0v_8HaRH-kbIGLfoLgChVW_mRwLsbAxZQHEU6oCa2yjBqNxwzYyR5qGgxy8npXwAWNTwKbAbZr_9yQFJCdyXbfx1B4QNcCQQvaakAG0CjkZwNzGo4w3d4-Vj21bsASNm6J3kk6SCHMAotdETgxHPWkmxB5ZEUJsTVBwK1bTO8Qv75ijeT40zoCcBPlxXhEr2dxyeMGgm5h0u1ANYIOybTywMl5ZuKQ7g53H8w6SCiewJUKCEUSSEuX3uDB6XNgG8Me7f3Q28yomfxRrxbkES3E9AxQViYyMs0deXa13xzxAI2pPxve_Bsd9lgNJ0NrLQjNfuWXMLPjC9PCmeucQJNA9_5X4yiPsbZYGQeo4o50reAInVK7HzavDwYZX8O9MQzQMc81ATbcZYdDo-DoyS26PGlsXXNV-vCijeu6C3kOYejL5np2n6C2_0Ie9nYkxRmBZ7MVLnxZJ3lTaRO8myWFRAYOgignnAEp9DPmKB517dFjFxLZl9scjFnSIM7hBwxaKs_Kw45JY2KF0PbLgVd6DnndSsAov8yu0kcQQFezvYFiYzW4FvvtmLPCSqW0XAh6PoowdfjMZTsjH7YiGfFQ3uThQhZf3Np--ID2KbBtYvwn8cAL67nOhGN8d7p_6h2nlXSBlocfvTRcvhiv5I4Dc342YHNU9uUB0eLObpmTbEY2LoOiIdbQ-Thpmcl5GF3kIKuBA4lm7KD7ydlaErxVUiamvhHVUnlUchrcm3SLwdZ_KxgsvnelSAoHGH5CLahexvb2KpXMgFWKzj0Ce-n-BnrpERBIG68KZdE9JXiiWYvKIz46raUI3Xk9iCKIfZYxFqn2JO7rAlrPOuQtdDbXAZK6wtQGbJXECK189d2gWFWLx4cXsjiojpXVbAVbyeAdV5b13evywK3yNfRf0oTaphf44hAGyHXizuw7XFHll4b5CtnEVA01deuFH524V5sXm8VA_JlWlOZFpIIDzVrTc6REGVkhqOWSKA41YHlgkBpQeQLPkRrCDPu3G_tcnPxswQwZecDsnwh4IBnPaSdqkT53N7WyB87rwbMpa6Y5do2K3F4ExTEm2asz55O8rmGAPoueez5svccSBnZrBQYy9hYpM6DK1tX6rjH7CUFujmKkh7NfGI9xAlVnhmCIJCPymmzrwymXQRL3py9nOBoKjhL4Zew7OTimenBzSh5Kg6TVp1aJiVD7i2k-t52J6HFSpiEvxPjFCjMhsrKSw6Y-FsKJmzWbxsTkSbTRXJMQSfKvdFMaO1lgjFQFOgeq1UAR_DiZaM1L4u7sUJfSexSbJITAnVacyWbk2LWDV-U2L2eUrm_s-ZARZYmAFKj0ELhPBO5iAb0y1cWw5NQP4irwCI-_L11pEyB-rFiQv1sWq7oa1gNv1OWC0qRRuLEtjxHVRuJCmxs-vA3FtN9BMWTWmCnyenL_RhjmgY4hTX-4SWiTZpL1tYubw51zXXa5IOBf3ekhjWmX5AnijlHjOeZyBzxW5Vti5lsnUL0rBPPLL6zA9eGX2pCDDo3HJN0XU1_D8eSeZe5fbUDwQTQCQvhPMSRxu3eSa1UYLMCyx034EpoznC9J-giPthaxSeacBSFGOUgxq4YoD00jUWtEfkspuO2K6_4dr3Qo8S5hhG2Uolmmbl0t155SlnwL4fnrkl90v-g-bB7RmjLngzBTuFZruFv_IodecwkWB2tio_AvsBv0woUP2_OlR86azl9eudteN0YKgSeU-57Q1DXZK8aBafgBlAFnYU4KIi2jG0mQnbrALNA_BdMnYL2o94nCa_gWsLi_7PMx9sXOI9m67YmppJkp-u14xoW51G22GWlXUs_GJ3M0sukqJkYsvxmCARRmVPPzOJrEwk9Gj9-J5l-EzTzPVildQYsOtq8fw6OXyp_iJWT2HBVvxK9EyBFI2BcO3fIWGgp-ZPKaUBO09mP5jAiUpHRl6ybEpxilU2EKPocP0H8HSL0KVC3rs6oax8drc4RRYhJtsa6vg9vTi5tkrIASZOAK2NAWo-MFtYpLjWsgPM190sY5iNAeo6S87HqnJbHYmPZUALRhiE_fW6BU183tnhdkHwms0tK9FaS1OAm3UofqTj4SZ5cngIY5I_VXgvkuQuDWJWAMYEwkZnsN8fcAngZH5icPK7EbGMjMC6G-LDB0h-1oLFaNWnwkOKCqpc0n9i61FwwXP3I3gpNJ29MDm5wdo12WsgbiqBpmfWRTQcOUC0V4ziR8iPz4BQ0frfndvQtiIby9rskPZwFUf9TftJI4x62OXcwf5ibDI5HNOswqf5NruaZwd6dC7zd09RQ_nYzDchzPHqVaL4-kmAM9u9hp0T0hRTDlB_83Y0Dg-Ofm-BGkS5TJch78pQljODcCP4Hj4ZIIF9cqCs0KMfO8u_pIZikJXgicpsiYNcRCbi7c1lQN41KVGKBqegAYorfNs-zLSBGNMz9T6TsS5CYZ7LKIFyLrl-D7OVOSms9VtXRUQsU9MJcREL5_k8_XCuVUBfQqlxpD4JU0MdI7WhLseHIP9tf55qfe0b_rNfHN0S1jyDDiwIIZDMCm_sF326_N_3haq_Tb8kxbOVEBsO7jE0wS7-r2Yw9tL_T3yAifwaH0WyFGHGghOpAusnvyWDLGKgPk-UiuWNw7P9noUzxYW_MHjmRPrCzCzywZYqNNqUW-OIgrHecmlMnZ4M1jKF1AcUtD8D5ILdQY_9bX0kG7P3trnZB5Fbt3iYB_6Xo3KyUxd3vrjOwOznp4fhHrEaqMOeLAckCt1PLWsAH7SfHc2k9S9RyPrcp3_xizk7n2AMtb4Uq4DMHTjRR8fmlhOU_ltGML0jUfjQF2IMc0ULu-iKwvfb85d7XTjtDeRVTVchUzy0KFBj2T-Z7oVmy2Wowyg0k9xwReOhGkuRGq3lwE1iEXxtZNniW0a4uZG_6meId-MnOCWTLOFs441YH1djtQ9z0_XgE6q8oyVyk1KMmundrv4JwIs06HWCWbtg_PdT0ZbcvQdJlL-mf33Mq5ltZT8ylOKje3cB0Q_BNagIFdvy-n19KvXtQ7ejXEaBQmAqIJZIwaILa4_HkAln9fm48ftGripO9B8JmM5VnwMVUgTA4kw9bx0B-hiLi7CJCNBZEzOK-RKH0puxY7kquQUAsYH7KMB8pFc6MMj6fsSC_vMTReYujPvqbjxPAiW6AnZ-LoQI79XtbIXK8x-tZkdszG0N3KynLR7Cv1j7SM-Hrq8-NgSEgLDaJCa-qSOVmLKlIkcwmyVUIswh2JQW40IsMhBc3nJAnxAcj8nUobDnZhOmhS1TNsoqFCOpmCuvWKmi6YQxsTdDYVWEtuOIHWIzIp0_Q6eghdGIh-kYwHe1sN3DXCk98GypdU_C62NtfdY7XIHMUIkJPHfZHGW-rGLjlI8DZvg8AXaeu6NQbyCTKm29lvLfgEF-ZUxIA4GJFWux83ooiFRML1P0ZpUHwb2ICNsIUmluqgtDA62VuUeX6gUvIZX6gXkh2Z5oX_yrT5WSp3yVbmrz8V6wV1hWrfmM3LtkttKG1AZROcSs_fYsHoU2EA5jqv8y_VYNVWC9z2-676TAW4MZu7cAXfc-dy_kv1cddJ29Fv5EMwHNmGw1zjobZeHa8s8nVFwRpFPxedEA1B84S2SnRFq4qypa1JgLbOQPH3yGLPk37EdBFibuwZ77evYWqn5eHMSvIQqVGvmizQQVssTH6AWUGVTn1jE-yCIQ-DKFsefFNZuhqTn9d1xxFOcf8nff_3wu3SqBnF6Rew9TsdMOxRShl6dhYJUoljhzLGq9whrnNOSlVtb-wejTABmUlCroXOIPa1thlVgxDrq8SfMriYTAF__M3NuosMWoKmno2N2R2l4-yWLtYeaVPBa8cXVpzuHl9etDeO0H8NC-pk28thNwAN3-fTaPiT7Gl9a5GoA5taOCFfee9sXWlMFXuIuDY5yGG5Y-cSeXfX20SKgVe8nlrXZKGgswZr1rOk6qSHCz8RMzFHPZZzjf2dZdzrUi2iojQyPENn_yk3Kfus79YduyBPwcyLuxhZxSXQKQdZTUfq_iudP9ggiAx60yQixKxKwyTeZLFuO1oHS64MdU0tuwt20zsg8OM1WiSwaszN62VL2E5a1PXLnZrFSxQ7Xi8cZVRxo-6eQ-Nam3NB0ICgddpkJ7NXRVr0dvcOU5l6wih2jblGdLvRIJyy520cG9GSVdr2PAIuXMBRZz0J-ce73Pk-eLHy5LuqIaD7XoV3iYnf3mb8IrgSOjURv9zk82PwuhxdT30-W0ATmOYA0xyrSxne9ys6WrY0CWoZCKRvCn8ixK8-MyjGru2BED3HRUAZmk6E7n1q1OwS4g3CsoSJK-_Kf2zOsW_hdnX1vSy60zgzNVcxi5wStDpYuH-T-RJ5UA8OHc6E7KvHZv3_ckXHg1NXZN3G6F-horZEeEWHxMmAk3PHNhVWrsvipRfb_v2kDIQQw0Vq4GPeKRvC_kRshGcQKU_iXDPrnSs233u4PejNSR_Y8BaJKFc8I8rjUqTjkftdc7fskFGFjBpnxPgdzVl5vB7MzLBV6cOYvgegKoKhM1jR10eysk2Mp_AxRfB71CpT1hvNWwKf0BtFaHTRCZcGTFk-6x6zcVfRYHDqYPAebmt8fRLWVCkbPh3EtA9Jw_qt04u94lA9QtAa7bM1r_8PXbfJIu9sI7MrxkFiZP2C0gqruPEv3JITmpVsZTI3P11BsnT04ox7JRq9srd6ttRSjM_DQ03nyW-mvCgjk-Hfo_gHVO7SPRWEgLV6a8OyZ8t5IS6zUbNiSUsRrD3du4cKsrKsRHS1IY_nakDr3IVDKJldOVvqeUDmM_DXedoT2p1-1SSRrePU3XZdplqxiG3lim2T1rTiRfzy_Vqxf23rnAuZwEuixEBWK31B2SeGTtP70ZLaMX54e0NSfHnDIuU286OpJ2S-ne-6XLr7vAdeGiicUIbveLMacWcgPfDyrWH5c9q-5bj_HE6RXdb-ld1cPpwmsfjs7dLWqcdL1Y6HDMrR6aXfJ3hbc8AMzTX3TrE5L0sWf1byed-XpcxrOZTZu2-SB01kiIHtRjy0ca3ujffsiqymb5Ow2MeqP9OmDDQZwax8dIMOF35PSEqOMgQ1-bsjcjO1jzypGQCglkWQTFFtEzLgVRmLV2mhHF7hJNgHMbM2jNFzDkFhbJQlZujRHZYBXbA3iIGFmjlrj5ob29d3UxPShPO14S3LfNYhqwbmjTjkE2HB8WmU9fvPXu-Ax7QxVAxpj6fma7nhZdMTSr5u5_eGGfgRgD5MLCzZah3HTJT889ujL_v8_keuwJgrgUGOY9tX3KVci-WE8qyY_5_P6BNzhwcd_qAYCmyHTdvlnZwTZ1VzX09ZLx70JS0vcHOFgc3BX7WwL54reLlbcPEJ1ROcdEc71V1wwYivDDuD93V-EGEd7XQqbJD2YZyIpTXDsLX9QoJPHu_g3fYkdBJW09zipgq40zwhGSoAEdB60F3yAVeOBxTnWW5B8IncX4Q55yjX6oVdX0x_xW9aiW9p2WHyQtAwdms8OZLxwSkD8E_vnt6EvkqGcm7-TVdCICZmSQO-LbIfr6dluG5iKsWNifOEV89vYCeMIo1jOBL1ia-cY2BgDsgbfKpwky5LkDvNwH3zCPYORiwJpJcHiVI6RpsG72aiKEro4L7e1JP7qZOFyZcU9XxIPvERpKbUQWTjygKBg-uqce6Mvk9XOOmweYJRIJ8TBRbGIUBjwczpLgNb5GioMNmKBVSFFHkovwxcZ_WcpRvzSojPgkDzzayu8DBKTl-Yvt8EIkdJjMHUiCPlX-k275asH0ibrt41K9XIFQhziEy4KptAo9h7qiGWHDcbT4JVcfNNyTH-iQ28RaEOsJ0Q0p3pa6XcYuS-PT7KxlD4bkRf34Ezd_sxGFf3Ffy5J-s8dJw-d5GMxrX6nGxXLyGUTLTJ3aMZdBKG398faluYqeLY3qOH5Y5ZHVlDv2RZA9jhg24ljvk67GJNOJV8MmlTZpfSFexBM6icvOizK-CRE3aBk44j0vBNu7vDttGvik0BR_3MilQos078dq44aq6k-1MS8Zl4Jy8Z7CnwtwSpTlP77uhdd8bWhNpdwxfZA_ZSOKd2ydgEt3u-R4_nCBkNa1dciZy9HgfJFqTuoBsmpdydS85w2fw-Jnth9H5xx93PtNpgsXJoQlACWP75BT-UoPdzyOyQIxqGkQTDmsUXojKT2bHGvnUuzSRai-NSzRLge7YhwNO-XWVocejSOSvkVkSIm5CAA5icFSmS9rOH3qPfP3HE0FPNm6JMxeYCYeaczrVrHyh81p0PSzoootcGXQoME8_05ZW0eL7JMGhDQ5AN8BEbWIV4hfmlyEJ8uWHNRmoaUzSO4HenrkDdN7ovDUCCmcRxr3cyPXG7alPjtMO0oszSFGStW1RTQHq-mTCjarjvVODlUbkVswrBdwuJG8Xk_HKDjeySqFjIx4A3exJ5xYmfn6MvCFQNgP0vCdqKHPN9DjP1tE4m8hPDUYxFVnH-L8VrNGK39FPQsdBR3iKxMpLcgu4zoq71hkEKPejEFXM2W4W8RGauUj2vG9qLHxuV0xSB4Vz3CHYoLRGZkf7_Qmo5N_Q1epGu89rEa9nE_ldYhkFcR7odW3AE-fvUyIAcQA14W_p5zZHWHHFvG7bp35lYKSVYklHSP1oh9o-5kTI8kX5m9iXq7K39I8x7ZAeLw9kzMuo4-Eie57soCTh-AH9_mZckYGHKo9VmqbJn1aPpSXu_E-TP-FhQeFtfmfwKfjQaFQ1qw==.eyJlbmRwb2ludF9zbHVnIjoib3BlbmFpL2dwdC01LTIwMjUtMDgtMDd8b3BlbmFpL2RlZmF1bHQifQ",
+              "format": "openai-responses-v1",
+              "id": "rs_026a4b8e502ccb8f016a8769744cb087d19056de302611d391",
+              "index": 1
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2326,
+      "completion_tokens": 1261,
+      "total_tokens": 3587,
+      "cost": 0.0155175,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0155175,
+        "upstream_inference_prompt_cost": 0.0029075,
+        "upstream_inference_completions_cost": 0.01261
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 1088,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/client.py\",\n    \"line\": 1514,\n    \"failure_mode\": \"The span creation call passes release=self._environment instead of the intended release value, causing the release attribute on that span to be set to the environment string.\",\n    \"impact\": \"Spans created in this branch will have incorrect release metadata, breaking filtering, grouping, or analytics that rely on accurate release identifiers.\",\n    \"suggested_fix\": \"Change the argument to use the correct release field: release=self._release.\"\n  }\n]"
+}

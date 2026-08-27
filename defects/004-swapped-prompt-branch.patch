@@ -1,0 +1,14 @@
+--- a/langfuse/openai.py
++++ b/langfuse/openai.py
+@@ -405,9 +405,9 @@
+     elif resource.object == "Responses" or resource.object == "AsyncResponses":
+         prompt = kwargs.get("input", None)
+     elif resource.type == "chat":
+-        prompt = _extract_chat_prompt(kwargs)
+-    elif resource.type == "embedding":
+         prompt = kwargs.get("input", None)
++    elif resource.type == "embedding":
++        prompt = _extract_chat_prompt(kwargs)
+
+     parsed_temperature = (
+         kwargs.get("temperature", 1)

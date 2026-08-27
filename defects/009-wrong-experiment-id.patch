@@ -1,0 +1,11 @@
+--- a/langfuse/_client/client.py
++++ b/langfuse/_client/client.py
+@@ -2676,7 +2676,7 @@
+             description=description,
+             item_results=valid_results,
+             run_evaluations=run_evaluations,
+-            experiment_id=dataset_run_id or shared_fallback_experiment_id,
++            experiment_id=shared_fallback_experiment_id,
+             dataset_run_id=dataset_run_id,
+             dataset_run_url=dataset_run_url,
+         )

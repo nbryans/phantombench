@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:05:10.564567+00:00",
+  "latency_seconds": 10.214,
+  "prompt_tokens": 1857,
+  "completion_tokens": 1066,
+  "total_tokens": 2923,
+  "raw_response": {
+    "id": "gen-1787259900-J9RFix5gIUoxsRCRkPAW",
+    "object": "chat.completion",
+    "created": 1787259900,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 542,\n    \"failure_mode\": \"The typo fix from `input_token_details` to `input_tokens_details` is correct, but the old, incorrect key `input_token_details` is not handled. This is a silent semantic change that breaks backward compatibility for any callers that might be passing usage data with the old key.\",\n    \"impact\": \"If any part of the system or its users are sending usage data with the old `input_token_details` or `output_token_details` keys, those details will no longer be processed (i.e., `None` values will not be stripped). This could lead to inconsistent data being logged or processed downstream.\",\n    \"suggested_fix\": \"To maintain backward compatibility, include both the old and new keys in the list of keys to process. This ensures that both formats are handled correctly during a transition period.\\n\\n```python\\n    for tokens_details in [\\n        \\\"prompt_tokens_details\\\",\\n        \\\"completion_tokens_details\\\",\\n        \\\"input_token_details\\\",  # old key\\n        \\\"input_tokens_details\\\", # new key\\n        \\\"output_token_details\\\", # old key\\n        \\\"output_tokens_details\\\",# new key\\n    ]:\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Code Changes**\n\nMy focus is on scrutinizing this Python diff with a senior engineer's eye, specifically for production-readiness. I'm drilling down into the granular details of each change, ensuring adherence to best practices and identifying any potential pitfalls before they surface in live environments. My aim is to deliver a concise, actionable report.\n\n**Reviewing Code Modifications**\n\nI'm currently examining a recent Python diff, honing in on production viability as a senior engineer would. My attention is directed towards the specific code alterations presented, aiming to ensure robust implementation and flag any potential issues. I'll summarize my findings clearly and concisely for you.\n\n**Validating Code Adjustments**\n\nI'm currently examining a recent Python diff, honing in on production viability as a senior engineer would. My attention is directed towards the specific code alterations presented, aiming to ensure robust implementation and flag any potential issues. I'll summarize my findings clearly and concisely for you.\n\n**Checking File Changes**\n\nMy review of the provided diff has been completed. I focused on ensuring the code is production-ready and aligns with best practices. My analysis of the changes is now complete, and I am prepared to present my findings.\n\n**Fixing Typo**\n\nI've reviewed the `langfuse/openai.py` diff and identified a critical typo fix. The change to `\"input_tokens_details\"` and `\"output_tokens_details\"` corrects an inconsistency, ensuring proper handling of token usage data that might otherwise have been missed. This appears to be a straightforward bug fix.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Code Changes**\n\nMy focus is on scrutinizing this Python diff with a senior engineer's eye, specifically for production-readiness. I'm drilling down into the granular details of each change, ensuring adherence to best practices and identifying any potential pitfalls before they surface in live environments. My aim is to deliver a concise, actionable report.\n\n**Reviewing Code Modifications**\n\nI'm currently examining a recent Python diff, honing in on production viability as a senior engineer would. My attention is directed towards the specific code alterations presented, aiming to ensure robust implementation and flag any potential issues. I'll summarize my findings clearly and concisely for you.\n\n**Validating Code Adjustments**\n\nI'm currently examining a recent Python diff, honing in on production viability as a senior engineer would. My attention is directed towards the specific code alterations presented, aiming to ensure robust implementation and flag any potential issues. I'll summarize my findings clearly and concisely for you.\n\n**Checking File Changes**\n\nMy review of the provided diff has been completed. I focused on ensuring the code is production-ready and aligns with best practices. My analysis of the changes is now complete, and I am prepared to present my findings.\n\n**Fixing Typo**\n\nI've reviewed the `langfuse/openai.py` diff and identified a critical typo fix. The change to `\"input_tokens_details\"` and `\"output_tokens_details\"` corrects an inconsistency, ensuring proper handling of token usage data that might otherwise have been missed. This appears to be a straightforward bug fix.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1857,
+      "completion_tokens": 1066,
+      "total_tokens": 2923,
+      "cost": 0.01298125,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.01298125,
+        "upstream_inference_prompt_cost": 0.00232125,
+        "upstream_inference_completions_cost": 0.01066
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 740,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"langfuse/openai.py\",\n    \"line\": 542,\n    \"failure_mode\": \"The typo fix from `input_token_details` to `input_tokens_details` is correct, but the old, incorrect key `input_token_details` is not handled. This is a silent semantic change that breaks backward compatibility for any callers that might be passing usage data with the old key.\",\n    \"impact\": \"If any part of the system or its users are sending usage data with the old `input_token_details` or `output_token_details` keys, those details will no longer be processed (i.e., `None` values will not be stripped). This could lead to inconsistent data being logged or processed downstream.\",\n    \"suggested_fix\": \"To maintain backward compatibility, include both the old and new keys in the list of keys to process. This ensures that both formats are handled correctly during a transition period.\\n\\n```python\\n    for tokens_details in [\\n        \\\"prompt_tokens_details\\\",\\n        \\\"completion_tokens_details\\\",\\n        \\\"input_token_details\\\",  # old key\\n        \\\"input_tokens_details\\\", # new key\\n        \\\"output_token_details\\\", # old key\\n        \\\"output_tokens_details\\\",# new key\\n    ]:\\n```\"\n  }\n]\n```"
+}

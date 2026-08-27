@@ -1,0 +1,23 @@
+id: "003"
+pr_number: 1614
+file: "langfuse/langchain/CallbackHandler.py"
+line_start: 1589
+line_end: 1589
+defect_class: "silent_semantic"
+summary: >
+  In _parse_usage_model's output_token_details loop, the per-detail
+  subtraction now decrements usage_model["input"] instead of
+  usage_model["output"], even though the guard still checks for
+  "output" in usage_model. Output-side detail counts (e.g. audio or
+  reasoning tokens nested under output_token_details) are silently
+  subtracted from the input token count instead of the output token
+  count, corrupting both numbers: output stays inflated by the
+  double-counted detail, and input is wrongly deflated by a value that
+  has nothing to do with it.
+detection_hint: >
+  A correct catch must name that the output_token_details subtraction
+  writes to usage_model["input"] instead of usage_model["output"],
+  producing wrong input AND output token totals for any usage payload
+  that includes output-side token detail breakdowns — not merely note
+  that the max(0, ...) clamp pattern "looks the same as the input
+  branch above it."

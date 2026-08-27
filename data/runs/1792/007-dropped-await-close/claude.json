@@ -1,0 +1,66 @@
+{
+  "model_id": "claude",
+  "model": "anthropic/claude-sonnet-4.5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:01:52.012777+00:00",
+  "latency_seconds": 13.611,
+  "prompt_tokens": 4184,
+  "completion_tokens": 687,
+  "total_tokens": 4871,
+  "raw_response": {
+    "id": "gen-1787259698-PxeMHaGUYg6yQRXDTgjY",
+    "object": "chat.completion",
+    "created": 1787259698,
+    "model": "anthropic/claude-sonnet-4.5",
+    "provider": "Amazon Bedrock",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "end_turn",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 737,\n    \"failure_mode\": \"The async method `_close_generator()` is called without `await`, creating a coroutine object that never executes. The generator will not be closed, and cleanup code in the generator's `finally` block will not run in the preserved context as intended.\",\n    \"impact\": \"Generator cleanup logic (like resource cleanup in `finally` blocks) will be deferred to garbage collection time instead of running immediately in the correct context. This can cause resource leaks, incorrect context variable values during cleanup, and unpredictable cleanup timing.\",\n    \"suggested_fix\": \"Change line 737 from `self._close_generator()` to `await self._close_generator()`\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "Let me analyze this diff carefully for production-worthy issues.\n\nThe diff is modifying async generator wrapper code in `langfuse/_client/observe.py`. Key changes:\n\n1. Added a version check for Python 3.11+ for asyncio.create_task context support\n2. Modified `_ContextPreservedSyncGeneratorWrapper.close()` to call `self.generator.close()` after span ended\n3. Added `_pending_error` attribute to track deferred errors\n4. Added `_generator_never_resumed()` method to check generator state\n5. Changed `aclose()` to call `_close_generator()` and handle pending errors\n6. Split exception handling in `__anext__()` to treat CancelledError differently\n7. Various test additions\n\nLet me look for bugs:\n\n1. In `aclose()` method around line 737: `self._close_generator()` is called without `await`. This is a bug - it's an async method but not being awaited.\n\n2. The `_close_generator()` method is async but in `aclose()` line 737, it's called without await.\n\nLooking more carefully at line 737:\n```python\ntry:\n    self._close_generator()\n```\n\nThis should be `await self._close_generator()` since `_close_generator` is defined as async.\n\nThis is a blocking severity bug - calling an async function without await will create a coroutine that never runs, and the generator won't actually be closed.\n\nLet me check for other issues...\n\n3. The version check `_ASYNCIO_CREATE_TASK_SUPPORTS_CONTEXT = sys.version_info >= (3, 11)` is used, but the fallback code creates tasks differently. This looks correct.\n\n4. The `_generator_never_resumed()` fallback for Python < 3.12 looks reasonable.\n\n5. Looking at exception handling - CancelledError is now handled separately, and there's logic to defer span end. This seems intentional.\nThe critical issue here is the missing `await` on line 737 when calling `_close_generator()`. Since it's an async method, not awaiting it means the coroutine never executes and the generator cleanup never happens\u2014this would cause resource leaks and incorrect span lifecycle management in production.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Let me analyze this diff carefully for production-worthy issues.\n\nThe diff is modifying async generator wrapper code in `langfuse/_client/observe.py`. Key changes:\n\n1. Added a version check for Python 3.11+ for asyncio.create_task context support\n2. Modified `_ContextPreservedSyncGeneratorWrapper.close()` to call `self.generator.close()` after span ended\n3. Added `_pending_error` attribute to track deferred errors\n4. Added `_generator_never_resumed()` method to check generator state\n5. Changed `aclose()` to call `_close_generator()` and handle pending errors\n6. Split exception handling in `__anext__()` to treat CancelledError differently\n7. Various test additions\n\nLet me look for bugs:\n\n1. In `aclose()` method around line 737: `self._close_generator()` is called without `await`. This is a bug - it's an async method but not being awaited.\n\n2. The `_close_generator()` method is async but in `aclose()` line 737, it's called without await.\n\nLooking more carefully at line 737:\n```python\ntry:\n    self._close_generator()\n```\n\nThis should be `await self._close_generator()` since `_close_generator` is defined as async.\n\nThis is a blocking severity bug - calling an async function without await will create a coroutine that never runs, and the generator won't actually be closed.\n\nLet me check for other issues...\n\n3. The version check `_ASYNCIO_CREATE_TASK_SUPPORTS_CONTEXT = sys.version_info >= (3, 11)` is used, but the fallback code creates tasks differently. This looks correct.\n\n4. The `_generator_never_resumed()` fallback for Python < 3.12 looks reasonable.\n\n5. Looking at exception handling - CancelledError is now handled separately, and there's logic to defer span end. This seems intentional.\nThe critical issue here is the missing `await` on line 737 when calling `_close_generator()`. Since it's an async method, not awaiting it means the coroutine never executes and the generator cleanup never happens\u2014this would cause resource leaks and incorrect span lifecycle management in production.",
+              "format": "anthropic-claude-v1",
+              "index": 0,
+              "signature": "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"
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 4184,
+      "completion_tokens": 687,
+      "total_tokens": 4871,
+      "cost": 0.022857,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.022857,
+        "upstream_inference_prompt_cost": 0.012552,
+        "upstream_inference_completions_cost": 0.010305
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 481,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/observe.py\",\n    \"line\": 737,\n    \"failure_mode\": \"The async method `_close_generator()` is called without `await`, creating a coroutine object that never executes. The generator will not be closed, and cleanup code in the generator's `finally` block will not run in the preserved context as intended.\",\n    \"impact\": \"Generator cleanup logic (like resource cleanup in `finally` blocks) will be deferred to garbage collection time instead of running immediately in the correct context. This can cause resource leaks, incorrect context variable values during cleanup, and unpredictable cleanup timing.\",\n    \"suggested_fix\": \"Change line 737 from `self._close_generator()` to `await self._close_generator()`\"\n  }\n]\n```"
+}

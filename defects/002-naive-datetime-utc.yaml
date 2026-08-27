@@ -1,0 +1,20 @@
+id: "002"
+pr_number: 1577
+file: "langfuse/_utils/serializer.py"
+line_start: 218
+line_end: 218
+defect_class: "silent_semantic"
+summary: >
+  serialize_datetime's naive-datetime branch now stamps missing tzinfo as
+  UTC (dt.timezone.utc) instead of the host's local timezone
+  (dt.datetime.now().astimezone().tzinfo). Every naive datetime passed into
+  the serializer is silently reinterpreted as UTC, shifting its serialized
+  wall-clock value by the server's UTC offset whenever the server is not
+  itself running in UTC. The bug is invisible on a UTC host and in any test
+  that doesn't assert the numeric offset.
+detection_hint: >
+  A correct catch must state that naive datetimes are now assumed to be UTC
+  rather than local time, and that this silently shifts the serialized
+  timestamp by the server's UTC offset on any non-UTC host — not merely
+  observe that the tzinfo assignment changed or that "timezone handling"
+  was touched.

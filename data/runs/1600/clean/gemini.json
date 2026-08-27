@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T21:08:11.203429+00:00",
+  "latency_seconds": 12.495,
+  "prompt_tokens": 3132,
+  "completion_tokens": 1278,
+  "total_tokens": 4410,
+  "raw_response": {
+    "id": "gen-1787260078-FooBZaGBq6xNsxzNb2Jj",
+    "object": "chat.completion",
+    "created": 1787260078,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"tests/test_propagate_attributes.py\",\n    \"line\": 2508,\n    \"failure_mode\": \"The mock for `langfuse_client.api.dataset_run_items.create` is synchronous, but the method it replaces is asynchronous in the actual client implementation.\",\n    \"impact\": \"The test `test_experiment_attributes_propagate_with_dataset` passes with a synchronous mock, but it may fail or behave unexpectedly in a real environment where an `await` is required. This makes the test an unreliable indicator of production behavior for dataset-based experiments.\",\n    \"suggested_fix\": \"Convert the mock function to an `async def` function to correctly match the signature of the method it is mocking. This ensures the test accurately reflects the asynchronous nature of the API call.\\n\\n```python\\n# In tests/test_propagate_attributes.py\\n\\n        # Mock the API used by run_experiment to create dataset run items\\n        async def mock_create_dataset_run_item(*args, **kwargs):\\n            from langfuse.api import DatasetRunItem\\n            from datetime import datetime\\n\\n            return DatasetRunItem(\\n                id=\\\"mock-run-item-id\\\",\\n                dataset_run_id=\\\"mock-dataset-run-id-123\\\",\\n                dataset_run_name=kwargs.get(\\\"run_name\\\", \\\"Dataset Test\\\"),\\n                dataset_item_id=kwargs.get(\\\"dataset_item_id\\\", \\\"mock-item-id\\\"),\\n                trace_id=\\\"mock-trace-id\\\",\\n                observation_id=kwargs.get(\\\"observation_id\\\"),\\n                created_at=datetime.now(),\\n                updated_at=datetime.now(),\\n            )\\n\\n        monkeypatch.setattr(\\n            langfuse_client.api.dataset_run_items,\\n            \\\"create\\\",\\n            mock_create_dataset_run_item,\\n        )\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Pull Request**\n\nI am currently reviewing the provided pull request, specifically scrutinizing it for potential production-level defects. My focus is on ensuring correctness, identifying any broken contracts, assessing security implications, and examining concurrency or silent semantic changes. I'm prioritizing findings that could lead to actual bugs, rather than stylistic issues.\n\n**Confirming Experiment ID Logic**\n\nI'm validating the logic for generating and propagating a stable `experiment_id` across all items within an experiment run. My current focus is on the `client.py` file, specifically how a `shared_fallback_experiment_id` is created early in the `_run_experiment_async` function.\n\n**Validating ID Propagation**\n\nI'm ensuring the `experiment_id` correctly propagates as intended. Specifically, I'm verifying that the fallback ID generation and its use within `_run_experiment_async` align with the intended stable identifier for local experiment runs. The logic for handling `dataset_run_id` appears more robust now.\n\n**Refining Experiment ID Logic**\n\nI'm continuing to refine the handling of experiment IDs, particularly focusing on the `client.py` file. I've observed that the logic for establishing a stable `experiment_id` and its fallback mechanism within the `_run_experiment_async` function appears sound for local experiment runs.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Pull Request**\n\nI am currently reviewing the provided pull request, specifically scrutinizing it for potential production-level defects. My focus is on ensuring correctness, identifying any broken contracts, assessing security implications, and examining concurrency or silent semantic changes. I'm prioritizing findings that could lead to actual bugs, rather than stylistic issues.\n\n**Confirming Experiment ID Logic**\n\nI'm validating the logic for generating and propagating a stable `experiment_id` across all items within an experiment run. My current focus is on the `client.py` file, specifically how a `shared_fallback_experiment_id` is created early in the `_run_experiment_async` function.\n\n**Validating ID Propagation**\n\nI'm ensuring the `experiment_id` correctly propagates as intended. Specifically, I'm verifying that the fallback ID generation and its use within `_run_experiment_async` align with the intended stable identifier for local experiment runs. The logic for handling `dataset_run_id` appears more robust now.\n\n**Refining Experiment ID Logic**\n\nI'm continuing to refine the handling of experiment IDs, particularly focusing on the `client.py` file. I've observed that the logic for establishing a stable `experiment_id` and its fallback mechanism within the `_run_experiment_async` function appears sound for local experiment runs.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3132,
+      "completion_tokens": 1278,
+      "total_tokens": 4410,
+      "cost": 0.016695,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.016695,
+        "upstream_inference_prompt_cost": 0.003915,
+        "upstream_inference_completions_cost": 0.01278
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 799,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"tests/test_propagate_attributes.py\",\n    \"line\": 2508,\n    \"failure_mode\": \"The mock for `langfuse_client.api.dataset_run_items.create` is synchronous, but the method it replaces is asynchronous in the actual client implementation.\",\n    \"impact\": \"The test `test_experiment_attributes_propagate_with_dataset` passes with a synchronous mock, but it may fail or behave unexpectedly in a real environment where an `await` is required. This makes the test an unreliable indicator of production behavior for dataset-based experiments.\",\n    \"suggested_fix\": \"Convert the mock function to an `async def` function to correctly match the signature of the method it is mocking. This ensures the test accurately reflects the asynchronous nature of the API call.\\n\\n```python\\n# In tests/test_propagate_attributes.py\\n\\n        # Mock the API used by run_experiment to create dataset run items\\n        async def mock_create_dataset_run_item(*args, **kwargs):\\n            from langfuse.api import DatasetRunItem\\n            from datetime import datetime\\n\\n            return DatasetRunItem(\\n                id=\\\"mock-run-item-id\\\",\\n                dataset_run_id=\\\"mock-dataset-run-id-123\\\",\\n                dataset_run_name=kwargs.get(\\\"run_name\\\", \\\"Dataset Test\\\"),\\n                dataset_item_id=kwargs.get(\\\"dataset_item_id\\\", \\\"mock-item-id\\\"),\\n                trace_id=\\\"mock-trace-id\\\",\\n                observation_id=kwargs.get(\\\"observation_id\\\"),\\n                created_at=datetime.now(),\\n                updated_at=datetime.now(),\\n            )\\n\\n        monkeypatch.setattr(\\n            langfuse_client.api.dataset_run_items,\\n            \\\"create\\\",\\n            mock_create_dataset_run_item,\\n        )\\n```\"\n  }\n]\n```"
+}

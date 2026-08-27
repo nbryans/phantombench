@@ -1,0 +1,176 @@
+diff --git a/langfuse/_client/client.py b/langfuse/_client/client.py
+index 8a241b463..11c3ecc1f 100644
+--- a/langfuse/_client/client.py
++++ b/langfuse/_client/client.py
+@@ -1786,7 +1786,9 @@ def create_score(
+         trace_id: Optional[str] = None,
+         score_id: Optional[str] = None,
+         observation_id: Optional[str] = None,
+-        data_type: Optional[Literal["CATEGORICAL", "TEXT"]] = "CATEGORICAL",
++        data_type: Optional[
++            Literal["CATEGORICAL", "TEXT", "CORRECTION"]
++        ] = "CATEGORICAL",
+         comment: Optional[str] = None,
+         config_id: Optional[str] = None,
+         metadata: Optional[Any] = None,
+@@ -1816,13 +1818,13 @@ def create_score(
+ 
+         Args:
+             name: Name of the score (e.g., "relevance", "accuracy")
+-            value: Score value (can be numeric for NUMERIC/BOOLEAN types or string for CATEGORICAL/TEXT)
++            value: Score value (can be numeric for NUMERIC/BOOLEAN types or string for CATEGORICAL/TEXT/CORRECTION)
+             session_id: ID of the Langfuse session to associate the score with
+             dataset_run_id: ID of the Langfuse dataset run to associate the score with
+             trace_id: ID of the Langfuse trace to associate the score with
+             observation_id: Optional ID of the specific observation to score. Trace ID must be provided too.
+             score_id: Optional custom ID for the score (auto-generated if not provided)
+-            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, or TEXT)
++            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, TEXT, or CORRECTION)
+             comment: Optional comment or explanation for the score
+             config_id: Optional ID of a score config defined in Langfuse
+             metadata: Optional metadata to be attached to the score
+@@ -1946,7 +1948,9 @@ def score_current_span(
+         name: str,
+         value: str,
+         score_id: Optional[str] = None,
+-        data_type: Optional[Literal["CATEGORICAL", "TEXT"]] = "CATEGORICAL",
++        data_type: Optional[
++            Literal["CATEGORICAL", "TEXT", "CORRECTION"]
++        ] = "CATEGORICAL",
+         comment: Optional[str] = None,
+         config_id: Optional[str] = None,
+         metadata: Optional[Any] = None,
+@@ -1970,9 +1974,9 @@ def score_current_span(
+ 
+         Args:
+             name: Name of the score (e.g., "relevance", "accuracy")
+-            value: Score value (can be numeric for NUMERIC/BOOLEAN types or string for CATEGORICAL/TEXT)
++            value: Score value (can be numeric for NUMERIC/BOOLEAN types or string for CATEGORICAL/TEXT/CORRECTION)
+             score_id: Optional custom ID for the score (auto-generated if not provided)
+-            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, or TEXT)
++            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, TEXT, or CORRECTION)
+             comment: Optional comment or explanation for the score
+             config_id: Optional ID of a score config defined in Langfuse
+             metadata: Optional metadata to be attached to the score
+@@ -2010,7 +2014,7 @@ def score_current_span(
+                 name=name,
+                 value=cast(str, value),
+                 score_id=score_id,
+-                data_type=cast(Literal["CATEGORICAL", "TEXT"], data_type),
++                data_type=cast(Literal["CATEGORICAL", "TEXT", "CORRECTION"], data_type),
+                 comment=comment,
+                 config_id=config_id,
+                 metadata=metadata,
+@@ -2036,7 +2040,9 @@ def score_current_trace(
+         name: str,
+         value: str,
+         score_id: Optional[str] = None,
+-        data_type: Optional[Literal["CATEGORICAL", "TEXT"]] = "CATEGORICAL",
++        data_type: Optional[
++            Literal["CATEGORICAL", "TEXT", "CORRECTION"]
++        ] = "CATEGORICAL",
+         comment: Optional[str] = None,
+         config_id: Optional[str] = None,
+         metadata: Optional[Any] = None,
+@@ -2061,9 +2067,9 @@ def score_current_trace(
+ 
+         Args:
+             name: Name of the score (e.g., "user_satisfaction", "overall_quality")
+-            value: Score value (can be numeric for NUMERIC/BOOLEAN types or string for CATEGORICAL/TEXT)
++            value: Score value (can be numeric for NUMERIC/BOOLEAN types or string for CATEGORICAL/TEXT/CORRECTION)
+             score_id: Optional custom ID for the score (auto-generated if not provided)
+-            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, or TEXT)
++            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, TEXT, or CORRECTION)
+             comment: Optional comment or explanation for the score
+             config_id: Optional ID of a score config defined in Langfuse
+             metadata: Optional metadata to be attached to the score
+@@ -2099,7 +2105,7 @@ def score_current_trace(
+                 name=name,
+                 value=cast(str, value),
+                 score_id=score_id,
+-                data_type=cast(Literal["CATEGORICAL", "TEXT"], data_type),
++                data_type=cast(Literal["CATEGORICAL", "TEXT", "CORRECTION"], data_type),
+                 comment=comment,
+                 config_id=config_id,
+                 metadata=metadata,
+diff --git a/langfuse/_client/span.py b/langfuse/_client/span.py
+index bd0c638a7..c3d291b3a 100644
+--- a/langfuse/_client/span.py
++++ b/langfuse/_client/span.py
+@@ -308,7 +308,9 @@ def score(
+         value: str,
+         score_id: Optional[str] = None,
+         data_type: Optional[
+-            Literal[ScoreDataType.CATEGORICAL, ScoreDataType.TEXT]
++            Literal[
++                ScoreDataType.CATEGORICAL, ScoreDataType.TEXT, ScoreDataType.CORRECTION
++            ]
+         ] = ScoreDataType.CATEGORICAL,
+         comment: Optional[str] = None,
+         config_id: Optional[str] = None,
+@@ -335,9 +337,9 @@ def score(
+ 
+         Args:
+             name: Name of the score (e.g., "relevance", "accuracy")
+-            value: Score value (numeric for NUMERIC/BOOLEAN, string for CATEGORICAL/TEXT)
++            value: Score value (numeric for NUMERIC/BOOLEAN, string for CATEGORICAL/TEXT/CORRECTION)
+             score_id: Optional custom ID for the score (auto-generated if not provided)
+-            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, or TEXT)
++            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, TEXT, or CORRECTION)
+             comment: Optional comment or explanation for the score
+             config_id: Optional ID of a score config defined in Langfuse
+             timestamp: Optional timestamp for the score (defaults to current UTC time)
+@@ -364,7 +366,7 @@ def score(
+             trace_id=self.trace_id,
+             observation_id=self.id,
+             score_id=score_id,
+-            data_type=cast(Literal["CATEGORICAL", "TEXT"], data_type),
++            data_type=cast(Literal["CATEGORICAL", "TEXT", "CORRECTION"], data_type),
+             comment=comment,
+             config_id=config_id,
+             timestamp=timestamp,
+@@ -395,7 +397,9 @@ def score_trace(
+         value: str,
+         score_id: Optional[str] = None,
+         data_type: Optional[
+-            Literal[ScoreDataType.CATEGORICAL, ScoreDataType.TEXT]
++            Literal[
++                ScoreDataType.CATEGORICAL, ScoreDataType.TEXT, ScoreDataType.CORRECTION
++            ]
+         ] = ScoreDataType.CATEGORICAL,
+         comment: Optional[str] = None,
+         config_id: Optional[str] = None,
+@@ -423,9 +427,9 @@ def score_trace(
+ 
+         Args:
+             name: Name of the score (e.g., "user_satisfaction", "overall_quality")
+-            value: Score value (numeric for NUMERIC/BOOLEAN, string for CATEGORICAL/TEXT)
++            value: Score value (numeric for NUMERIC/BOOLEAN, string for CATEGORICAL/TEXT/CORRECTION)
+             score_id: Optional custom ID for the score (auto-generated if not provided)
+-            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, or TEXT)
++            data_type: Type of score (NUMERIC, BOOLEAN, CATEGORICAL, TEXT, or CORRECTION)
+             comment: Optional comment or explanation for the score
+             config_id: Optional ID of a score config defined in Langfuse
+             timestamp: Optional timestamp for the score (defaults to current UTC time)
+@@ -451,7 +455,7 @@ def score_trace(
+             value=cast(str, value),
+             trace_id=self.trace_id,
+             score_id=score_id,
+-            data_type=cast(Literal["CATEGORICAL", "TEXT"], data_type),
++            data_type=cast(Literal["CATEGORICAL", "TEXT", "CORRECTION"], data_type),
+             comment=comment,
+             config_id=config_id,
+             timestamp=timestamp,
+diff --git a/langfuse/types.py b/langfuse/types.py
+index c3029e713..0cb41db93 100644
+--- a/langfuse/types.py
++++ b/langfuse/types.py
+@@ -35,7 +35,7 @@ def my_evaluator(*, output: str, **kwargs) -> Evaluation:
+ 
+ SpanLevel = Literal["DEBUG", "DEFAULT", "WARNING", "ERROR"]
+ 
+-ScoreDataType = Literal["NUMERIC", "CATEGORICAL", "BOOLEAN", "TEXT"]
++ScoreDataType = Literal["NUMERIC", "CATEGORICAL", "BOOLEAN", "TEXT", "CORRECTION"]
+ 
+ # Text scores are not supported for evals and experiments
+ ExperimentScoreType = Literal["NUMERIC", "CATEGORICAL", "BOOLEAN"]

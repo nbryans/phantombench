@@ -1,0 +1,29 @@
+{
+  "number": 1792,
+  "title": "fix(observe): defer span end when a cancellation never resumed the generator",
+  "url": "https://github.com/langfuse/langfuse-python/pull/1792",
+  "base_sha": "38ee9023df2afe53c9ae7b98570ec92bd102cbba",
+  "head_sha": "1a2d7ac48a8b9dcfaa35e1e9bd4bf2f7758fec88",
+  "merged_at": "2026-07-30T08:42:32Z",
+  "additions": 259,
+  "deletions": 22,
+  "changed_lines": 281,
+  "changed_files_count": 2,
+  "files": [
+    {
+      "path": "langfuse/_client/observe.py",
+      "status": "modified",
+      "additions": 50,
+      "deletions": 14,
+      "is_source": true
+    },
+    {
+      "path": "tests/unit/test_observe.py",
+      "status": "modified",
+      "additions": 209,
+      "deletions": 8,
+      "is_source": true
+    }
+  ],
+  "scraped_at": "2026-08-19T22:51:23.554514+00:00"
+}

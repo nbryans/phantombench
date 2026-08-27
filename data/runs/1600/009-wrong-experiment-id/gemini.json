@@ -1,0 +1,65 @@
+{
+  "model_id": "gemini",
+  "model": "google/gemini-2.5-pro",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:57:26.150064+00:00",
+  "latency_seconds": 15.259,
+  "prompt_tokens": 2876,
+  "completion_tokens": 1470,
+  "total_tokens": 4346,
+  "raw_response": {
+    "id": "gen-1787259430-CQscea4ODnAzkkE3JQzR",
+    "object": "chat.completion",
+    "created": 1787259430,
+    "model": "google/gemini-2.5-pro",
+    "provider": "Google",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "STOP",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/client.py\",\n    \"line\": 2669,\n    \"failure_mode\": \"The `experiment_id` returned in the `Experiment` result object is always the SDK-generated fallback ID, even when running an experiment on a Langfuse dataset which has its own `dataset_run_id`.\",\n    \"impact\": \"Callers running experiments on Langfuse datasets will receive an incorrect `experiment_id` in the final result object. This breaks the documented contract that `experiment_id` should match `dataset_run_id` for dataset-backed experiments, leading to data inconsistency and potential issues for users relying on this ID to correlate results.\",\n    \"suggested_fix\": \"Determine the correct `experiment_id` to return based on whether a `dataset_run_id` was found, similar to how `experiment_id` is determined for individual items.\\n\\n```python\\n# In langfuse/_client/client.py, around line 2669\\n\\nfinal_experiment_id = dataset_run_id or shared_fallback_experiment_id\\n\\nreturn Experiment(\\n    name=name,\\n    run_name=run_name,\\n    description=description,\\n    item_results=valid_results,\\n    run_evaluations=run_evaluations,\\n    experiment_id=final_experiment_id,\\n    dataset_run_id=dataset_run_id,\\n    dataset_run_url=dataset_run_url,\\n)\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"tests/test_propagate_attributes.py\",\n    \"line\": 2507,\n    \"failure_mode\": \"The test `test_experiment_attributes_propagate_with_dataset` mocks the synchronous `langfuse_client.api.dataset_run_items.create` method, but the code under test (`_run_experiment_item`) calls the asynchronous `langfuse_client.async_api.dataset_run_items.create` method.\",\n    \"impact\": \"The mock is never called, causing the test to rely on the real API behavior for creating dataset run items, which is likely not what was intended. This makes the test less isolated and potentially flaky or incorrect if the real API call fails or returns unexpected data. The test passes by coincidence because the `dataset_run_id` is hardcoded in the mock return value, and this is the only value checked in assertions.\",\n    \"suggested_fix\": \"Change the mock to target the correct asynchronous API client that is actually used by the experiment running logic.\\n\\n```python\\n# In tests/test_propagate_attributes.py, line 2507\\n\\n        monkeypatch.setattr(\\n            langfuse_client.async_api.dataset_run_items,\\n            \\\"create\\\",\\n            mock_create_dataset_run_item,\\n        )\\n```\"\n  }\n]\n```",
+          "refusal": null,
+          "reasoning": "**Analyzing Pull Request**\n\nI am currently reviewing the provided pull request, specifically scrutinizing it for potential production-level defects. My focus is on ensuring correctness, identifying any broken contracts, assessing security implications, and examining concurrency or silent semantic changes. I'm prioritizing findings that could lead to actual bugs, rather than stylistic issues.\n\n**Generating Experiment IDs**\n\nI am currently focusing on how experiment IDs are generated and assigned within the `run_experiment` function. My aim is to ensure a stable and consistent `experiment_id` is established for local experiments, preventing potential issues with tracking and attribution.\n\n**Generating Experiment IDs**\n\nI am refining the logic for how `experiment_id` is managed within the `run_experiment` function, particularly focusing on ensuring a consistent identifier for local runs. The changes made to propagate this ID to `_run_experiment_item` appear sound and address a potential previous fragility in identifying `dataset_run_id`.\n\n**Refining Experiment ID Logic**\n\nI'm continuing to refine the generation and propagation of `experiment_id` within `run_experiment`. The current iteration seems to solidify a stable ID for local experiments, ensuring it correctly feeds into `_run_experiment_item` and is captured in the `Experiment` result.\n\n",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "**Analyzing Pull Request**\n\nI am currently reviewing the provided pull request, specifically scrutinizing it for potential production-level defects. My focus is on ensuring correctness, identifying any broken contracts, assessing security implications, and examining concurrency or silent semantic changes. I'm prioritizing findings that could lead to actual bugs, rather than stylistic issues.\n\n**Generating Experiment IDs**\n\nI am currently focusing on how experiment IDs are generated and assigned within the `run_experiment` function. My aim is to ensure a stable and consistent `experiment_id` is established for local experiments, preventing potential issues with tracking and attribution.\n\n**Generating Experiment IDs**\n\nI am refining the logic for how `experiment_id` is managed within the `run_experiment` function, particularly focusing on ensuring a consistent identifier for local runs. The changes made to propagate this ID to `_run_experiment_item` appear sound and address a potential previous fragility in identifying `dataset_run_id`.\n\n**Refining Experiment ID Logic**\n\nI'm continuing to refine the generation and propagation of `experiment_id` within `run_experiment`. The current iteration seems to solidify a stable ID for local experiments, ensuring it correctly feeds into `_run_experiment_item` and is captured in the `Experiment` result.\n\n",
+              "format": "google-gemini-v1",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2876,
+      "completion_tokens": 1470,
+      "total_tokens": 4346,
+      "cost": 0.018295,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.018295,
+        "upstream_inference_prompt_cost": 0.003595,
+        "upstream_inference_completions_cost": 0.0147
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 781,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "```json\n[\n  {\n    \"severity\": \"blocking\",\n    \"file\": \"langfuse/_client/client.py\",\n    \"line\": 2669,\n    \"failure_mode\": \"The `experiment_id` returned in the `Experiment` result object is always the SDK-generated fallback ID, even when running an experiment on a Langfuse dataset which has its own `dataset_run_id`.\",\n    \"impact\": \"Callers running experiments on Langfuse datasets will receive an incorrect `experiment_id` in the final result object. This breaks the documented contract that `experiment_id` should match `dataset_run_id` for dataset-backed experiments, leading to data inconsistency and potential issues for users relying on this ID to correlate results.\",\n    \"suggested_fix\": \"Determine the correct `experiment_id` to return based on whether a `dataset_run_id` was found, similar to how `experiment_id` is determined for individual items.\\n\\n```python\\n# In langfuse/_client/client.py, around line 2669\\n\\nfinal_experiment_id = dataset_run_id or shared_fallback_experiment_id\\n\\nreturn Experiment(\\n    name=name,\\n    run_name=run_name,\\n    description=description,\\n    item_results=valid_results,\\n    run_evaluations=run_evaluations,\\n    experiment_id=final_experiment_id,\\n    dataset_run_id=dataset_run_id,\\n    dataset_run_url=dataset_run_url,\\n)\\n```\"\n  },\n  {\n    \"severity\": \"should-fix\",\n    \"file\": \"tests/test_propagate_attributes.py\",\n    \"line\": 2507,\n    \"failure_mode\": \"The test `test_experiment_attributes_propagate_with_dataset` mocks the synchronous `langfuse_client.api.dataset_run_items.create` method, but the code under test (`_run_experiment_item`) calls the asynchronous `langfuse_client.async_api.dataset_run_items.create` method.\",\n    \"impact\": \"The mock is never called, causing the test to rely on the real API behavior for creating dataset run items, which is likely not what was intended. This makes the test less isolated and potentially flaky or incorrect if the real API call fails or returns unexpected data. The test passes by coincidence because the `dataset_run_id` is hardcoded in the mock return value, and this is the only value checked in assertions.\",\n    \"suggested_fix\": \"Change the mock to target the correct asynchronous API client that is actually used by the experiment running logic.\\n\\n```python\\n# In tests/test_propagate_attributes.py, line 2507\\n\\n        monkeypatch.setattr(\\n            langfuse_client.async_api.dataset_run_items,\\n            \\\"create\\\",\\n            mock_create_dataset_run_item,\\n        )\\n```\"\n  }\n]\n```"
+}

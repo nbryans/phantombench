@@ -1,0 +1,72 @@
+{
+  "model_id": "gpt",
+  "model": "openai/gpt-5",
+  "provider": "openrouter",
+  "timestamp": "2026-08-20T20:53:23.374579+00:00",
+  "latency_seconds": 10.641,
+  "prompt_tokens": 987,
+  "completion_tokens": 661,
+  "total_tokens": 1648,
+  "raw_response": {
+    "id": "gen-1787259193-SIP928OXR2EXwMercRYb",
+    "object": "chat.completion",
+    "created": 1787259193,
+    "model": "openai/gpt-5",
+    "provider": "OpenAI",
+    "system_fingerprint": null,
+    "service_tier": "default",
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "completed",
+        "message": {
+          "role": "assistant",
+          "content": "[]",
+          "refusal": null,
+          "reasoning": "**Reviewing serializer changes**\n\nI need to look into the changes made in `serializer._default_inner`. Previously, for Pydantic BaseModel objects, it returned `obj.model_dump()`, but now it uses `self.default(obj.model_dump())` to handle nested non-finite floats. I'm considering possible issues with recursion; will `self.default` call the `default()` encoder properly? It looks like there's a custom serializer with a `default` method, though calling `self.default` on a plain dict might end up with a TypeError. However, the tests seem to pass, indicating that encoding works correctly.**Assessing recursion issues**\n\nI need to evaluate potential infinite recursion with `default(obj.model_dump())`. Since it treats the dict as serializable through the standard encoder, `default` might not be called. However, they explicitly invoke `self.default`, which suggests it\u2019s a recursive conversion function, making it likely safe to feed a dict. There might be a double-processing issue with BaseModel, but model_rebuild is okay. I\u2019m also considering performance concerns due to double traversal. Lastly, I need to determine the correct line numbers for the new file based on the diff provided.**Determining line numbers and risks**\n\nI'm looking at the changed return line, and it seems to land around line 140. We need an exact integer, so maybe we should assume it\u2019s at line 142 where `return self.default(obj.model_dump())` is. That feels risky, though. I\u2019m wondering if we really should draw conclusions without actual defects present. One possible issue is that passing a dict to `self.default` could lead it to return unchanged. However, the comment suggests that `default` handles dicts correctly. The added test supports this, and I don't see security issues cropping up.**Evaluating silent semantic changes**\n\nI'm noting that the recent changes might coerce other types, like decimals, instead of relying on the JSON encoder. Previously, the JSON encoder also needed a default for non-serializable types, which suggests it used a higher-level approach. The `serializer.encode` likely incorporates this default as well, but I\u2019m not seeing any findings that indicate a defect. It's crucial to be strict and only report meaningful defects. The tests seem to show the intended behavior, so I\u2019ll return an empty array.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.summary",
+              "summary": "**Reviewing serializer changes**\n\nI need to look into the changes made in `serializer._default_inner`. Previously, for Pydantic BaseModel objects, it returned `obj.model_dump()`, but now it uses `self.default(obj.model_dump())` to handle nested non-finite floats. I'm considering possible issues with recursion; will `self.default` call the `default()` encoder properly? It looks like there's a custom serializer with a `default` method, though calling `self.default` on a plain dict might end up with a TypeError. However, the tests seem to pass, indicating that encoding works correctly.**Assessing recursion issues**\n\nI need to evaluate potential infinite recursion with `default(obj.model_dump())`. Since it treats the dict as serializable through the standard encoder, `default` might not be called. However, they explicitly invoke `self.default`, which suggests it\u2019s a recursive conversion function, making it likely safe to feed a dict. There might be a double-processing issue with BaseModel, but model_rebuild is okay. I\u2019m also considering performance concerns due to double traversal. Lastly, I need to determine the correct line numbers for the new file based on the diff provided.**Determining line numbers and risks**\n\nI'm looking at the changed return line, and it seems to land around line 140. We need an exact integer, so maybe we should assume it\u2019s at line 142 where `return self.default(obj.model_dump())` is. That feels risky, though. I\u2019m wondering if we really should draw conclusions without actual defects present. One possible issue is that passing a dict to `self.default` could lead it to return unchanged. However, the comment suggests that `default` handles dicts correctly. The added test supports this, and I don't see security issues cropping up.**Evaluating silent semantic changes**\n\nI'm noting that the recent changes might coerce other types, like decimals, instead of relying on the JSON encoder. Previously, the JSON encoder also needed a default for non-serializable types, which suggests it used a higher-level approach. The `serializer.encode` likely incorporates this default as well, but I\u2019m not seeing any findings that indicate a defect. It's crucial to be strict and only report meaningful defects. The tests seem to show the intended behavior, so I\u2019ll return an empty array.",
+              "format": "openai-responses-v1",
+              "index": 0
+            },
+            {
+              "type": "reasoning.encrypted",
+              "data": "gAAAAABqh2lDlahNNnPFoT-SZlZ5PiJ5vyFv8LTmhqRAQhgBiRUOa-BqtgQIE3E0DC3QP12zfFHrmRXExTOJ-j5wLed6UnNMQscIgrXc9DyZY1rAeN5qmbDepwDfnzbABU7DXgoiEGTmCGz11x9J5Qm1YbJr1JcCjJ1abnA4FZvnlrF2dUDrcYk856gwaPYGwUY_CmarWTa4Ze9YfHKNTBnshPWJk1dPBl76eWAbyTDG2QU8WSYZ0mWd8XGgFSUahSFh9QxCTFVtY92LxbDoPf253cZgWzpXngU87UnnraeT6kuJBGhDnjPr0_k-V7rPmU8vmfjCVPJUrjVqGa85mGEhp1N05Csmttc29yg18lFfiEja4WVtjsurarIo8bZMyP7e6tCl3CZUMqjd0MAIsZYc4ti_3ApENYr9U0gnzuf-hFC4mBlCWR3qT8OaQGOiXUyX1l8vUDcNA704-wuM2X8bwidTKPp7t1zaQRUHmdpf4Qpz2_rEaX2Is5_jOzHkr3tDYW6RAovRvxrApnnLJ9oVzlvOCAy_M_lZrxpOqZ-kuCL0zuk0dL4lQNqpEQ4vz76gEkORYTDrVNJs5iF4JpYVv_vh5jlxFCASdRm7iOidchXisds69ucLcpxTxd55dSxJgHtWTwjZZBRNtoKBAU8H3CGSiaVC-K92zqCwWD6WFxAwdQldf2nBTpbp-mbvtpmfSvGfDkwYBJbTk80mOUFPqaSDLrpflU8XZshHLvxhImK66aNDYEr2ZcxezGddUb7rBHDR28M3eoUKCGEgv6SB5OKyhTkEPfSOV0jGvR_h-WJj3T8SZBHcEPnADagku2ZFVy_lwc0XaZaubPEtfH8k2cPUbjJJbNmavpKzmn-1vgTmRI8YiYy0JQ7Yb38AP-kMddMpdH1VtkoQUlDrFtJRAiCRFq9Cd8Ldl1TNNNLgpBsQ2w1BJnGqQBBu73UkvPOTcNQoe14eaidv9h99y0j-OcJ0DTn-ALMvX3hNBFEO35vs_mZBjzZZznfOGDuAyOD7ryud9RrBJDlg5zLvS9TyNLaGPG8xkxk4m9Oj9kEn02GJG0WyBNnIrZKEHt5M_zxaBP1a8tpkfoC-HvCf9NIdq7k57cms4PGLcJJAO2Icex370rEHjmX1TcinX1tR2YP6OjwwDendYiWGUq-1zQeUfx63Di3W1PViSYav63gY3H-xXdr1bFEd41x6kCMnC6DRUkPvON1b4sjVBc4DFlEYjDg0XyJyYrwlHZjcrQqrE2FRrNOxCepi1XSUvWgzxmCF8VhFFs623myN0WAanZInZ0xAQjeqf-pWhEb2svskMcvq5lZpra_l9BywnGvLdbvlwJ1OYLjVSV68KXhPYas20etG23i0YteTgo9idu6HNanMQWHV8Ci0uQL9Ddn6RVo0TW0YskLcvVRVlqnf3HaipOLeOq_XmGPeEMel3yf3sOakIkVonv0gM1JzBLuv9pnx7xtrnoxaGQg51kISDAJ1-SEEbzV8-Ku-FCDF5YRG5gTV3aPxz07wZ-14H4HltP83ruTYQaf8z-sK42HBB26KYl1FARw91NV4OUe69nXIn6ogOj8U8e24k1V2wPy_Hb7PTkzV1qFg0l-w0IsOivgTdLY7_8jyZIF7YUDNudTf8-u505byy8FaviNl_JSWKiG4EzKHkxQ-4MOoZU2MAqW1y4BgmRHjDSq5S5btPkaZYBtBGymgBAQ6ofoRaj2BHpOcVDzTY1Y59czlcIaJdhoc2q2KEotjMXp9dv1_ej8_jBPoN9PPdPteQC-8jzH0NErcRR_YyGoFc-TapGDdrq1FnYdm4dSufE3zzTc1vlbIYVAaWUIzShSSct5NheCkqz_vslsGwnd2IdrnPf7LR1aV-qhgskPGGosHqErahiplR1oaYQ2XfAp7GsokQ-4bXIC6wYw2W0vHvIiiytCYQLisNYpjrfXkHuRYQ3FNPFqkVvAVRoQZAhLZxCBqUr2_TOQy3KycysmRHhy_DozzXNM2w1jo4z6RbNcOgk36iEqTwPEflxanJQUdn9RlzvkjwvhPJwEKHK2KC1kTSVTTERGxtTF5OA0RcYhDWq2tfEfbUle-w2j-R0vTgy-OHLmkF7F1IMxqF6XmnfBvP6-0CBVhe8cLSUUogX5IBNTNZm9jiVBLo84YR4iZnGIyYH1j7mLu9qDm-jiAp0OVmejbMHFI1AqyU6RCUuo7oHjsdp91KCUzaf-mtFgHVy3se4Y8vxDmOgOQfz9-WpJV3HRWP6BHv5A2BREj8AKV9kKpysY8BaOCyn2z2kam0ChWSk7FRcg8Unzu3c1tcq6_Ebt509j63_SOI_oY6GIBQGbGC7HKNhAZoLqA6fdIudT07oEB7uSqr95kHiCv8EeVW1gtbCyQGSkEtj7AlXwSy1R7FKwUnRkEuz7FCcSFBRB-80qyjq3ERK6v0WbfPeFBGdMD0gyElhz_Z-NUf9MlVA48PPEJSwRCp1yOu0fe1_GhS5BwVcEK_F7evwDfhPamdk1GTJxKpNurrhxriqxRpM_S2HiTwoWxKni7-G2nhbEegNBR0Mp3wvt5EPeeToxdfK9g8qph_MF7LPcTZnyJqSO41tR6wGDx3472ocd5pfees-vcG8z07i8mzSF5ybQid0Cp3VaxHtLM_FhyH2dLFX3x9sdZGhsvcBLHIRExK6l5TinQLPuhMHesjYgfaFYoRh8SmK8QsO0YDAcmfofIuGADtiQLdlG-Rg9fvmMfUsfn8XdPL_iM6V7Pr5s7kOp_0kR3luzMPZDhsTZh6gYu2Zs-guaN4YmzldOVKfmvszJ1oiZfrGkxeYT6GQNcprahodJMXP_2A3crRWyesq76F-HJEy3U_JJ0EBB7aXqt2bVlWg6DUez3FevjyjufjLO3MTdXz3HMFqTMGcjLdmy6d0Ie8TeMz_Fv6gQWhsbqP0Qdg-JA7Czq2oVkNTL3hloSJNVlgPjM7wH_ppLyqbO8jsETShvKXdlkiGpWhcwpXxYO1lsFKDYvvInlRBK1sfsIKSkxtd2GeuJRhClySVya-bgvDqn_QSdmMeia-SHBMCo6dY58jCjIcyOyGgBtDxYVN0Tmez9S70Xl6tfX7KEwVBUR7hueygYa69V2wfIVeBonrtWtCl1-ruOmwsTBUJFYOSIJBl1ag9wyN8IpN_DJ2vOAvTCUoIFUxZMf1pxst5Bpd185Faw3CR1sLA35piNVaRK91g45rxNmYIiDHOKx65NoIeszaC6-92TOXrdpB4S6CwC0vge2OpYImfVda_URr_WsWqdWKMp2FD3zBu_xr_9W5WQ14Dz8xkteyEEmZpPbLxR_9qvSY5-inWGnXmDOG7n1TK8wWUlSk0zrDTuk8zRZzAbrxC32HsHx6gGsv1SRMbgeIPhXtg-TKH9KAgV9lzlQQU4Ry3FWjDQe02jiLcOGdAZGIpkMdq_ijHsQZ7fskztOlB9WFFIDDbpkeCxWUUvv3DbEa7zdKW3eHjhsgFH1KOtV7D9vX5zjXh2_OYWJO8k8pTfHLJmPWg20H7KzFFs_A19MuYWvIr_o1JoHThAsv4mV9lFWG8oIlWoZbUyTaH7fmIo1GYuUjevOgB9qRaHrOVSh24eG7QNdP1BKFP4pcM2s2O5z9Uj8We95HUj-N64AdqD0QSypCSmPrOOgez_nyRMMH10oXlU_xzdIZTQ8HMF0dc350oHLNi4BUldxRZtAhesYNBrag85v4KdfksJamtA7xxPDrWnFPAaTD23bM9EeXA6sDvdA4EDP6KQ5JF0sxlgf0xwJFYo__gjznkPej9zk4PXXn98Rln5W7Gd36SpgdcY8BB5mYrBUqz26JRMTHyvvWKazWWqKgTTnVQwOrJuLOG2ptT0kU8HEv1DiWOUCyx5o5TB7LqoPBp6Z50Ol7ze4O7GL0Iinez72ZN0XrkpvGdPgwWvdQgx26UHJPmElUFmLQmQ6lcjZItJLV6VnykfBty9sALiyX1O3xWtoSTZ9jtlSQ1JFbfpUinmxOhE6RVy0qkDnmBtWhKRY9A1VEl54HTuPMG9Hg4rZ7QSgr9vM3AfQZqfR1RTvg-AXslJrPcmWOojP5Ue1bStUNhyUocSuIh3Iu4AuqNJ2baChKwQcQ-OeoMFdS0FNEFYp_607YftIf8OR-M0KiNlW_03H58uC3lxZDkoBCWt1MMyZRuiiw0xkyKMUPQCCbpz9FcZlnFF7YybU1tNLxv7qumpDA7X1Gl4vN0Km74lZncK4RLlbBUewxfhAuZKrTFXP7EF5q6P_P9JndYw9yyL-fu_z2Ju7q2NNEutdQTdk1bZJL-vvfW7Yfp3j_2iDELkhf2VmlVn9Otv2KU98XDCJiBaw_nqlZt-1XwbKlui--rBRBlkOZfOwBZftAOmYSlHYa3mupUT6Y8I7kl7wu4m0bTPy63v1h7InmhYUFqsRd_U-2Rq29EwS9Q90XR7TP4L-iLFrQ4lMJBaSs8T6-Ms4tkmjM0se8nlUOUhJ5DNWyHuJf74F8Atfb50F5JPmdhUdNGwfjkDZSKX9WkbAWBWH5XTa9OeQTs1iI23pcPA4k79j3CRlVCGbnKyaAubwMjBPDyZdZSNVDb0eyMJ7yoJLmsY7dWlBlrOFH93a9GgjxtHx-X1hE_aA1aKytvyI8RcVGopWO4FA_hDXdTfsyvh9JzsbPaAVakOMWfiByu6w5svTfzGPTLRE6Me1IA1xElK2wAdS6LLwMyJ2UVsPjQMLLFB7NpChzlyuNheWv3zplDP6uZxu3hkGPs8UjxwENyIdXnu5MM-4jZJU-EOlqB5ph9rYGT392uA_QVAuOjrbtHBd6axTwwBvt-Yvcibg_XZqm0Qehmpvrsr7E-q_LYQcgIct04Q1nvgoqaZyLV0GJLDNKE1v0L8VvoLoH2-21i5gAajCbWeGHXZKOt3T_HL4KhoOazKj8fIwrB0VvpWOzJW85hcv6JdQJpvlQfcO7DdePr8Ob9CbkfbwrMquctrPj2PtTm5o9LIr4qq59h75FpLu3G7YVRIAHYrz6zBzxjr5lgjzsWfyidmljSXHPNnZanfi9ZpK4tDWl-4dopbwue6YUfWfmybeSJ8BsvlH9NOk5KEIFieZbW-LnQL4jNUxbPsVTLlda8Os9Zgbb5gjsjEoBET21PfLPKM9wOvf3GGMyft0e8YTx1U4m_wp61dtuTmZiVKmKgzn8orCJ1rtJSoyuHnidkd7qR85RijaQHHcCTLIVurlkV7hH0iwQhGlAY7Ad6qPSf_ONf-my9B7_y2hRuLPftroIv0LQk07D9LSS87xvqDM2EZ1bWvKV1heYDm0n4EJgT2dihhioJVnrLzSia9Gms40lSvN0FQSZfa-1dSDp_k__pfZtitsX4nkqvB7hu2TF649HKwlwZjxgbpkmqysg9FLBeK_Jxdb13TQfOaaE56R_qW_ydjQJtgQoxKcDs492CrPB7Hm5eTPVUDmKxdNcj1LlP2W-UwMMfvSF5vk2anUG_qE0TtXrRo1J-BMf5Zg88pe6ZUWngSWk2FcUv9VfFFA1fpZK5KMoxXT_KdOcwNaw-Wt2iTU9QLo11_gQT_WLpZoIOulqN-NxjysqbHOW67M6YMvJRWvzgRRcwhp-lFgx0YIvW3-Otr8wuBMfEWzVsZhwt0SBH7vAGFCSaRvvA3nvJ1kPLO2e55Y3GJJBCRPhNcz_iV9M-wcs17wNgebhh0eB_wgEVdxrhThzLWoXsUF2dFxA3YvKC99IwpyGE7v9Esia9I=.eyJlbmRwb2ludF9zbHVnIjoib3BlbmFpL2dwdC01LTIwMjUtMDgtMDd8b3BlbmFpL2RlZmF1bHQifQ",
+              "format": "openai-responses-v1",
+              "id": "rs_089ffe23c53e8ad7016a876939c9f087d1beb3a5b2cecd4014",
+              "index": 1
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 987,
+      "completion_tokens": 661,
+      "total_tokens": 1648,
+      "cost": 0.00784375,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00784375,
+        "upstream_inference_prompt_cost": 0.00123375,
+        "upstream_inference_completions_cost": 0.00661
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 640,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "raw_content": "[]"
+}
